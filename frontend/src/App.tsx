@@ -189,6 +189,43 @@ function GoogleIcon() {
   )
 }
 
+function FieldLines({ side }: { side: 'left' | 'right' }) {
+  const isLeft = side === 'left'
+  const W = 88
+  const H = 520
+  const vx = isLeft ? 1 : W - 1
+  const hLines = [
+    { y: 130, len: 70 },
+    { y: 190, len: 38 },
+    { y: 330, len: 38 },
+    { y: 390, len: 70 },
+  ]
+  return (
+    <svg
+      aria-hidden="true"
+      className={`field-lines field-lines--${side}`}
+      fill="none"
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      width={W}
+    >
+      <line stroke="white" strokeOpacity="0.12" strokeWidth="1" x1={vx} x2={vx} y1={0} y2={H} />
+      {hLines.map(({ y, len }) => (
+        <line
+          key={y}
+          stroke="white"
+          strokeOpacity="0.12"
+          strokeWidth="1"
+          x1={vx}
+          x2={isLeft ? vx + len : vx - len}
+          y1={y}
+          y2={y}
+        />
+      ))}
+    </svg>
+  )
+}
+
 function App() {
   const [page, setPage] = useState<Page>(getPageFromPath)
   const [user, setUser] = useState<User | null>(null)
@@ -261,6 +298,8 @@ function App() {
 
   return (
     <main className="page">
+      <FieldLines side="left" />
+      <FieldLines side="right" />
       <header className="topbar">
         <a className="brand" href="/">
           <FaFutbol aria-hidden="true" />

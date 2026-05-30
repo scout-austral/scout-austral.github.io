@@ -21,6 +21,22 @@
   z-index: 1;
 }
 
+.field-lines {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.field-lines--left {
+  left: 0;
+}
+
+.field-lines--right {
+  right: 0;
+}
+
 .topbar {
   display: flex;
   align-items: center;
