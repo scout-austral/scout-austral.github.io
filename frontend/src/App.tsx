@@ -8,6 +8,7 @@ type User = {
   id: string
   email: string
   name?: string | null
+  calendarConnected: boolean
 }
 
 function GoogleIcon() {
@@ -33,11 +34,19 @@ function GoogleIcon() {
   )
 }
 
+function CalendarIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+      <path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 16H5V10h14v10ZM5 8V6h14v2H5Z" />
+    </svg>
+  )
+}
+
 function App() {
   const [user, setUser] = useState<User | null>(null)
   const [authError] = useState(() =>
     new URLSearchParams(window.location.search).get('auth_error')
-      ? 'No se pudo iniciar sesion con Google. Intenta de nuevo.'
+      ? 'No se pudo iniciar sesión con Google. Intentá de nuevo.'
       : '',
   )
 
@@ -55,10 +64,12 @@ function App() {
       window.history.replaceState({}, '', window.location.pathname)
     }
 
-    const token = tokenFromGoogle ?? localStorage.getItem(TOKEN_KEY)
-    if (!token) {
-      return
+    if (params.get('calendar_connected')) {
+      window.history.replaceState({}, '', window.location.pathname)
     }
+
+    const token = tokenFromGoogle ?? localStorage.getItem(TOKEN_KEY)
+    if (!token) return
 
     fetch(`${API_BASE_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -68,7 +79,6 @@ function App() {
           localStorage.removeItem(TOKEN_KEY)
           return
         }
-
         const data = (await response.json()) as { user: User }
         setUser(data.user)
       })
@@ -80,6 +90,11 @@ function App() {
     setUser(null)
   }
 
+  function connectCalendar() {
+    const token = localStorage.getItem(TOKEN_KEY)
+    window.location.href = `${API_BASE_URL}/auth/google/calendar?token=${token}`
+  }
+
   return (
     <main className="page">
       <header className="topbar">
@@ -89,9 +104,21 @@ function App() {
         <nav>
           {user ? (
             <>
+              {!user.calendarConnected && (
+                <button className="calendar-button" type="button" onClick={connectCalendar}>
+                  <CalendarIcon />
+                  Conectar Calendar
+                </button>
+              )}
+              {user.calendarConnected && (
+                <span className="calendar-connected">
+                  <CalendarIcon />
+                  Calendar conectado
+                </span>
+              )}
               <span className="user-label">{user.name ?? user.email}</span>
               <button className="nav-link" type="button" onClick={signOut}>
-                Cerrar sesion
+                Cerrar sesión
               </button>
             </>
           ) : (

@@ -90,6 +90,36 @@ button.nav-link {
   white-space: nowrap;
 }
 
+.calendar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  border-radius: 6px;
+  padding: 0 0.85rem;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border: 1px solid #3f3f46;
+  background: #18181b;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.calendar-button:hover {
+  border-color: #71717a;
+  background: #27272a;
+}
+
+.calendar-connected {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.88rem;
+  color: #4ade80;
+}
+
 .auth-error {
   width: min(1120px, calc(100% - 2rem));
   margin: 1rem auto 0;
