@@ -193,13 +193,12 @@ function FieldLines({ side }: { side: 'left' | 'right' }) {
   const isLeft = side === 'left'
   const W = 88
   const H = 520
-  const vx = isLeft ? 1 : W - 1
-  const hLines = [
-    { y: 130, len: 70 },
-    { y: 190, len: 38 },
-    { y: 330, len: 38 },
-    { y: 390, len: 70 },
-  ]
+  const vx = isLeft ? 1.5 : W - 1.5
+  const penaltyTop = 160
+  const penaltyBot = 360
+  const areaLen = 72
+  const spotY = (penaltyTop + penaltyBot) / 2
+  const spotX = isLeft ? vx + 52 : vx - 52
   return (
     <svg
       aria-hidden="true"
@@ -209,19 +208,21 @@ function FieldLines({ side }: { side: 'left' | 'right' }) {
       viewBox={`0 0 ${W} ${H}`}
       width={W}
     >
-      <line stroke="white" strokeOpacity="0.12" strokeWidth="1" x1={vx} x2={vx} y1={0} y2={H} />
-      {hLines.map(({ y, len }) => (
-        <line
-          key={y}
-          stroke="white"
-          strokeOpacity="0.12"
-          strokeWidth="1"
-          x1={vx}
-          x2={isLeft ? vx + len : vx - len}
-          y1={y}
-          y2={y}
-        />
-      ))}
+      {/* vertical touchline */}
+      <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5" x1={vx} x2={vx} y1={0} y2={H} />
+      {/* top penalty area line */}
+      <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5"
+        x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyTop} y2={penaltyTop} />
+      {/* bottom penalty area line */}
+      <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5"
+        x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyBot} y2={penaltyBot} />
+      {/* closing vertical of area */}
+      <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5"
+        x1={isLeft ? vx + areaLen : vx - areaLen}
+        x2={isLeft ? vx + areaLen : vx - areaLen}
+        y1={penaltyTop} y2={penaltyBot} />
+      {/* penalty spot */}
+      <circle cx={spotX} cy={spotY} r={2.5} fill="white" fillOpacity="0.25" />
     </svg>
   )
 }
@@ -405,7 +406,7 @@ function AppPage({
 
 type BMatch = { id: string; home: string; away: string }
 
-const SLOT_H = 76 // px — total bracket height = 8 × SLOT_H
+const SLOT_H = 96 // px — total bracket height = 8 × SLOT_H
 
 const L_R32: BMatch[] = [
   { id: 'M49', home: '1A', away: '2B' },
@@ -676,13 +677,6 @@ const MONTHS_ES = [
   'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
 ]
 
-function formatDayHeader(dateStr: string): string {
-  const [y, m, d] = dateStr.split('-').map(Number)
-  const date = new Date(y, m - 1, d)
-  const dow = DAYS_ES[date.getDay()]
-  const mon = MONTHS_ES[m - 1]
-  return `${dow} ${d} ${mon}`
-}
 
 function getKnockoutLabel(dateStr: string): string | null {
   const [y, m, d] = dateStr.split('-').map(Number)
@@ -712,6 +706,8 @@ function generateCalendarDays(): string[] {
 const CALENDAR_DAYS = generateCalendarDays()
 
 function CalendarPage() {
+  const [selectedDay, setSelectedDay] = useState(CALENDAR_DAYS[0])
+
   const matchesByDate = partidos.reduce<Record<string, typeof partidos>>(
     (acc, partido) => {
       const key = partido.fecha
@@ -722,60 +718,77 @@ function CalendarPage() {
     {},
   )
 
+  const dayMatches = matchesByDate[selectedDay] ?? []
+  const knockoutLabel = getKnockoutLabel(selectedDay)
+  const [, m, d] = selectedDay.split('-').map(Number)
+  const date = new Date(2026, m - 1, d)
+  const fullLabel = `${['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][date.getDay()]} ${d} ${['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][m - 1]} 2026`
+
   return (
-    <section className="content-shell">
-      <div className="section-heading">
-        <h1>Calendario</h1>
+    <section className="cal-page">
+      {/* Horizontal day selector */}
+      <div className="cal-strip-wrap">
+        <div className="cal-strip">
+          {CALENDAR_DAYS.map((dateStr) => {
+            const [, dm, dd] = dateStr.split('-').map(Number)
+            const dt = new Date(2026, dm - 1, dd)
+            const dow = DAYS_ES[dt.getDay()]
+            return (
+              <button
+                key={dateStr}
+                className={`cal-day-btn${dateStr === selectedDay ? ' cal-day-btn--active' : ''}`}
+                type="button"
+                onClick={() => setSelectedDay(dateStr)}
+              >
+                <span className="cal-day-dow">{dow}</span>
+                <span className="cal-day-num">{dd} {MONTHS_ES[dm - 1]}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      <div className="calendar-list">
-        {CALENDAR_DAYS.map((dateStr) => {
-          const groupMatches = matchesByDate[dateStr] ?? []
-          const knockoutLabel = getKnockoutLabel(dateStr)
-          const hasContent = groupMatches.length > 0 || knockoutLabel !== null
+      {/* Day content */}
+      <div className="cal-content content-shell">
+        <h2 className="cal-day-title">{fullLabel}</h2>
 
-          return (
-            <div className="calendar-day" key={dateStr}>
-              <div className="calendar-day-header">
-                {formatDayHeader(dateStr)}
+        {dayMatches.length > 0 && (
+          <div className="cal-matches">
+            {dayMatches.map((partido) => (
+              <article className="cal-match-card" key={partido.id}>
+                <div className="cal-match-meta">Fase de grupos · Grupo {partido.grupo}</div>
+                <div className="cal-match-row">
+                  <span className="cal-team cal-team--home">
+                    {partido.local}
+                    <TeamFlag code={partido.local} />
+                  </span>
+                  <span className="cal-time">{partido.hora_local}</span>
+                  <span className="cal-team cal-team--away">
+                    <TeamFlag code={partido.visitante} />
+                    {partido.visitante}
+                  </span>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {knockoutLabel && dayMatches.length === 0 && (
+          <div className="cal-matches">
+            <article className="cal-match-card">
+              <div className="cal-match-meta">{knockoutLabel}</div>
+              <div className="cal-match-row">
+                <span className="cal-team cal-team--home">Por definir</span>
+                <span className="cal-time">—</span>
+                <span className="cal-team cal-team--away">Por definir</span>
               </div>
+            </article>
+          </div>
+        )}
 
-              {groupMatches.length > 0 && groupMatches.map((partido) => (
-                <article className="calendar-match-item" key={partido.id}>
-                  <div className="calendar-match-teams">
-                    <span className="calendar-match-team">
-                      <TeamFlag code={partido.local} />
-                      {partido.local}
-                    </span>
-                    <span className="calendar-match-vs">vs</span>
-                    <span className="calendar-match-team">
-                      <TeamFlag code={partido.visitante} />
-                      {partido.visitante}
-                    </span>
-                  </div>
-                  <div className="calendar-match-meta">
-                    {partido.hora_local} · {partido.sede}
-                  </div>
-                </article>
-              ))}
-
-              {knockoutLabel && groupMatches.length === 0 && (
-                <article className="calendar-match-item calendar-match-item--knockout">
-                  <div className="calendar-match-round">{knockoutLabel}</div>
-                  <div className="calendar-match-teams">
-                    <span className="calendar-match-tbd">Por definir</span>
-                    <span className="calendar-match-vs">vs</span>
-                    <span className="calendar-match-tbd">Por definir</span>
-                  </div>
-                </article>
-              )}
-
-              {!hasContent && (
-                <p className="calendar-no-matches">Sin partidos programados</p>
-              )}
-            </div>
-          )
-        })}
+        {dayMatches.length === 0 && !knockoutLabel && (
+          <p className="cal-empty">Sin partidos programados</p>
+        )}
       </div>
     </section>
   )
