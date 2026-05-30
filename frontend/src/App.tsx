@@ -405,7 +405,7 @@ function AppPage({
 
 type BMatch = { id: string; home: string; away: string }
 
-const SLOT_H = 56 // px — total bracket height = 8 × SLOT_H = 448px
+const SLOT_H = 76 // px — total bracket height = 8 × SLOT_H
 
 const L_R32: BMatch[] = [
   { id: 'M49', home: '1A', away: '2B' },
