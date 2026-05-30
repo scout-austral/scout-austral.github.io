@@ -642,114 +642,147 @@ button.nav-link {
 
 /* ─── Knockout bracket ─────────────────────────────────────────────────────── */
 
-.bracket-scroll {
+.b-wrap {
+  display: flex;
   overflow-x: auto;
-  padding-bottom: 1rem;
+  align-items: flex-start;
+  padding: 1rem 0 2rem;
   -webkit-overflow-scrolling: touch;
 }
 
-.bracket-container {
+.b-half {
   display: flex;
-  gap: 0;
-  min-width: max-content;
-  align-items: flex-start;
-  padding: 0.5rem 0 1rem;
+  flex-shrink: 0;
 }
 
-.bracket-round {
+.b-col {
   display: flex;
   flex-direction: column;
-  min-width: 10rem;
+  min-width: 112px;
 }
 
-.bracket-round-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+.b-col-label {
+  height: 22px;
+  font-size: 0.6rem;
+  color: #52525b;
+  text-align: center;
   text-transform: uppercase;
-  color: #71717a;
-  padding: 0 0.85rem 0.75rem;
+  letter-spacing: 0.08em;
   white-space: nowrap;
 }
 
-.bracket-round-matches {
+.b-col-label--gap {
+  margin-top: 10px;
+}
+
+.b-slots {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  flex: 1;
+  overflow: hidden;
 }
 
-.bracket-round-matches--final {
-  justify-content: flex-start;
-  gap: 1.5rem;
-  padding-top: 0.5rem;
-}
-
-.bracket-match-wrapper {
+.b-slot {
   display: flex;
   align-items: center;
+  justify-content: center;
   position: relative;
-  padding: 0.6rem 0;
+  padding: 0 6px;
 }
 
-.bracket-match-wrapper--final {
-  padding: 0.25rem 0;
-}
-
-/* Connector lines — right edge of each match → next round */
-.bracket-match-wrapper::after {
+/* ── Left half: connectors go right ── */
+.b-half--left .b-slot:not(.b-slot--last)::after {
   content: '';
   position: absolute;
   right: 0;
   top: 50%;
-  width: 0.85rem;
+  width: 6px;
   height: 1px;
-  background: #333;
+  background: rgba(255, 255, 255, 0.14);
 }
 
-.bracket-round:last-child .bracket-match-wrapper::after {
-  display: none;
+.b-half--left .b-slot:not(.b-slot--last):nth-child(odd)::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  height: 100%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.14);
 }
 
-.bracket-match {
-  position: relative;
+/* ── Right half: connectors go left ── */
+.b-half--right .b-slot:not(.b-slot--last)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.b-half--right .b-slot:not(.b-slot--last):nth-child(odd)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 100%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.b-card {
   background: #111;
   border: 1px solid #242424;
-  border-radius: 8px;
-  overflow: hidden;
-  min-width: 8.5rem;
-  margin-right: 0.85rem;
-  flex-shrink: 0;
+  border-radius: 6px;
+  padding: 5px 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.bracket-match--third {
-  border-color: #2a2a2a;
-  opacity: 0.85;
+.b-card--third {
+  opacity: 0.6;
 }
 
-.bracket-match-id {
+.b-id {
   display: block;
-  font-size: 0.65rem;
-  font-family: "Geist", ui-monospace, monospace;
-  color: #52525b;
-  padding: 0.3rem 0.6rem 0.1rem;
+  color: #3f3f46;
+  font-size: 0.58rem;
+  font-weight: 600;
   letter-spacing: 0.04em;
+  margin-bottom: 2px;
 }
 
-.bracket-slot {
-  padding: 0.3rem 0.6rem;
-  font-size: 0.8rem;
+.b-team {
   color: #d4d4d8;
+  font-size: 0.76rem;
   font-weight: 500;
+  padding: 2px 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.bracket-divider {
+.b-divider {
   height: 1px;
-  background: #242424;
-  margin: 0;
+  background: #222;
+  margin: 1px 0;
+}
+
+.b-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 22px 12px 0;
+}
+
+.b-center-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 120px;
+  gap: 2px;
 }
 
 /* ─── Calendar list ────────────────────────────────────────────────────────── */

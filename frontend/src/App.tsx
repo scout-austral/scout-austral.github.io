@@ -403,7 +403,11 @@ function AppPage({
 
 // ─── Knockout bracket data ───────────────────────────────────────────────────
 
-const R32_MATCHES = [
+type BMatch = { id: string; home: string; away: string }
+
+const SLOT_H = 56 // px — total bracket height = 8 × SLOT_H = 448px
+
+const L_R32: BMatch[] = [
   { id: 'M49', home: '1A', away: '2B' },
   { id: 'M50', home: '1C', away: '2D' },
   { id: 'M51', home: '1E', away: '2F' },
@@ -412,6 +416,20 @@ const R32_MATCHES = [
   { id: 'M54', home: '1K', away: '2L' },
   { id: 'M55', home: '3°', away: '3°' },
   { id: 'M56', home: '3°', away: '3°' },
+]
+const L_R16: BMatch[] = [
+  { id: 'M65', home: 'G M49', away: 'G M50' },
+  { id: 'M66', home: 'G M51', away: 'G M52' },
+  { id: 'M67', home: 'G M53', away: 'G M54' },
+  { id: 'M68', home: 'G M55', away: 'G M56' },
+]
+const L_QF: BMatch[] = [
+  { id: 'M73', home: 'G M65', away: 'G M66' },
+  { id: 'M74', home: 'G M67', away: 'G M68' },
+]
+const L_SF: BMatch[] = [{ id: 'M77', home: 'G M73', away: 'G M74' }]
+
+const R_R32: BMatch[] = [
   { id: 'M57', home: '2A', away: '1B' },
   { id: 'M58', home: '2C', away: '1D' },
   { id: 'M59', home: '2E', away: '1F' },
@@ -421,102 +439,118 @@ const R32_MATCHES = [
   { id: 'M63', home: '3°', away: '3°' },
   { id: 'M64', home: '3°', away: '3°' },
 ]
-
-function buildRound(
-  prevIds: string[],
-  startId: number,
-  prefix = 'G',
-): Array<{ id: string; home: string; away: string }> {
-  const matches = []
-  for (let i = 0; i < prevIds.length; i += 2) {
-    matches.push({
-      id: `M${startId + i / 2}`,
-      home: `G ${prevIds[i]}`,
-      away: `G ${prevIds[i + 1]}`,
-    })
-  }
-  return matches
-}
-
-const R16_MATCHES = buildRound(
-  R32_MATCHES.map((m) => m.id),
-  65,
-)
-const QF_MATCHES = buildRound(
-  R16_MATCHES.map((m) => m.id),
-  73,
-)
-const SF_MATCHES = buildRound(
-  QF_MATCHES.map((m) => m.id),
-  77,
-)
-const FINAL_MATCHES = [
-  { id: 'M79', home: `G ${SF_MATCHES[0].id}`, away: `G ${SF_MATCHES[1].id}` },
+const R_R16: BMatch[] = [
+  { id: 'M69', home: 'G M57', away: 'G M58' },
+  { id: 'M70', home: 'G M59', away: 'G M60' },
+  { id: 'M71', home: 'G M61', away: 'G M62' },
+  { id: 'M72', home: 'G M63', away: 'G M64' },
 ]
-const THIRD_PLACE = [
-  { id: 'M80', home: `P ${SF_MATCHES[0].id}`, away: `P ${SF_MATCHES[1].id}` },
+const R_QF: BMatch[] = [
+  { id: 'M75', home: 'G M69', away: 'G M70' },
+  { id: 'M76', home: 'G M71', away: 'G M72' },
+]
+const R_SF: BMatch[] = [{ id: 'M78', home: 'G M75', away: 'G M76' }]
+
+const FINAL_MATCH: BMatch = { id: 'M79', home: 'G M77', away: 'G M78' }
+const THIRD_MATCH: BMatch = { id: 'M80', home: 'P M77', away: 'P M78' }
+
+// Left: R32→R16→QF→SF (left to right toward center)
+const LEFT_ROUNDS = [
+  { label: '32avos', matches: L_R32 },
+  { label: 'Octavos', matches: L_R16 },
+  { label: 'Cuartos', matches: L_QF },
+  { label: 'Semis', matches: L_SF },
 ]
 
-const BRACKET_ROUNDS = [
-  { label: 'Octavos', matches: R32_MATCHES },
-  { label: 'Cuartos de final', matches: R16_MATCHES },
-  { label: 'Semifinales', matches: QF_MATCHES },
-  { label: 'Final', matches: [...FINAL_MATCHES, ...THIRD_PLACE] },
+// Right: SF→QF→R16→R32 (left to right from center outward)
+const RIGHT_ROUNDS = [
+  { label: 'Semis', matches: R_SF },
+  { label: 'Cuartos', matches: R_QF },
+  { label: 'Octavos', matches: R_R16 },
+  { label: '32avos', matches: R_R32 },
 ]
 
 // ─── KnockoutBracket ─────────────────────────────────────────────────────────
 
-function BracketMatchCard({
-  matchId,
-  home,
-  away,
-  isThirdPlace = false,
-}: {
-  matchId: string
-  home: string
-  away: string
-  isThirdPlace?: boolean
-}) {
+function BCard({ match, third = false }: { match: BMatch; third?: boolean }) {
   return (
-    <div className={`bracket-match${isThirdPlace ? ' bracket-match--third' : ''}`}>
-      <span className="bracket-match-id">{matchId}</span>
-      <div className="bracket-slot">{home}</div>
-      <div className="bracket-divider" />
-      <div className="bracket-slot">{away}</div>
+    <div className={`b-card${third ? ' b-card--third' : ''}`}>
+      <span className="b-id">{match.id}</span>
+      <div className="b-team">{match.home}</div>
+      <div className="b-divider" />
+      <div className="b-team">{match.away}</div>
+    </div>
+  )
+}
+
+function BCol({
+  round,
+  totalH,
+  side,
+  last,
+}: {
+  round: { label: string; matches: BMatch[] }
+  totalH: number
+  side: 'left' | 'right'
+  last: boolean
+}) {
+  const slotH = totalH / round.matches.length
+  return (
+    <div className="b-col">
+      <div className="b-col-label">{round.label}</div>
+      <div className="b-slots" style={{ height: totalH }}>
+        {round.matches.map((match) => (
+          <div
+            key={match.id}
+            className={`b-slot b-slot--${side}${last ? ' b-slot--last' : ''}`}
+            style={{ height: slotH }}
+          >
+            <BCard match={match} />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
 
 function KnockoutBracket() {
+  const totalH = 8 * SLOT_H
   return (
-    <div className="bracket-scroll">
-      <div className="bracket-container">
-        {BRACKET_ROUNDS.map((round, roundIdx) => {
-          const isFinalRound = roundIdx === BRACKET_ROUNDS.length - 1
-          return (
-            <div className="bracket-round" key={round.label}>
-              <div className="bracket-round-label">{round.label}</div>
-              <div className={`bracket-round-matches${isFinalRound ? ' bracket-round-matches--final' : ''}`}>
-                {round.matches.map((match, matchIdx) => {
-                  const isThirdPlace = isFinalRound && matchIdx === 1
-                  return (
-                    <div
-                      className={`bracket-match-wrapper${isFinalRound ? ' bracket-match-wrapper--final' : ''}`}
-                      key={match.id}
-                    >
-                      <BracketMatchCard
-                        matchId={match.id}
-                        home={match.home}
-                        away={match.away}
-                        isThirdPlace={isThirdPlace}
-                      />
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )
-        })}
+    <div className="b-wrap">
+      {/* Left half: R32 → R16 → QF → SF */}
+      <div className="b-half b-half--left">
+        {LEFT_ROUNDS.map((round, i) => (
+          <BCol
+            key={round.label + 'L'}
+            round={round}
+            totalH={totalH}
+            side="left"
+            last={i === LEFT_ROUNDS.length - 1}
+          />
+        ))}
+      </div>
+
+      {/* Center: Final + 3er puesto */}
+      <div className="b-center" style={{ height: totalH + 22 }}>
+        <div className="b-center-inner">
+          <div className="b-col-label">Final</div>
+          <BCard match={FINAL_MATCH} />
+          <div className="b-col-label b-col-label--gap">3er Puesto</div>
+          <BCard match={THIRD_MATCH} third />
+        </div>
+      </div>
+
+      {/* Right half: SF → QF → R16 → R32 */}
+      <div className="b-half b-half--right">
+        {RIGHT_ROUNDS.map((round, i) => (
+          <BCol
+            key={round.label + 'R'}
+            round={round}
+            totalH={totalH}
+            side="right"
+            last={i === 0}
+          />
+        ))}
       </div>
     </div>
   )
