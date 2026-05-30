@@ -44,11 +44,10 @@ function CalendarIcon() {
 
 function App() {
   const [user, setUser] = useState<User | null>(null)
-  const [authError] = useState(() =>
-    new URLSearchParams(window.location.search).get('auth_error')
-      ? 'No se pudo iniciar sesión con Google. Intentá de nuevo.'
-      : '',
-  )
+  const [authError] = useState(() => {
+    const err = new URLSearchParams(window.location.search).get('auth_error')
+    return err ? `Error: ${decodeURIComponent(err)}` : ''
+  })
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)

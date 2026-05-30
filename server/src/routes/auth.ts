@@ -137,9 +137,10 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
 
     const token = signToken(user.id)
     res.redirect(`${frontendUrl}?token=${token}`)
-  } catch (err) {
-    console.error('Google OAuth error:', err)
-    res.redirect(`${frontendUrl}?auth_error=oauth_failed`)
+  } catch (err: any) {
+    const message = err?.response?.data?.error_description || err?.message || 'unknown'
+    console.error('Google OAuth error:', message, err)
+    res.redirect(`${frontendUrl}?auth_error=${encodeURIComponent(message)}`)
   }
 })
 
