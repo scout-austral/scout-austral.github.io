@@ -401,7 +401,131 @@ function AppPage({
   )
 }
 
+// ─── Knockout bracket data ───────────────────────────────────────────────────
+
+const R32_MATCHES = [
+  { id: 'M49', home: '1A', away: '2B' },
+  { id: 'M50', home: '1C', away: '2D' },
+  { id: 'M51', home: '1E', away: '2F' },
+  { id: 'M52', home: '1G', away: '2H' },
+  { id: 'M53', home: '1I', away: '2J' },
+  { id: 'M54', home: '1K', away: '2L' },
+  { id: 'M55', home: '3°', away: '3°' },
+  { id: 'M56', home: '3°', away: '3°' },
+  { id: 'M57', home: '2A', away: '1B' },
+  { id: 'M58', home: '2C', away: '1D' },
+  { id: 'M59', home: '2E', away: '1F' },
+  { id: 'M60', home: '2G', away: '1H' },
+  { id: 'M61', home: '2I', away: '1J' },
+  { id: 'M62', home: '2K', away: '1L' },
+  { id: 'M63', home: '3°', away: '3°' },
+  { id: 'M64', home: '3°', away: '3°' },
+]
+
+function buildRound(
+  prevIds: string[],
+  startId: number,
+  prefix = 'G',
+): Array<{ id: string; home: string; away: string }> {
+  const matches = []
+  for (let i = 0; i < prevIds.length; i += 2) {
+    matches.push({
+      id: `M${startId + i / 2}`,
+      home: `G ${prevIds[i]}`,
+      away: `G ${prevIds[i + 1]}`,
+    })
+  }
+  return matches
+}
+
+const R16_MATCHES = buildRound(
+  R32_MATCHES.map((m) => m.id),
+  65,
+)
+const QF_MATCHES = buildRound(
+  R16_MATCHES.map((m) => m.id),
+  73,
+)
+const SF_MATCHES = buildRound(
+  QF_MATCHES.map((m) => m.id),
+  77,
+)
+const FINAL_MATCHES = [
+  { id: 'M79', home: `G ${SF_MATCHES[0].id}`, away: `G ${SF_MATCHES[1].id}` },
+]
+const THIRD_PLACE = [
+  { id: 'M80', home: `P ${SF_MATCHES[0].id}`, away: `P ${SF_MATCHES[1].id}` },
+]
+
+const BRACKET_ROUNDS = [
+  { label: 'Octavos', matches: R32_MATCHES },
+  { label: 'Cuartos de final', matches: R16_MATCHES },
+  { label: 'Semifinales', matches: QF_MATCHES },
+  { label: 'Final', matches: [...FINAL_MATCHES, ...THIRD_PLACE] },
+]
+
+// ─── KnockoutBracket ─────────────────────────────────────────────────────────
+
+function BracketMatchCard({
+  matchId,
+  home,
+  away,
+  isThirdPlace = false,
+}: {
+  matchId: string
+  home: string
+  away: string
+  isThirdPlace?: boolean
+}) {
+  return (
+    <div className={`bracket-match${isThirdPlace ? ' bracket-match--third' : ''}`}>
+      <span className="bracket-match-id">{matchId}</span>
+      <div className="bracket-slot">{home}</div>
+      <div className="bracket-divider" />
+      <div className="bracket-slot">{away}</div>
+    </div>
+  )
+}
+
+function KnockoutBracket() {
+  return (
+    <div className="bracket-scroll">
+      <div className="bracket-container">
+        {BRACKET_ROUNDS.map((round, roundIdx) => {
+          const isFinalRound = roundIdx === BRACKET_ROUNDS.length - 1
+          return (
+            <div className="bracket-round" key={round.label}>
+              <div className="bracket-round-label">{round.label}</div>
+              <div className={`bracket-round-matches${isFinalRound ? ' bracket-round-matches--final' : ''}`}>
+                {round.matches.map((match, matchIdx) => {
+                  const isThirdPlace = isFinalRound && matchIdx === 1
+                  return (
+                    <div
+                      className={`bracket-match-wrapper${isFinalRound ? ' bracket-match-wrapper--final' : ''}`}
+                      key={match.id}
+                    >
+                      <BracketMatchCard
+                        matchId={match.id}
+                        home={match.home}
+                        away={match.away}
+                        isThirdPlace={isThirdPlace}
+                      />
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ─── FixturePage ──────────────────────────────────────────────────────────────
+
 function FixturePage() {
+  const [tab, setTab] = useState<'grupos' | 'eliminatorias'>('grupos')
   const [selectedGroup, setSelectedGroup] = useState<Grupo | null>(null)
   const selectedMatches = selectedGroup
     ? partidos.filter((partido) => partido.grupo === selectedGroup)
@@ -413,85 +537,211 @@ function FixturePage() {
         <h1>Fixture</h1>
       </div>
 
-      <div className="groups-grid">
-        {grupos.map((grupo) => {
-          const groupTeams = equipos.filter((equipo) => equipo.grupo === grupo)
-
-          return (
-            <button
-              className="group-card"
-              key={grupo}
-              type="button"
-              onClick={() => setSelectedGroup(grupo)}
-            >
-              <span className="group-title">Grupo {grupo}</span>
-              <span className="group-team-list">
-                {groupTeams.map((equipo) => (
-                  <span className="group-team-mini" key={equipo.codigo}>
-                    <TeamFlag code={equipo.codigo} />
-                    {equipo.codigo}
-                  </span>
-                ))}
-              </span>
-            </button>
-          )
-        })}
+      <div className="fixture-tabs">
+        <button
+          className={`fixture-tab${tab === 'grupos' ? ' fixture-tab--active' : ''}`}
+          type="button"
+          onClick={() => setTab('grupos')}
+        >
+          Grupos
+        </button>
+        <button
+          className={`fixture-tab${tab === 'eliminatorias' ? ' fixture-tab--active' : ''}`}
+          type="button"
+          onClick={() => setTab('eliminatorias')}
+        >
+          Eliminatorias
+        </button>
       </div>
 
-      {selectedGroup && (
-        <div
-          className="modal-backdrop"
-          role="presentation"
-          onClick={() => setSelectedGroup(null)}
-        >
-          <section
-            aria-labelledby="group-modal-title"
-            aria-modal="true"
-            className="group-modal"
-            role="dialog"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <header className="group-modal-header">
-              <div>
-                <h2 id="group-modal-title">Grupo {selectedGroup}</h2>
-              </div>
-              <button type="button" onClick={() => setSelectedGroup(null)}>
-                Cerrar
-              </button>
-            </header>
+      {tab === 'grupos' && (
+        <>
+          <div className="groups-grid">
+            {grupos.map((grupo) => {
+              const groupTeams = equipos.filter((equipo) => equipo.grupo === grupo)
 
-            <div className="group-matches">
-              {selectedMatches.map((partido) => (
-                <article className="group-match" key={partido.id}>
-                  <div className="match-teams">
-                    <span>
-                      <TeamFlag code={partido.local} />
-                      {partido.local}
-                    </span>
-                    <strong>vs</strong>
-                    <span>
-                      <TeamFlag code={partido.visitante} />
-                      {partido.visitante}
-                    </span>
+              return (
+                <button
+                  className="group-card"
+                  key={grupo}
+                  type="button"
+                  onClick={() => setSelectedGroup(grupo)}
+                >
+                  <span className="group-title">Grupo {grupo}</span>
+                  <span className="group-team-list">
+                    {groupTeams.map((equipo) => (
+                      <span className="group-team-mini" key={equipo.codigo}>
+                        <TeamFlag code={equipo.codigo} />
+                        {equipo.codigo}
+                      </span>
+                    ))}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          {selectedGroup && (
+            <div
+              className="modal-backdrop"
+              role="presentation"
+              onClick={() => setSelectedGroup(null)}
+            >
+              <section
+                aria-labelledby="group-modal-title"
+                aria-modal="true"
+                className="group-modal"
+                role="dialog"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <header className="group-modal-header">
+                  <div>
+                    <h2 id="group-modal-title">Grupo {selectedGroup}</h2>
                   </div>
-                  <div className="match-meta">
-                    {partido.fecha} · {partido.hora_local} · {partido.sede}
-                  </div>
-                </article>
-              ))}
+                  <button type="button" onClick={() => setSelectedGroup(null)}>
+                    Cerrar
+                  </button>
+                </header>
+
+                <div className="group-matches">
+                  {selectedMatches.map((partido) => (
+                    <article className="group-match" key={partido.id}>
+                      <div className="match-teams">
+                        <span>
+                          <TeamFlag code={partido.local} />
+                          {partido.local}
+                        </span>
+                        <strong>vs</strong>
+                        <span>
+                          <TeamFlag code={partido.visitante} />
+                          {partido.visitante}
+                        </span>
+                      </div>
+                      <div className="match-meta">
+                        {partido.fecha} · {partido.hora_local} · {partido.sede}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
             </div>
-          </section>
-        </div>
+          )}
+        </>
       )}
+
+      {tab === 'eliminatorias' && <KnockoutBracket />}
     </section>
   )
 }
 
+// ─── CalendarPage ─────────────────────────────────────────────────────────────
+
+const DAYS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+const MONTHS_ES = [
+  'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
+]
+
+function formatDayHeader(dateStr: string): string {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  const dow = DAYS_ES[date.getDay()]
+  const mon = MONTHS_ES[m - 1]
+  return `${dow} ${d} ${mon}`
+}
+
+function getKnockoutLabel(dateStr: string): string | null {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  if (y !== 2026) return null
+  if (m === 6 && d >= 27) return 'Octavos de final'
+  if (m === 7 && d <= 2) return 'Octavos de final'
+  if (m === 7 && d >= 4 && d <= 7) return 'Cuartos de final'
+  if (m === 7 && d >= 9 && d <= 15) return 'Semifinales'
+  if (m === 7 && d === 18) return 'Tercer puesto'
+  if (m === 7 && d === 19) return 'Final'
+  return null
+}
+
+function generateCalendarDays(): string[] {
+  const days: string[] = []
+  // June 11 → July 19, 2026
+  for (let m = 6; m <= 7; m++) {
+    const startD = m === 6 ? 11 : 1
+    const endD = m === 6 ? 30 : 19
+    for (let d = startD; d <= endD; d++) {
+      days.push(`2026-0${m}-${String(d).padStart(2, '0')}`)
+    }
+  }
+  return days
+}
+
+const CALENDAR_DAYS = generateCalendarDays()
+
 function CalendarPage() {
+  const matchesByDate = partidos.reduce<Record<string, typeof partidos>>(
+    (acc, partido) => {
+      const key = partido.fecha
+      if (!acc[key]) acc[key] = []
+      acc[key].push(partido)
+      return acc
+    },
+    {},
+  )
+
   return (
     <section className="content-shell">
       <div className="section-heading">
         <h1>Calendario</h1>
+      </div>
+
+      <div className="calendar-list">
+        {CALENDAR_DAYS.map((dateStr) => {
+          const groupMatches = matchesByDate[dateStr] ?? []
+          const knockoutLabel = getKnockoutLabel(dateStr)
+          const hasContent = groupMatches.length > 0 || knockoutLabel !== null
+
+          return (
+            <div className="calendar-day" key={dateStr}>
+              <div className="calendar-day-header">
+                {formatDayHeader(dateStr)}
+              </div>
+
+              {groupMatches.length > 0 && groupMatches.map((partido) => (
+                <article className="calendar-match-item" key={partido.id}>
+                  <div className="calendar-match-teams">
+                    <span className="calendar-match-team">
+                      <TeamFlag code={partido.local} />
+                      {partido.local}
+                    </span>
+                    <span className="calendar-match-vs">vs</span>
+                    <span className="calendar-match-team">
+                      <TeamFlag code={partido.visitante} />
+                      {partido.visitante}
+                    </span>
+                  </div>
+                  <div className="calendar-match-meta">
+                    {partido.hora_local} · {partido.sede}
+                  </div>
+                </article>
+              ))}
+
+              {knockoutLabel && groupMatches.length === 0 && (
+                <article className="calendar-match-item calendar-match-item--knockout">
+                  <div className="calendar-match-round">{knockoutLabel}</div>
+                  <div className="calendar-match-teams">
+                    <span className="calendar-match-tbd">Por definir</span>
+                    <span className="calendar-match-vs">vs</span>
+                    <span className="calendar-match-tbd">Por definir</span>
+                  </div>
+                </article>
+              )}
+
+              {!hasContent && (
+                <p className="calendar-no-matches">Sin partidos programados</p>
+              )}
+            </div>
+          )
+        })}
       </div>
     </section>
   )

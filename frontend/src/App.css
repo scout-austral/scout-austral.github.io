@@ -597,6 +597,257 @@ button.nav-link {
   padding: 1rem;
 }
 
+/* ─── Fixture tabs ─────────────────────────────────────────────────────────── */
+
+.fixture-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #242424;
+  padding-bottom: 0;
+}
+
+.fixture-tab {
+  padding: 0.5rem 1.1rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #71717a;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease;
+  margin-bottom: -1px;
+}
+
+.fixture-tab:hover {
+  color: #fff;
+}
+
+.fixture-tab--active {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+/* ─── Knockout bracket ─────────────────────────────────────────────────────── */
+
+.bracket-scroll {
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bracket-container {
+  display: flex;
+  gap: 0;
+  min-width: max-content;
+  align-items: flex-start;
+  padding: 0.5rem 0 1rem;
+}
+
+.bracket-round {
+  display: flex;
+  flex-direction: column;
+  min-width: 10rem;
+}
+
+.bracket-round-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #71717a;
+  padding: 0 0.85rem 0.75rem;
+  white-space: nowrap;
+}
+
+.bracket-round-matches {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex: 1;
+}
+
+.bracket-round-matches--final {
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.bracket-match-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 0.6rem 0;
+}
+
+.bracket-match-wrapper--final {
+  padding: 0.25rem 0;
+}
+
+/* Connector lines — right edge of each match → next round */
+.bracket-match-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 0.85rem;
+  height: 1px;
+  background: #333;
+}
+
+.bracket-round:last-child .bracket-match-wrapper::after {
+  display: none;
+}
+
+.bracket-match {
+  position: relative;
+  background: #111;
+  border: 1px solid #242424;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 8.5rem;
+  margin-right: 0.85rem;
+  flex-shrink: 0;
+}
+
+.bracket-match--third {
+  border-color: #2a2a2a;
+  opacity: 0.85;
+}
+
+.bracket-match-id {
+  display: block;
+  font-size: 0.65rem;
+  font-family: "Geist", ui-monospace, monospace;
+  color: #52525b;
+  padding: 0.3rem 0.6rem 0.1rem;
+  letter-spacing: 0.04em;
+}
+
+.bracket-slot {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  color: #d4d4d8;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bracket-divider {
+  height: 1px;
+  background: #242424;
+  margin: 0;
+}
+
+/* ─── Calendar list ────────────────────────────────────────────────────────── */
+
+.calendar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid #242424;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgb(10 10 10 / 0.72);
+}
+
+.calendar-day {
+  border-bottom: 1px solid #1f1f23;
+}
+
+.calendar-day:last-child {
+  border-bottom: none;
+}
+
+.calendar-day-header {
+  padding: 0.65rem 1rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #71717a;
+  background: rgb(255 255 255 / 0.02);
+  border-bottom: 1px solid #1a1a1d;
+}
+
+.calendar-match-item {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #1a1a1d;
+}
+
+.calendar-match-item:last-child {
+  border-bottom: none;
+}
+
+.calendar-match-item--knockout {
+  opacity: 0.65;
+}
+
+.calendar-match-teams {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-match-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.calendar-match-team:last-of-type {
+  justify-content: flex-end;
+}
+
+.calendar-match-vs {
+  color: #52525b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.calendar-match-round {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.calendar-match-tbd {
+  color: #52525b;
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+.calendar-match-tbd:last-of-type {
+  text-align: right;
+  justify-self: end;
+}
+
+.calendar-match-meta {
+  color: #71717a;
+  font-size: 0.78rem;
+}
+
+.calendar-no-matches {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  color: #3f3f46;
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
 @media (max-width: 520px) {
   .topbar {
     padding-inline: 0.75rem;
