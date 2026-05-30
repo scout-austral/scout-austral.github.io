@@ -1,0 +1,434 @@
+[
+  {
+    "codigo": "CZE",
+    "nombre": "Czech Republic",
+    "grupo": "A",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇨🇿",
+    "ranking_fifa": 41
+  },
+  {
+    "codigo": "KOR",
+    "nombre": "South Korea",
+    "grupo": "A",
+    "confederacion": "AFC",
+    "continente": "Asia",
+    "bandera": "🇰🇷",
+    "ranking_fifa": 25
+  },
+  {
+    "codigo": "MEX",
+    "nombre": "Mexico",
+    "grupo": "A",
+    "confederacion": "CONCACAF",
+    "continente": "North America",
+    "bandera": "🇲🇽",
+    "ranking_fifa": 15
+  },
+  {
+    "codigo": "RSA",
+    "nombre": "South Africa",
+    "grupo": "A",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇿🇦",
+    "ranking_fifa": 60
+  },
+  {
+    "codigo": "BIH",
+    "nombre": "Bosnia & Herzegovina",
+    "grupo": "B",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇧🇦",
+    "ranking_fifa": 65
+  },
+  {
+    "codigo": "CAN",
+    "nombre": "Canada",
+    "grupo": "B",
+    "confederacion": "CONCACAF",
+    "continente": "North America",
+    "bandera": "🇨🇦",
+    "ranking_fifa": 30
+  },
+  {
+    "codigo": "QAT",
+    "nombre": "Qatar",
+    "grupo": "B",
+    "confederacion": "AFC",
+    "continente": "Asia",
+    "bandera": "🇶🇦",
+    "ranking_fifa": 55
+  },
+  {
+    "codigo": "SUI",
+    "nombre": "Switzerland",
+    "grupo": "B",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇨🇭",
+    "ranking_fifa": 19
+  },
+  {
+    "codigo": "BRA",
+    "nombre": "Brazil",
+    "grupo": "C",
+    "confederacion": "CONMEBOL",
+    "continente": "South America",
+    "bandera": "🇧🇷",
+    "ranking_fifa": 6
+  },
+  {
+    "codigo": "HAI",
+    "nombre": "Haiti",
+    "grupo": "C",
+    "confederacion": "CONCACAF",
+    "continente": "North America",
+    "bandera": "🇭🇹",
+    "ranking_fifa": 83
+  },
+  {
+    "codigo": "MAR",
+    "nombre": "Morocco",
+    "grupo": "C",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇲🇦",
+    "ranking_fifa": 8
+  },
+  {
+    "codigo": "SCO",
+    "nombre": "Scotland",
+    "grupo": "C",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+    "ranking_fifa": 43
+  },
+  {
+    "codigo": "AUS",
+    "nombre": "Australia",
+    "grupo": "D",
+    "confederacion": "AFC",
+    "continente": "Oceania",
+    "bandera": "🇦🇺",
+    "ranking_fifa": 27
+  },
+  {
+    "codigo": "PAR",
+    "nombre": "Paraguay",
+    "grupo": "D",
+    "confederacion": "CONMEBOL",
+    "continente": "South America",
+    "bandera": "🇵🇾",
+    "ranking_fifa": 40
+  },
+  {
+    "codigo": "TUR",
+    "nombre": "Turkey",
+    "grupo": "D",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇹🇷",
+    "ranking_fifa": 22
+  },
+  {
+    "codigo": "USA",
+    "nombre": "USA",
+    "grupo": "D",
+    "confederacion": "CONCACAF",
+    "continente": "North America",
+    "bandera": "🇺🇸",
+    "ranking_fifa": 16
+  },
+  {
+    "codigo": "CIV",
+    "nombre": "Ivory Coast",
+    "grupo": "E",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇨🇮",
+    "ranking_fifa": 34
+  },
+  {
+    "codigo": "CUW",
+    "nombre": "Curaçao",
+    "grupo": "E",
+    "confederacion": "CONCACAF",
+    "continente": "North America",
+    "bandera": "🇨🇼",
+    "ranking_fifa": 82
+  },
+  {
+    "codigo": "ECU",
+    "nombre": "Ecuador",
+    "grupo": "E",
+    "confederacion": "CONMEBOL",
+    "continente": "South America",
+    "bandera": "🇪🇨",
+    "ranking_fifa": 23
+  },
+  {
+    "codigo": "GER",
+    "nombre": "Germany",
+    "grupo": "E",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇩🇪",
+    "ranking_fifa": 10
+  },
+  {
+    "codigo": "JPN",
+    "nombre": "Japan",
+    "grupo": "F",
+    "confederacion": "AFC",
+    "continente": "Asia",
+    "bandera": "🇯🇵",
+    "ranking_fifa": 18
+  },
+  {
+    "codigo": "NED",
+    "nombre": "Netherlands",
+    "grupo": "F",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇳🇱",
+    "ranking_fifa": 7
+  },
+  {
+    "codigo": "SWE",
+    "nombre": "Sweden",
+    "grupo": "F",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇸🇪",
+    "ranking_fifa": 38
+  },
+  {
+    "codigo": "TUN",
+    "nombre": "Tunisia",
+    "grupo": "F",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇹🇳",
+    "ranking_fifa": 44
+  },
+  {
+    "codigo": "BEL",
+    "nombre": "Belgium",
+    "grupo": "G",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇧🇪",
+    "ranking_fifa": 9
+  },
+  {
+    "codigo": "EGY",
+    "nombre": "Egypt",
+    "grupo": "G",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇪🇬",
+    "ranking_fifa": 29
+  },
+  {
+    "codigo": "IRN",
+    "nombre": "Iran",
+    "grupo": "G",
+    "confederacion": "AFC",
+    "continente": "Asia",
+    "bandera": "🇮🇷",
+    "ranking_fifa": 21
+  },
+  {
+    "codigo": "NZL",
+    "nombre": "New Zealand",
+    "grupo": "G",
+    "confederacion": "OFC",
+    "continente": "Oceania",
+    "bandera": "🇳🇿",
+    "ranking_fifa": 85
+  },
+  {
+    "codigo": "CPV",
+    "nombre": "Cape Verde",
+    "grupo": "H",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇨🇻",
+    "ranking_fifa": 69
+  },
+  {
+    "codigo": "ESP",
+    "nombre": "Spain",
+    "grupo": "H",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇪🇸",
+    "ranking_fifa": 2
+  },
+  {
+    "codigo": "KSA",
+    "nombre": "Saudi Arabia",
+    "grupo": "H",
+    "confederacion": "AFC",
+    "continente": "Asia",
+    "bandera": "🇸🇦",
+    "ranking_fifa": 61
+  },
+  {
+    "codigo": "URU",
+    "nombre": "Uruguay",
+    "grupo": "H",
+    "confederacion": "CONMEBOL",
+    "continente": "South America",
+    "bandera": "🇺🇾",
+    "ranking_fifa": 17
+  },
+  {
+    "codigo": "FRA",
+    "nombre": "France",
+    "grupo": "I",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇫🇷",
+    "ranking_fifa": 1
+  },
+  {
+    "codigo": "IRQ",
+    "nombre": "Iraq",
+    "grupo": "I",
+    "confederacion": "AFC",
+    "continente": "Asia",
+    "bandera": "🇮🇶",
+    "ranking_fifa": 57
+  },
+  {
+    "codigo": "NOR",
+    "nombre": "Norway",
+    "grupo": "I",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇳🇴",
+    "ranking_fifa": 31
+  },
+  {
+    "codigo": "SEN",
+    "nombre": "Senegal",
+    "grupo": "I",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇸🇳",
+    "ranking_fifa": 14
+  },
+  {
+    "codigo": "ALG",
+    "nombre": "Algeria",
+    "grupo": "J",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇩🇿",
+    "ranking_fifa": 28
+  },
+  {
+    "codigo": "ARG",
+    "nombre": "Argentina",
+    "grupo": "J",
+    "confederacion": "CONMEBOL",
+    "continente": "South America",
+    "bandera": "🇦🇷",
+    "ranking_fifa": 3
+  },
+  {
+    "codigo": "AUT",
+    "nombre": "Austria",
+    "grupo": "J",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇦🇹",
+    "ranking_fifa": 24
+  },
+  {
+    "codigo": "JOR",
+    "nombre": "Jordan",
+    "grupo": "J",
+    "confederacion": "AFC",
+    "continente": "Asia",
+    "bandera": "🇯🇴",
+    "ranking_fifa": 63
+  },
+  {
+    "codigo": "COD",
+    "nombre": "DR Congo",
+    "grupo": "K",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇨🇩",
+    "ranking_fifa": 46
+  },
+  {
+    "codigo": "COL",
+    "nombre": "Colombia",
+    "grupo": "K",
+    "confederacion": "CONMEBOL",
+    "continente": "South America",
+    "bandera": "🇨🇴",
+    "ranking_fifa": 13
+  },
+  {
+    "codigo": "POR",
+    "nombre": "Portugal",
+    "grupo": "K",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇵🇹",
+    "ranking_fifa": 5
+  },
+  {
+    "codigo": "UZB",
+    "nombre": "Uzbekistan",
+    "grupo": "K",
+    "confederacion": "AFC",
+    "continente": "Asia",
+    "bandera": "🇺🇿",
+    "ranking_fifa": 50
+  },
+  {
+    "codigo": "CRO",
+    "nombre": "Croatia",
+    "grupo": "L",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🇭🇷",
+    "ranking_fifa": 11
+  },
+  {
+    "codigo": "ENG",
+    "nombre": "England",
+    "grupo": "L",
+    "confederacion": "UEFA",
+    "continente": "Europe",
+    "bandera": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    "ranking_fifa": 4
+  },
+  {
+    "codigo": "GHA",
+    "nombre": "Ghana",
+    "grupo": "L",
+    "confederacion": "CAF",
+    "continente": "Africa",
+    "bandera": "🇬🇭",
+    "ranking_fifa": 74
+  },
+  {
+    "codigo": "PAN",
+    "nombre": "Panama",
+    "grupo": "L",
+    "confederacion": "CONCACAF",
+    "continente": "North America",
+    "bandera": "🇵🇦",
+    "ranking_fifa": 33
+  }
+]
