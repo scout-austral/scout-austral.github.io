@@ -8,6 +8,9 @@
     "verbatimModuleSyntax": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
