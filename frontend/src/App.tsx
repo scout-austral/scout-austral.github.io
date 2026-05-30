@@ -1,14 +1,169 @@
 import { useEffect, useState } from 'react'
+import type { ComponentType } from 'react'
+import {
+  FaFutbol,
+  FaHome,
+  FaRegCalendarAlt,
+  FaRegUser,
+  FaTable,
+} from 'react-icons/fa'
+import flagAr from 'flag-icons/flags/4x3/ar.svg'
+import flagAt from 'flag-icons/flags/4x3/at.svg'
+import flagAu from 'flag-icons/flags/4x3/au.svg'
+import flagBa from 'flag-icons/flags/4x3/ba.svg'
+import flagBe from 'flag-icons/flags/4x3/be.svg'
+import flagBr from 'flag-icons/flags/4x3/br.svg'
+import flagCa from 'flag-icons/flags/4x3/ca.svg'
+import flagCd from 'flag-icons/flags/4x3/cd.svg'
+import flagCh from 'flag-icons/flags/4x3/ch.svg'
+import flagCi from 'flag-icons/flags/4x3/ci.svg'
+import flagCo from 'flag-icons/flags/4x3/co.svg'
+import flagCv from 'flag-icons/flags/4x3/cv.svg'
+import flagCw from 'flag-icons/flags/4x3/cw.svg'
+import flagCz from 'flag-icons/flags/4x3/cz.svg'
+import flagDe from 'flag-icons/flags/4x3/de.svg'
+import flagDz from 'flag-icons/flags/4x3/dz.svg'
+import flagEc from 'flag-icons/flags/4x3/ec.svg'
+import flagEg from 'flag-icons/flags/4x3/eg.svg'
+import flagEs from 'flag-icons/flags/4x3/es.svg'
+import flagFr from 'flag-icons/flags/4x3/fr.svg'
+import flagGbEng from 'flag-icons/flags/4x3/gb-eng.svg'
+import flagGbSct from 'flag-icons/flags/4x3/gb-sct.svg'
+import flagGh from 'flag-icons/flags/4x3/gh.svg'
+import flagHt from 'flag-icons/flags/4x3/ht.svg'
+import flagHr from 'flag-icons/flags/4x3/hr.svg'
+import flagIq from 'flag-icons/flags/4x3/iq.svg'
+import flagIr from 'flag-icons/flags/4x3/ir.svg'
+import flagJo from 'flag-icons/flags/4x3/jo.svg'
+import flagJp from 'flag-icons/flags/4x3/jp.svg'
+import flagKr from 'flag-icons/flags/4x3/kr.svg'
+import flagMa from 'flag-icons/flags/4x3/ma.svg'
+import flagMx from 'flag-icons/flags/4x3/mx.svg'
+import flagNl from 'flag-icons/flags/4x3/nl.svg'
+import flagNo from 'flag-icons/flags/4x3/no.svg'
+import flagNz from 'flag-icons/flags/4x3/nz.svg'
+import flagPa from 'flag-icons/flags/4x3/pa.svg'
+import flagPt from 'flag-icons/flags/4x3/pt.svg'
+import flagPy from 'flag-icons/flags/4x3/py.svg'
+import flagQa from 'flag-icons/flags/4x3/qa.svg'
+import flagSa from 'flag-icons/flags/4x3/sa.svg'
+import flagSe from 'flag-icons/flags/4x3/se.svg'
+import flagSn from 'flag-icons/flags/4x3/sn.svg'
+import flagTn from 'flag-icons/flags/4x3/tn.svg'
+import flagTr from 'flag-icons/flags/4x3/tr.svg'
+import flagUs from 'flag-icons/flags/4x3/us.svg'
+import flagUy from 'flag-icons/flags/4x3/uy.svg'
+import flagUz from 'flag-icons/flags/4x3/uz.svg'
+import flagZa from 'flag-icons/flags/4x3/za.svg'
+import { equipos, partidos } from './data'
+import type { Grupo } from './data/types'
 import './App.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 const TOKEN_KEY = 'scout_auth_token'
+
+type Page = 'inicio' | 'fixture' | 'calendario' | 'perfil'
 
 type User = {
   id: string
   email: string
   name?: string | null
   calendarConnected: boolean
+}
+
+const navItems: Array<{
+  page: Page
+  label: string
+  href: string
+  icon: ComponentType<{ 'aria-hidden'?: boolean }>
+}> = [
+  { page: 'inicio', label: 'Inicio', href: '/', icon: FaHome },
+  {
+    page: 'fixture',
+    label: 'Fixture',
+    href: '/fixture',
+    icon: FaTable,
+  },
+  {
+    page: 'calendario',
+    label: 'Calendario',
+    href: '/calendario',
+    icon: FaRegCalendarAlt,
+  },
+  { page: 'perfil', label: 'Perfil', href: '/perfil', icon: FaRegUser },
+]
+
+const flagByTeamCode: Record<string, string> = {
+  ALG: flagDz,
+  ARG: flagAr,
+  AUS: flagAu,
+  AUT: flagAt,
+  BEL: flagBe,
+  BIH: flagBa,
+  BRA: flagBr,
+  CAN: flagCa,
+  CIV: flagCi,
+  COD: flagCd,
+  COL: flagCo,
+  CPV: flagCv,
+  CRO: flagHr,
+  CUW: flagCw,
+  CZE: flagCz,
+  ECU: flagEc,
+  EGY: flagEg,
+  ENG: flagGbEng,
+  ESP: flagEs,
+  FRA: flagFr,
+  GER: flagDe,
+  GHA: flagGh,
+  HAI: flagHt,
+  IRN: flagIr,
+  IRQ: flagIq,
+  JOR: flagJo,
+  JPN: flagJp,
+  KOR: flagKr,
+  KSA: flagSa,
+  MAR: flagMa,
+  MEX: flagMx,
+  NED: flagNl,
+  NOR: flagNo,
+  NZL: flagNz,
+  PAN: flagPa,
+  PAR: flagPy,
+  POR: flagPt,
+  QAT: flagQa,
+  RSA: flagZa,
+  SCO: flagGbSct,
+  SEN: flagSn,
+  SUI: flagCh,
+  SWE: flagSe,
+  TUN: flagTn,
+  TUR: flagTr,
+  URU: flagUy,
+  USA: flagUs,
+  UZB: flagUz,
+}
+
+const grupos = Array.from(new Set(equipos.map((equipo) => equipo.grupo))).sort() as Grupo[]
+
+function TeamFlag({ code }: { code: string }) {
+  const flagSrc = flagByTeamCode[code]
+
+  if (!flagSrc) {
+    return <span className="flag-fallback">{code}</span>
+  }
+
+  return <img alt="" aria-hidden="true" className="team-flag" src={flagSrc} />
+}
+
+function getPageFromPath(): Page {
+  const path = window.location.pathname
+
+  if (path.startsWith('/fixture')) return 'fixture'
+  if (path.startsWith('/calendario')) return 'calendario'
+  if (path.startsWith('/perfil')) return 'perfil'
+
+  return 'inicio'
 }
 
 function GoogleIcon() {
@@ -34,20 +189,24 @@ function GoogleIcon() {
   )
 }
 
-function CalendarIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-      <path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 16H5V10h14v10ZM5 8V6h14v2H5Z" />
-    </svg>
-  )
-}
-
 function App() {
+  const [page, setPage] = useState<Page>(getPageFromPath)
   const [user, setUser] = useState<User | null>(null)
+  const [authChecked, setAuthChecked] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    return !params.get('token') && !localStorage.getItem(TOKEN_KEY)
+  })
   const [authError] = useState(() => {
     const err = new URLSearchParams(window.location.search).get('auth_error')
     return err ? `Error: ${decodeURIComponent(err)}` : ''
   })
+
+  useEffect(() => {
+    const onPopState = () => setPage(getPageFromPath())
+
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -55,7 +214,6 @@ function App() {
 
     if (params.get('auth_error')) {
       window.history.replaceState({}, '', window.location.pathname)
-      return
     }
 
     if (tokenFromGoogle) {
@@ -82,11 +240,18 @@ function App() {
         setUser(data.user)
       })
       .catch(() => localStorage.removeItem(TOKEN_KEY))
+      .finally(() => setAuthChecked(true))
   }, [])
+
+  function navigate(href: string, nextPage: Page) {
+    window.history.pushState({}, '', href)
+    setPage(nextPage)
+  }
 
   function signOut() {
     localStorage.removeItem(TOKEN_KEY)
     setUser(null)
+    navigate('/', 'inicio')
   }
 
   function connectCalendar() {
@@ -98,26 +263,46 @@ function App() {
     <main className="page">
       <header className="topbar">
         <a className="brand" href="/">
-          Scout
+          <FaFutbol aria-hidden="true" />
+          <span>SCOUT</span>
         </a>
-        <nav>
-          {user ? (
+        {authChecked && user && (
+          <nav className="primary-nav" aria-label="Navegacion principal">
+            {navItems.map((item) => {
+              const Icon = item.icon
+
+              return (
+                <a
+                  aria-current={page === item.page ? 'page' : undefined}
+                  href={item.href}
+                  key={item.page}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    navigate(item.href, item.page)
+                  }}
+                >
+                  <Icon aria-hidden />
+                  {item.label}
+                </a>
+              )
+            })}
+          </nav>
+        )}
+        <nav className="user-actions" aria-label="Cuenta">
+          {!authChecked ? null : user ? (
             <>
               {!user.calendarConnected && (
-                <button className="calendar-button" type="button" onClick={connectCalendar}>
-                  <CalendarIcon />
+                <button
+                  className="calendar-button"
+                  type="button"
+                  onClick={connectCalendar}
+                >
+                  <FaRegCalendarAlt aria-hidden="true" />
                   Conectar Calendar
                 </button>
               )}
-              {user.calendarConnected && (
-                <span className="calendar-connected">
-                  <CalendarIcon />
-                  Calendar conectado
-                </span>
-              )}
-              <span className="user-label">{user.name ?? user.email}</span>
-              <button className="nav-link" type="button" onClick={signOut}>
-                Cerrar sesión
+              <button className="sign-out-button" type="button" onClick={signOut}>
+                Cerrar sesion
               </button>
             </>
           ) : (
@@ -130,7 +315,146 @@ function App() {
       </header>
 
       {authError && <p className="auth-error">{authError}</p>}
+      {!authChecked ? null : user ? (
+        <AppPage page={page} user={user} />
+      ) : (
+        <Landing />
+      )}
     </main>
+  )
+}
+
+function Landing() {
+  return null
+}
+
+function AppPage({
+  page,
+  user,
+}: {
+  page: Page
+  user: User
+}) {
+  if (page === 'fixture') {
+    return <FixturePage />
+  }
+
+  if (page === 'calendario') {
+    return <CalendarPage />
+  }
+
+  if (page === 'perfil') {
+    return (
+      <section className="content-shell">
+        <div className="section-heading">
+          <h1>{user.name ?? user.email}</h1>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="content-shell">
+      <div className="section-heading">
+        <h1>Bienvenido.</h1>
+      </div>
+    </section>
+  )
+}
+
+function FixturePage() {
+  const [selectedGroup, setSelectedGroup] = useState<Grupo | null>(null)
+  const selectedMatches = selectedGroup
+    ? partidos.filter((partido) => partido.grupo === selectedGroup)
+    : []
+
+  return (
+    <section className="content-shell">
+      <div className="section-heading">
+        <h1>Fixture</h1>
+      </div>
+
+      <div className="groups-grid">
+        {grupos.map((grupo) => {
+          const groupTeams = equipos.filter((equipo) => equipo.grupo === grupo)
+
+          return (
+            <button
+              className="group-card"
+              key={grupo}
+              type="button"
+              onClick={() => setSelectedGroup(grupo)}
+            >
+              <span className="group-title">Grupo {grupo}</span>
+              <span className="group-team-list">
+                {groupTeams.map((equipo) => (
+                  <span className="group-team-mini" key={equipo.codigo}>
+                    <TeamFlag code={equipo.codigo} />
+                    {equipo.codigo}
+                  </span>
+                ))}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {selectedGroup && (
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onClick={() => setSelectedGroup(null)}
+        >
+          <section
+            aria-labelledby="group-modal-title"
+            aria-modal="true"
+            className="group-modal"
+            role="dialog"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="group-modal-header">
+              <div>
+                <h2 id="group-modal-title">Grupo {selectedGroup}</h2>
+              </div>
+              <button type="button" onClick={() => setSelectedGroup(null)}>
+                Cerrar
+              </button>
+            </header>
+
+            <div className="group-matches">
+              {selectedMatches.map((partido) => (
+                <article className="group-match" key={partido.id}>
+                  <div className="match-teams">
+                    <span>
+                      <TeamFlag code={partido.local} />
+                      {partido.local}
+                    </span>
+                    <strong>vs</strong>
+                    <span>
+                      <TeamFlag code={partido.visitante} />
+                      {partido.visitante}
+                    </span>
+                  </div>
+                  <div className="match-meta">
+                    {partido.fecha} · {partido.hora_local} · {partido.sede}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
+    </section>
+  )
+}
+
+function CalendarPage() {
+  return (
+    <section className="content-shell">
+      <div className="section-heading">
+        <h1>Calendario</h1>
+      </div>
+    </section>
   )
 }
 

@@ -43,6 +43,9 @@ const mockUser = {
   googleId: null,
   googleAccessToken: null,
   googleRefreshToken: null,
+  calendarAccessToken: null,
+  calendarRefreshToken: null,
+  calendarConnected: false,
   createdAt: new Date(),
   updatedAt: new Date(),
 }
