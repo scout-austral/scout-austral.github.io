@@ -101,8 +101,9 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
       await prisma.user.update({
         where: { id: userId },
         data: {
-          googleAccessToken: tokens.access_token ?? undefined,
-          googleRefreshToken: tokens.refresh_token ?? undefined,
+          calendarAccessToken: tokens.access_token ?? undefined,
+          calendarRefreshToken: tokens.refresh_token ?? undefined,
+          calendarConnected: true,
         },
       })
       res.redirect(`${frontendUrl}?calendar_connected=1`)
@@ -182,8 +183,8 @@ router.get('/google/calendar', async (req: Request, res: Response): Promise<void
 })
 
 function safeUser(user: any) {
-  const { passwordHash, googleAccessToken, googleRefreshToken, ...safe } = user
-  return { ...safe, calendarConnected: !!googleAccessToken }
+  const { passwordHash, googleAccessToken, googleRefreshToken, calendarAccessToken, calendarRefreshToken, ...safe } = user
+  return safe
 }
 
 export default router
