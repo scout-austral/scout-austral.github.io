@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import { useProfile } from '@/hooks/useProfile'
+import { useFeedback } from '@/hooks/useFeedback'
+import { ProfileForm } from '@/components/ProfileForm'
+import { Results } from '@/components/Results'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 const TOKEN_KEY = 'scout_auth_token'
@@ -34,6 +38,9 @@ function GoogleIcon() {
 }
 
 function App() {
+  const { perfil, actualizar } = useProfile()
+  const { priors, deltas, porPartido, registrar, quitar, reset: resetFeedback } =
+    useFeedback(perfil)
   const [user, setUser] = useState<User | null>(null)
   const [authError] = useState(() =>
     new URLSearchParams(window.location.search).get('auth_error')
@@ -104,6 +111,24 @@ function App() {
       </header>
 
       {authError && <p className="auth-error">{authError}</p>}
+
+      <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 md:grid-cols-[360px_1fr]">
+        <div className="md:sticky md:top-6 md:self-start">
+          <ProfileForm perfil={perfil} actualizar={actualizar} />
+        </div>
+        <div>
+          <h2 className="mb-3 text-lg font-semibold">Tus recomendaciones</h2>
+          <Results
+            perfil={perfil}
+            priors={priors}
+            porPartido={porPartido}
+            deltas={deltas}
+            registrar={registrar}
+            quitar={quitar}
+            resetFeedback={resetFeedback}
+          />
+        </div>
+      </section>
     </main>
   )
 }
