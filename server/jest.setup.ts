@@ -1,0 +1,5 @@
+process.env.JWT_SECRET = 'test-secret-key-for-jest'
+process.env.GOOGLE_CLIENT_ID = 'test-client-id'
+process.env.GOOGLE_CLIENT_SECRET = 'test-client-secret'
+process.env.GOOGLE_REDIRECT_URI = 'http://localhost:3000/auth/google/callback'
+process.env.FRONTEND_URL = 'http://localhost:5173'
