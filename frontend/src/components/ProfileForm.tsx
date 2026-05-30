@@ -62,9 +62,10 @@ const IMPORTANCIA_DEFAULT = Object.fromEntries(
 interface Props {
   perfil: Perfil
   actualizar: (cambios: Partial<Perfil>) => void
+  reset: () => void
 }
 
-export function ProfileForm({ perfil, actualizar }: Props) {
+export function ProfileForm({ perfil, actualizar, reset }: Props) {
   const [addEquipo, setAddEquipo] = useState('')
   const [addJugador, setAddJugador] = useState('')
   const [showCalib, setShowCalib] = useState(false)
@@ -118,8 +119,11 @@ export function ProfileForm({ perfil, actualizar }: Props) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-row items-center justify-between space-y-0">
         <CardTitle>Tu perfil</CardTitle>
+        <Button type="button" size="sm" variant="ghost" className="h-7 text-xs" onClick={reset}>
+          Limpiar
+        </Button>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Equipos favoritos */}

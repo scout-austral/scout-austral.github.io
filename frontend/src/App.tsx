@@ -38,7 +38,7 @@ function GoogleIcon() {
 }
 
 function App() {
-  const { perfil, actualizar } = useProfile()
+  const { perfil, actualizar, reset: resetPerfil } = useProfile()
   const { priors, deltas, porPartido, registrar, quitar, reset: resetFeedback } =
     useFeedback(perfil)
   const [user, setUser] = useState<User | null>(null)
@@ -112,10 +112,19 @@ function App() {
 
       {authError && <p className="auth-error">{authError}</p>}
 
-      <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 md:grid-cols-[360px_1fr]">
-        <div className="md:sticky md:top-6 md:self-start">
-          <ProfileForm perfil={perfil} actualizar={actualizar} />
+      <section className="mx-auto max-w-6xl px-4 py-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">Tu tiempo, tu Mundial</h1>
+          <p className="text-sm text-muted-foreground">
+            Cargá tu perfil y Scout clasifica los 72 partidos de la fase de grupos del Mundial
+            2026 en <strong>Imperdible</strong>, <strong>Vale la pena</strong> y{' '}
+            <strong>Para ver el resumen</strong> — según tu afinidad y tu disponibilidad.
+          </p>
         </div>
+        <div className="grid gap-6 md:grid-cols-[360px_1fr]">
+          <div className="md:sticky md:top-6 md:self-start">
+            <ProfileForm perfil={perfil} actualizar={actualizar} reset={resetPerfil} />
+          </div>
         <div>
           <h2 className="mb-3 text-lg font-semibold">Tus recomendaciones</h2>
           <Results
@@ -127,6 +136,7 @@ function App() {
             quitar={quitar}
             resetFeedback={resetFeedback}
           />
+        </div>
         </div>
       </section>
     </main>
