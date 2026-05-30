@@ -18,6 +18,9 @@ const GOOGLE_SCOPES = [
   'openid',
   'email',
   'profile',
+]
+
+const CALENDAR_SCOPES = [
   'https://www.googleapis.com/auth/calendar.readonly',
 ]
 
@@ -126,6 +129,22 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
 // GET /auth/me
 router.get('/me', requireAuth, (req: Request, res: Response) => {
   res.json({ user: safeUser((req as any).user) })
+})
+
+// GET /auth/google/calendar — pide permiso de Calendar (paso separado)
+router.get('/google/calendar', requireAuth, (req: Request, res: Response) => {
+  const calendarOAuth = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  )
+  const url = calendarOAuth.generateAuthUrl({
+    access_type: 'offline',
+    scope: CALENDAR_SCOPES,
+    prompt: 'consent',
+    state: (req as any).user.id,
+  })
+  res.redirect(url)
 })
 
 function safeUser(user: any) {
