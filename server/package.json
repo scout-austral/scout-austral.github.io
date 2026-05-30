@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn src/index.ts",
     "build": "tsup src/index.ts --format cjs --out-dir dist",
-    "start": "node dist/index.js",
+    "start": "prisma db push && node dist/index.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
