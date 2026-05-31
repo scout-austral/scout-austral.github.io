@@ -18,6 +18,9 @@ const GOOGLE_SCOPES = [
   'openid',
   'email',
   'profile',
+]
+
+const CALENDAR_SCOPES = [
   'https://www.googleapis.com/auth/calendar.readonly',
 ]
 
@@ -86,10 +89,28 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
     return
   }
 
+  const state = req.query.state as string | undefined
+
   try {
     const { tokens } = await oauth2Client.getToken(code as string)
     oauth2Client.setCredentials(tokens)
 
+    // Calendar connect callback (state = "calendar:userId")
+    if (state?.startsWith('calendar:')) {
+      const userId = state.replace('calendar:', '')
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          calendarAccessToken: tokens.access_token ?? undefined,
+          calendarRefreshToken: tokens.refresh_token ?? undefined,
+          calendarConnected: true,
+        },
+      })
+      res.redirect(`${frontendUrl}?calendar_connected=1`)
+      return
+    }
+
+    // Login callback
     const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client })
     const { data } = await oauth2.userinfo.get()
 
@@ -117,9 +138,10 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
 
     const token = signToken(user.id)
     res.redirect(`${frontendUrl}?token=${token}`)
-  } catch (err) {
-    console.error('Google OAuth error:', err)
-    res.redirect(`${frontendUrl}?auth_error=oauth_failed`)
+  } catch (err: any) {
+    const message = err?.response?.data?.error_description || err?.message || 'unknown'
+    console.error('Google OAuth error:', message, err)
+    res.redirect(`${frontendUrl}?auth_error=${encodeURIComponent(message)}`)
   }
 })
 
@@ -128,8 +150,40 @@ router.get('/me', requireAuth, (req: Request, res: Response) => {
   res.json({ user: safeUser((req as any).user) })
 })
 
+// GET /auth/google/calendar — pide permiso de Calendar (paso separado)
+// Acepta token via query param porque es un redirect del browser
+router.get('/google/calendar', async (req: Request, res: Response): Promise<void> => {
+  const token = req.query.token as string | undefined
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
+
+  if (!token) {
+    res.redirect(`${frontendUrl}?auth_error=missing_token`)
+    return
+  }
+
+  try {
+    const { verifyToken } = await import('../lib/jwt')
+    const { sub: userId } = verifyToken(token)
+
+    const calendarOAuth = new OAuth2Client(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    )
+    const url = calendarOAuth.generateAuthUrl({
+      access_type: 'offline',
+      scope: CALENDAR_SCOPES,
+      prompt: 'consent',
+      state: `calendar:${userId}`,
+    })
+    res.redirect(url)
+  } catch {
+    res.redirect(`${frontendUrl}?auth_error=invalid_token`)
+  }
+})
+
 function safeUser(user: any) {
-  const { passwordHash, googleAccessToken, googleRefreshToken, ...safe } = user
+  const { passwordHash, googleAccessToken, googleRefreshToken, calendarAccessToken, calendarRefreshToken, ...safe } = user
   return safe
 }
 
