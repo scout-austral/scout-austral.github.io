@@ -75,7 +75,7 @@ export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFee
 
   const [aiText, setAiText] = useState<string | null>(null)
   const [estadoIA, setEstadoIA] = useState<'idle' | 'cargando' | 'error'>('idle')
-  const [calendarState, setCalendarState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [calendarState, setCalendarState] = useState<'idle' | 'loading' | 'done' | 'error' | 'reconnect'>('idle')
   const [calendarUrl, setCalendarUrl] = useState<string | null>(null)
 
   async function mejorarConIA() {
@@ -123,6 +123,8 @@ export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFee
       if (res.ok && data.eventUrl) {
         setCalendarUrl(data.eventUrl)
         setCalendarState('done')
+      } else if (res.status === 403) {
+        setCalendarState('reconnect')
       } else {
         setCalendarState('error')
       }
@@ -189,34 +191,50 @@ export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFee
           </div>
           <div className="flex items-center gap-1.5">
             {/* Botón Agendar en Calendar */}
-            {calendarConnected && (
-              calendarState === 'done' ? (
-                <a
-                  href={calendarUrl ?? undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mc-cal-btn mc-cal-btn--done"
-                  title="Ver en Google Calendar"
-                >
-                  <CheckIcon />
-                  <span>Agendado</span>
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  className="mc-cal-btn"
-                  disabled={calendarState === 'loading'}
-                  onClick={agendarEnCalendar}
-                  title="Agendar en Google Calendar"
-                >
-                  {calendarState === 'loading' ? (
-                    <Loader2 className="animate-spin" style={{ width: 13, height: 13 }} />
-                  ) : (
-                    <CalendarIcon />
-                  )}
-                  <span>{calendarState === 'error' ? 'Reintentar' : 'Agendar'}</span>
-                </button>
-              )
+            {calendarState === 'done' ? (
+              <a
+                href={calendarUrl ?? undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mc-cal-btn mc-cal-btn--done"
+                title="Ver en Google Calendar"
+              >
+                <CheckIcon />
+                <span>Agendado</span>
+              </a>
+            ) : calendarState === 'reconnect' ? (
+              <a
+                href={`${API_BASE_URL}/auth/google/calendar?token=${localStorage.getItem('scout_auth_token') ?? ''}`}
+                className="mc-cal-btn mc-cal-btn--reconnect"
+                title="Reconectá tu calendario para poder agendar"
+              >
+                <CalendarIcon />
+                <span>Reconectar</span>
+              </a>
+            ) : calendarConnected ? (
+              <button
+                type="button"
+                className="mc-cal-btn"
+                disabled={calendarState === 'loading'}
+                onClick={agendarEnCalendar}
+                title="Agendar en Google Calendar"
+              >
+                {calendarState === 'loading' ? (
+                  <Loader2 className="animate-spin" style={{ width: 13, height: 13 }} />
+                ) : (
+                  <CalendarIcon />
+                )}
+                <span>{calendarState === 'error' ? 'Reintentar' : 'Agendar'}</span>
+              </button>
+            ) : (
+              <a
+                href={`${API_BASE_URL}/auth/google/calendar?token=${localStorage.getItem('scout_auth_token') ?? ''}`}
+                className="mc-cal-btn mc-cal-btn--connect"
+                title="Conectar Google Calendar para agendar"
+              >
+                <CalendarIcon />
+                <span>Conectar</span>
+              </a>
             )}
 
             {/* Feedback */}

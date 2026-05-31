@@ -116,7 +116,17 @@ router.post('/events', requireAuth, async (req: Request, res: Response): Promise
     await refreshIfNeeded(client, user.id)
 
     res.json({ eventId: data.id, eventUrl: data.htmlLink })
-  } catch (error) {
+  } catch (error: any) {
+    const status = error?.response?.status ?? error?.code
+    if (status === 403 || status === 401) {
+      // Scope insuficiente — el usuario tiene que reconectar Calendar
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { calendarConnected: false },
+      })
+      res.status(403).json({ error: 'insufficient_scope', message: 'Reconectá tu Google Calendar para poder agendar partidos.' })
+      return
+    }
     console.error('Calendar event create error:', error)
     res.status(500).json({ error: 'Could not create calendar event' })
   }

@@ -63,7 +63,13 @@ import { useFeedback } from '@/hooks/useFeedback'
 import { Results } from '@/components/Results'
 import { FranjasFilter } from '@/components/FranjasFilter'
 import { ProfilePage } from '@/components/ProfilePage'
+import { OnboardingFlow } from '@/components/OnboardingFlow'
 import type { Perfil } from '@/lib/recommender/types'
+
+function needsOnboarding(perfil: Perfil): boolean {
+  if (localStorage.getItem('scout_onboarding_done')) return false
+  return perfil.equiposFavoritos.length === 0 && !perfil.importancia
+}
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 const TOKEN_KEY = 'scout_auth_token'
@@ -339,7 +345,12 @@ function App() {
 
       {authError && <p className="auth-error">{authError}</p>}
 
-      {!authChecked ? null : user ? (
+      {!authChecked ? null : user && needsOnboarding(perfil) ? (
+        <OnboardingFlow
+          actualizar={actualizar}
+          onDone={() => { /* re-render automático via actualizar() */ }}
+        />
+      ) : !authChecked ? null : user ? (
         <AppPage
           page={page}
           user={user}
