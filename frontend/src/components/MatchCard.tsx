@@ -1,0 +1,174 @@
+import { useState } from 'react'
+import { Loader2, Sparkles, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { equipoPorCodigo } from '@/data'
+import { justificar, nivelConfianza } from '@/lib/recommender'
+import type {
+  Categoria,
+  Feedback,
+  MotivoDislike,
+  PartidoEvaluado,
+  Perfil,
+} from '@/lib/recommender/types'
+import { FEATURE_LABELS } from '@/lib/recommender'
+import { justificarConGemini } from '@/lib/justifyApi'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+
+const CATEGORIA_META: Record<Categoria, { label: string; clase: string }> = {
+  imperdible: { label: 'Imperdible', clase: 'bg-emerald-600 text-white' },
+  vale_la_pena: { label: 'Vale la pena', clase: 'bg-amber-500 text-black' },
+  resumen: { label: 'Para ver el resumen', clase: 'bg-slate-600 text-white' },
+}
+
+const MOTIVOS: { motivo: MotivoDislike; label: string }[] = [
+  { motivo: 'horario', label: 'El horario' },
+  { motivo: 'nivel', label: 'El nivel de juego' },
+  { motivo: 'sin_interes', label: 'No me interesaba' },
+]
+
+function Equipo({ codigo }: { codigo: string }) {
+  const e = equipoPorCodigo[codigo]
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span className="text-lg">{e?.bandera}</span>
+      {e?.nombre ?? codigo}
+    </span>
+  )
+}
+
+interface Props {
+  evaluado: PartidoEvaluado
+  perfil: Perfil
+  feedback?: Feedback
+  onFeedback: (gusto: boolean, motivo?: MotivoDislike) => void
+  onClear: () => void
+}
+
+export function MatchCard({ evaluado, perfil, feedback, onFeedback, onClear }: Props) {
+  const { partido, factores, categoria, horaUsuario, afinidad } = evaluado
+  const meta = CATEGORIA_META[categoria]
+  const maxContrib = Math.max(...factores.map((f) => f.contribucion), 0.0001)
+
+  const [aiText, setAiText] = useState<string | null>(null)
+  const [estadoIA, setEstadoIA] = useState<'idle' | 'cargando' | 'error'>('idle')
+
+  async function mejorarConIA() {
+    setEstadoIA('cargando')
+    const t = await justificarConGemini(evaluado, perfil)
+    if (t) {
+      setAiText(t)
+      setEstadoIA('idle')
+    } else {
+      setEstadoIA('error')
+    }
+  }
+
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="font-medium">
+            <Equipo codigo={partido.local} /> <span className="text-muted-foreground">vs</span>{' '}
+            <Equipo codigo={partido.visitante} />
+          </div>
+          <Badge className={meta.clase}>{meta.label}</Badge>
+        </div>
+
+        <div className="text-xs text-muted-foreground">
+          Grupo {partido.grupo} · Fecha {partido.jornada} · {horaUsuario} · {partido.ciudad}
+        </div>
+
+        <div className="space-y-1">
+          <p className="text-sm">{aiText ?? justificar(evaluado)}</p>
+          <div className="flex items-center gap-2">
+            {aiText ? (
+              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+                <Sparkles className="size-3" /> Explicado con IA
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={mejorarConIA}
+                disabled={estadoIA === 'cargando'}
+                className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground disabled:opacity-50"
+              >
+                {estadoIA === 'cargando' ? (
+                  <Loader2 className="size-3 animate-spin" />
+                ) : (
+                  <Sparkles className="size-3" />
+                )}
+                Mejorar con IA
+              </button>
+            )}
+            {estadoIA === 'error' && (
+              <span className="text-[10px] text-muted-foreground">IA no disponible</span>
+            )}
+          </div>
+        </div>
+
+        {factores.length > 0 && (
+          <div className="space-y-1">
+            {factores.slice(0, 4).map((f) => (
+              <div key={f.factor} className="flex items-center gap-2 text-xs">
+                <span className="w-32 shrink-0 text-muted-foreground">{FEATURE_LABELS[f.factor]}</span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded bg-muted">
+                  <div
+                    className="h-full rounded bg-primary"
+                    style={{ width: `${(f.contribucion / maxContrib) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between">
+          <div className="text-[10px] text-muted-foreground">
+            afinidad {(afinidad * 100).toFixed(0)}% · confianza {nivelConfianza(evaluado.incertidumbre)}
+          </div>
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              size="icon"
+              variant={feedback?.gusto === true ? 'default' : 'outline'}
+              className="size-7"
+              aria-label="Me gustó"
+              onClick={() => (feedback?.gusto === true ? onClear() : onFeedback(true))}
+            >
+              <ThumbsUp className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant={feedback?.gusto === false ? 'default' : 'outline'}
+              className="size-7"
+              aria-label="No me gustó"
+              onClick={() => (feedback?.gusto === false ? onClear() : onFeedback(false))}
+            >
+              <ThumbsDown className="size-3.5" />
+            </Button>
+          </div>
+        </div>
+
+        {feedback?.gusto === false && (
+          <div className="flex flex-wrap items-center gap-1 border-t border-border pt-2">
+            <span className="text-xs text-muted-foreground">¿Qué no te gustó?</span>
+            {MOTIVOS.map(({ motivo, label }) => (
+              <Button
+                key={motivo}
+                type="button"
+                size="sm"
+                variant={feedback.motivo === motivo ? 'secondary' : 'ghost'}
+                className="h-6 px-2 text-xs"
+                onClick={() => onFeedback(false, feedback.motivo === motivo ? undefined : motivo)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}

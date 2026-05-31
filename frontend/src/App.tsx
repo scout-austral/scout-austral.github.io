@@ -58,6 +58,12 @@ import flagZa from 'flag-icons/flags/4x3/za.svg'
 import { equipos, partidos } from './data'
 import type { Grupo } from './data/types'
 import './App.css'
+import { useProfile } from '@/hooks/useProfile'
+import { useFeedback } from '@/hooks/useFeedback'
+import { Results } from '@/components/Results'
+import { QuizSliders } from '@/components/QuizSliders'
+import { PerfilSettings } from '@/components/PerfilSettings'
+import type { Perfil } from '@/lib/recommender/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 const TOKEN_KEY = 'scout_auth_token'
@@ -78,18 +84,8 @@ const navItems: Array<{
   icon: ComponentType<{ 'aria-hidden'?: boolean }>
 }> = [
   { page: 'inicio', label: 'Inicio', href: '/', icon: FaHome },
-  {
-    page: 'fixture',
-    label: 'Fixture',
-    href: '/fixture',
-    icon: FaTable,
-  },
-  {
-    page: 'calendario',
-    label: 'Calendario',
-    href: '/calendario',
-    icon: FaRegCalendarAlt,
-  },
+  { page: 'fixture', label: 'Fixture', href: '/fixture', icon: FaTable },
+  { page: 'calendario', label: 'Calendario', href: '/calendario', icon: FaRegCalendarAlt },
   { page: 'perfil', label: 'Perfil', href: '/perfil', icon: FaRegUser },
 ]
 
@@ -148,21 +144,15 @@ const grupos = Array.from(new Set(equipos.map((equipo) => equipo.grupo))).sort()
 
 function TeamFlag({ code }: { code: string }) {
   const flagSrc = flagByTeamCode[code]
-
-  if (!flagSrc) {
-    return <span className="flag-fallback">{code}</span>
-  }
-
+  if (!flagSrc) return <span className="flag-fallback">{code}</span>
   return <img alt="" aria-hidden="true" className="team-flag" src={flagSrc} />
 }
 
 function getPageFromPath(): Page {
   const path = window.location.pathname
-
   if (path.startsWith('/fixture')) return 'fixture'
   if (path.startsWith('/calendario')) return 'calendario'
   if (path.startsWith('/perfil')) return 'perfil'
-
   return 'inicio'
 }
 
@@ -208,20 +198,15 @@ function FieldLines({ side }: { side: 'left' | 'right' }) {
       viewBox={`0 0 ${W} ${H}`}
       width={W}
     >
-      {/* vertical touchline */}
       <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5" x1={vx} x2={vx} y1={0} y2={H} />
-      {/* top penalty area line */}
       <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5"
         x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyTop} y2={penaltyTop} />
-      {/* bottom penalty area line */}
       <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5"
         x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyBot} y2={penaltyBot} />
-      {/* closing vertical of area */}
       <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5"
         x1={isLeft ? vx + areaLen : vx - areaLen}
         x2={isLeft ? vx + areaLen : vx - areaLen}
         y1={penaltyTop} y2={penaltyBot} />
-      {/* penalty spot */}
       <circle cx={spotX} cy={spotY} r={2.5} fill="white" fillOpacity="0.25" />
     </svg>
   )
@@ -239,9 +224,12 @@ function App() {
     return err ? `Error: ${decodeURIComponent(err)}` : ''
   })
 
+  const { perfil, actualizar, reset: resetPerfil } = useProfile()
+  const { priors, deltas, porPartido, registrar, quitar, reset: resetFeedback } =
+    useFeedback(perfil)
+
   useEffect(() => {
     const onPopState = () => setPage(getPageFromPath())
-
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
@@ -310,7 +298,6 @@ function App() {
           <nav className="primary-nav" aria-label="Navegacion principal">
             {navItems.map((item) => {
               const Icon = item.icon
-
               return (
                 <a
                   aria-current={page === item.page ? 'page' : undefined}
@@ -332,11 +319,7 @@ function App() {
           {!authChecked ? null : user ? (
             <>
               {!user.calendarConnected && (
-                <button
-                  className="calendar-button"
-                  type="button"
-                  onClick={connectCalendar}
-                >
+                <button className="calendar-button" type="button" onClick={connectCalendar}>
                   <FaRegCalendarAlt aria-hidden="true" />
                   Conectar Calendar
                 </button>
@@ -355,33 +338,76 @@ function App() {
       </header>
 
       {authError && <p className="auth-error">{authError}</p>}
+
       {!authChecked ? null : user ? (
-        <AppPage page={page} user={user} />
+        <AppPage
+          page={page}
+          user={user}
+          perfil={perfil}
+          actualizar={actualizar}
+          resetPerfil={resetPerfil}
+          priors={priors}
+          deltas={deltas}
+          porPartido={porPartido}
+          registrar={registrar}
+          quitar={quitar}
+          resetFeedback={resetFeedback}
+        />
       ) : (
-        <Landing />
+        <LandingPage perfil={perfil} actualizar={actualizar} />
       )}
     </main>
   )
 }
 
-function Landing() {
-  return null
+function LandingPage({
+  perfil,
+  actualizar,
+}: {
+  perfil: Perfil
+  actualizar: (cambios: Partial<Perfil>) => void
+}) {
+  return (
+    <section className="content-shell">
+      <div className="section-heading">
+        <h1>Tu tiempo, tu Mundial.</h1>
+        <p>
+          Scout clasifica los 72 partidos de la fase de grupos del Mundial 2026 según tu
+          afinidad y disponibilidad. Completá el quiz para arrancar.
+        </p>
+      </div>
+      <QuizSliders perfil={perfil} actualizar={actualizar} />
+    </section>
+  )
 }
 
 function AppPage({
   page,
   user,
+  perfil,
+  actualizar,
+  resetPerfil,
+  priors,
+  deltas,
+  porPartido,
+  registrar,
+  quitar,
+  resetFeedback,
 }: {
   page: Page
   user: User
+  perfil: Perfil
+  actualizar: (cambios: Partial<Perfil>) => void
+  resetPerfil: () => void
+  priors: Parameters<typeof Results>[0]['priors']
+  deltas: Parameters<typeof Results>[0]['deltas']
+  porPartido: Parameters<typeof Results>[0]['porPartido']
+  registrar: Parameters<typeof Results>[0]['registrar']
+  quitar: Parameters<typeof Results>[0]['quitar']
+  resetFeedback: Parameters<typeof Results>[0]['resetFeedback']
 }) {
-  if (page === 'fixture') {
-    return <FixturePage />
-  }
-
-  if (page === 'calendario') {
-    return <CalendarPage />
-  }
+  if (page === 'fixture') return <FixturePage />
+  if (page === 'calendario') return <CalendarPage />
 
   if (page === 'perfil') {
     return (
@@ -389,6 +415,7 @@ function AppPage({
         <div className="section-heading">
           <h1>{user.name ?? user.email}</h1>
         </div>
+        <PerfilSettings perfil={perfil} actualizar={actualizar} reset={resetPerfil} />
       </section>
     )
   }
@@ -398,6 +425,19 @@ function AppPage({
       <div className="section-heading">
         <h1>Bienvenido.</h1>
       </div>
+      <div className="inicio-recomendaciones">
+        <h2 className="inicio-recomendaciones-title">Tus recomendaciones</h2>
+        <Results
+          perfil={perfil}
+          priors={priors}
+          porPartido={porPartido}
+          deltas={deltas}
+          registrar={registrar}
+          quitar={quitar}
+          resetFeedback={resetFeedback}
+        />
+      </div>
+      <QuizSliders perfil={perfil} actualizar={actualizar} />
     </section>
   )
 }
@@ -406,7 +446,7 @@ function AppPage({
 
 type BMatch = { id: string; home: string; away: string }
 
-const SLOT_H = 96 // px — total bracket height = 8 × SLOT_H
+const SLOT_H = 96
 
 const L_R32: BMatch[] = [
   { id: 'M49', home: '1A', away: '2B' },
@@ -455,7 +495,6 @@ const R_SF: BMatch[] = [{ id: 'M78', home: 'G M75', away: 'G M76' }]
 const FINAL_MATCH: BMatch = { id: 'M79', home: 'G M77', away: 'G M78' }
 const THIRD_MATCH: BMatch = { id: 'M80', home: 'P M77', away: 'P M78' }
 
-// Left: R32→R16→QF→SF (left to right toward center)
 const LEFT_ROUNDS = [
   { label: '32avos', matches: L_R32 },
   { label: 'Octavos', matches: L_R16 },
@@ -463,15 +502,12 @@ const LEFT_ROUNDS = [
   { label: 'Semis', matches: L_SF },
 ]
 
-// Right: SF→QF→R16→R32 (left to right from center outward)
 const RIGHT_ROUNDS = [
   { label: 'Semis', matches: R_SF },
   { label: 'Cuartos', matches: R_QF },
   { label: 'Octavos', matches: R_R16 },
   { label: '32avos', matches: R_R32 },
 ]
-
-// ─── KnockoutBracket ─────────────────────────────────────────────────────────
 
 function BCard({ match, third = false }: { match: BMatch; third?: boolean }) {
   return (
@@ -518,7 +554,6 @@ function KnockoutBracket() {
   const totalH = 8 * SLOT_H
   return (
     <div className="b-wrap">
-      {/* Left half: R32 → R16 → QF → SF */}
       <div className="b-half b-half--left">
         {LEFT_ROUNDS.map((round, i) => (
           <BCol
@@ -530,8 +565,6 @@ function KnockoutBracket() {
           />
         ))}
       </div>
-
-      {/* Center: Final + 3er puesto */}
       <div className="b-center" style={{ height: totalH + 22 }}>
         <div className="b-center-inner">
           <div className="b-col-label">Final</div>
@@ -540,8 +573,6 @@ function KnockoutBracket() {
           <BCard match={THIRD_MATCH} third />
         </div>
       </div>
-
-      {/* Right half: SF → QF → R16 → R32 */}
       <div className="b-half b-half--right">
         {RIGHT_ROUNDS.map((round, i) => (
           <BCol
@@ -594,7 +625,6 @@ function FixturePage() {
           <div className="groups-grid">
             {grupos.map((grupo) => {
               const groupTeams = equipos.filter((equipo) => equipo.grupo === grupo)
-
               return (
                 <button
                   className="group-card"
@@ -637,7 +667,6 @@ function FixturePage() {
                     Cerrar
                   </button>
                 </header>
-
                 <div className="group-matches">
                   {selectedMatches.map((partido) => (
                     <article className="group-match" key={partido.id}>
@@ -677,7 +706,6 @@ const MONTHS_ES = [
   'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
 ]
 
-
 function getKnockoutLabel(dateStr: string): string | null {
   const [y, m, d] = dateStr.split('-').map(Number)
   if (y !== 2026) return null
@@ -692,7 +720,6 @@ function getKnockoutLabel(dateStr: string): string | null {
 
 function generateCalendarDays(): string[] {
   const days: string[] = []
-  // June 11 → July 19, 2026
   for (let m = 6; m <= 7; m++) {
     const startD = m === 6 ? 11 : 1
     const endD = m === 6 ? 30 : 19
@@ -726,7 +753,6 @@ function CalendarPage() {
 
   return (
     <section className="cal-page">
-      {/* Horizontal day selector */}
       <div className="cal-strip-wrap">
         <div className="cal-strip">
           {CALENDAR_DAYS.map((dateStr) => {
@@ -748,7 +774,6 @@ function CalendarPage() {
         </div>
       </div>
 
-      {/* Day content */}
       <div className="cal-content content-shell">
         <h2 className="cal-day-title">{fullLabel}</h2>
 

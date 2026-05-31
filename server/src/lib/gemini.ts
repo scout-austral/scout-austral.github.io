@@ -25,9 +25,9 @@ export async function generateMatchJustification(params: {
 Generá una justificación breve (2-3 oraciones) en español para por qué el partido ${params.homeTeam} vs ${params.awayTeam} (Grupo ${params.group}, ${params.matchDate}) fue clasificado como "${categoryLabel}" para este usuario.
 
 Perfil del usuario:
-- Equipos favoritos: ${params.favoriteTeams.join(', ') || 'ninguno especificado'}
-- Jugadores favoritos: ${params.favoritePlayers.join(', ') || 'ninguno especificado'}
-- Disponible en ese horario: ${params.availableAt ? 'sí' : 'no'}
+- Equipos favoritos: ${params.userProfile.favoriteTeams.join(', ') || 'ninguno especificado'}
+- Jugadores favoritos: ${params.userProfile.favoritePlayers.join(', ') || 'ninguno especificado'}
+- Disponible en ese horario: ${params.userProfile.availableAt ? 'sí' : 'no'}
 
 Factores de scoring: ${JSON.stringify(params.scoreBreakdown)}
 
