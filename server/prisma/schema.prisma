@@ -18,6 +18,7 @@ model User {
   calendarAccessToken   String?
   calendarRefreshToken  String?
   calendarConnected     Boolean  @default(false)
+  profile               Json?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }

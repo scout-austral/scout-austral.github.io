@@ -1,8 +1,9 @@
-// Estado del perfil del usuario, persistido en localStorage.
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Perfil } from '@/lib/recommender/types'
 
 const STORAGE_KEY = 'scout_perfil'
+const TOKEN_KEY = 'scout_auth_token'
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
 function zonaHorariaDelBrowser(): string {
   try {
@@ -23,26 +24,71 @@ export function perfilInicial(): Perfil {
   }
 }
 
-function cargar(): Perfil {
+function cargarLocal(): Perfil {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return { ...perfilInicial(), ...(JSON.parse(raw) as Partial<Perfil>) }
-  } catch {
-    /* ignore */
-  }
+  } catch { /* ignore */ }
   return perfilInicial()
 }
 
-export function useProfile() {
-  const [perfil, setPerfil] = useState<Perfil>(cargar)
+function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY)
+}
 
+export function useProfile() {
+  const [perfil, setPerfil] = useState<Perfil>(cargarLocal)
+  const [apiLoaded, setApiLoaded] = useState(false)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Persist to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(perfil))
-    } catch {
-      /* ignore */
-    }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(perfil)) } catch { /* ignore */ }
   }, [perfil])
+
+  // Load from API on mount (if logged in)
+  useEffect(() => {
+    const token = getToken()
+    if (!token) { setApiLoaded(true); return }
+
+    fetch(`${API_BASE_URL}/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (r) => {
+        if (!r.ok) return
+        const data = (await r.json()) as { perfil: Partial<Perfil> | null }
+        if (data.perfil) {
+          const merged = { ...perfilInicial(), ...data.perfil }
+          setPerfil(merged)
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+        }
+      })
+      .catch(() => {})
+      .finally(() => setApiLoaded(true))
+  }, [])
+
+  // Save to API with debounce (only after initial load)
+  useEffect(() => {
+    if (!apiLoaded) return
+    const token = getToken()
+    if (!token) return
+
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      fetch(`${API_BASE_URL}/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ perfil }),
+      }).catch(() => {})
+    }, 800)
+
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current)
+    }
+  }, [perfil, apiLoaded])
 
   const actualizar = useCallback((cambios: Partial<Perfil>) => {
     setPerfil((p) => ({ ...p, ...cambios }))

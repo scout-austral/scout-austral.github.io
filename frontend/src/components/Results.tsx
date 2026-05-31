@@ -25,6 +25,7 @@ interface Props {
   priors: Record<FeatureKey, Prior>
   porPartido: Map<string, Feedback>
   deltas: AprendizajeFactor[]
+  calendarConnected: boolean
   registrar: (partidoId: string, gusto: boolean, motivo?: MotivoDislike) => void
   quitar: (partidoId: string) => void
   resetFeedback: () => void
@@ -64,6 +65,7 @@ export function Results({
   priors,
   porPartido,
   deltas,
+  calendarConnected,
   registrar,
   quitar,
   resetFeedback,
@@ -97,6 +99,7 @@ export function Results({
                   evaluado={e}
                   perfil={perfil}
                   feedback={porPartido.get(e.partido.id)}
+                  calendarConnected={calendarConnected}
                   onFeedback={(gusto, motivo) => registrar(e.partido.id, gusto, motivo)}
                   onClear={() => quitar(e.partido.id)}
                 />

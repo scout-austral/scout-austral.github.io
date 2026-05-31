@@ -6,6 +6,33 @@ import { requireAuth } from '../middleware/auth'
 
 const router = Router()
 
+function makeOAuthClient(user: any) {
+  const client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI,
+  )
+  client.setCredentials({
+    access_token: user.calendarAccessToken,
+    refresh_token: user.calendarRefreshToken,
+  })
+  return client
+}
+
+async function refreshIfNeeded(client: OAuth2Client, userId: string) {
+  const credentials = client.credentials
+  if (credentials.access_token) {
+    const stored = await prisma.user.findUnique({ where: { id: userId }, select: { calendarAccessToken: true } })
+    if (stored && credentials.access_token !== stored.calendarAccessToken) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { calendarAccessToken: credentials.access_token },
+      })
+    }
+  }
+}
+
+// GET /calendar/events — próximos eventos del usuario
 router.get('/events', requireAuth, async (req: Request, res: Response): Promise<void> => {
   const user = (req as any).user
 
@@ -14,16 +41,7 @@ router.get('/events', requireAuth, async (req: Request, res: Response): Promise<
     return
   }
 
-  const client = new OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI,
-  )
-
-  client.setCredentials({
-    access_token: user.calendarAccessToken,
-    refresh_token: user.calendarRefreshToken,
-  })
+  const client = makeOAuthClient(user)
 
   try {
     const calendar = google.calendar({ version: 'v3', auth: client })
@@ -35,13 +53,7 @@ router.get('/events', requireAuth, async (req: Request, res: Response): Promise<
       orderBy: 'startTime',
     })
 
-    const credentials = client.credentials
-    if (credentials.access_token && credentials.access_token !== user.calendarAccessToken) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { calendarAccessToken: credentials.access_token },
-      })
-    }
+    await refreshIfNeeded(client, user.id)
 
     res.json({
       events: (data.items ?? []).map((event) => ({
@@ -54,6 +66,59 @@ router.get('/events', requireAuth, async (req: Request, res: Response): Promise<
   } catch (error) {
     console.error('Google Calendar error:', error)
     res.status(500).json({ error: 'Could not load calendar events' })
+  }
+})
+
+// POST /calendar/events — agenda un partido en el calendario del usuario
+router.post('/events', requireAuth, async (req: Request, res: Response): Promise<void> => {
+  const user = (req as any).user
+
+  if (!user.calendarConnected || !user.calendarRefreshToken) {
+    res.status(409).json({ error: 'Calendar not connected' })
+    return
+  }
+
+  const { summary, description, startTime, endTime, location } = req.body as {
+    summary: string
+    description?: string
+    startTime: string
+    endTime: string
+    location?: string
+  }
+
+  if (!summary || !startTime || !endTime) {
+    res.status(400).json({ error: 'summary, startTime y endTime son requeridos' })
+    return
+  }
+
+  const client = makeOAuthClient(user)
+
+  try {
+    const calendar = google.calendar({ version: 'v3', auth: client })
+    const { data } = await calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: {
+        summary,
+        description,
+        location,
+        start: { dateTime: startTime },
+        end: { dateTime: endTime },
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: 'popup', minutes: 60 },
+            { method: 'popup', minutes: 15 },
+          ],
+        },
+      },
+    })
+
+    await refreshIfNeeded(client, user.id)
+
+    res.json({ eventId: data.id, eventUrl: data.htmlLink })
+  } catch (error) {
+    console.error('Calendar event create error:', error)
+    res.status(500).json({ error: 'Could not create calendar event' })
   }
 })
 

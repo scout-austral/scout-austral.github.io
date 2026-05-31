@@ -15,6 +15,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+const TOKEN_KEY = 'scout_auth_token'
+
 const CATEGORIA_META: Record<Categoria, { label: string; clase: string }> = {
   imperdible: { label: 'Imperdible', clase: 'bg-emerald-600 text-white' },
   vale_la_pena: { label: 'Vale la pena', clase: 'bg-amber-500 text-black' },
@@ -26,6 +29,25 @@ const MOTIVOS: { motivo: MotivoDislike; label: string }[] = [
   { motivo: 'nivel', label: 'El nivel de juego' },
   { motivo: 'sin_interes', label: 'No me interesaba' },
 ]
+
+function CalendarIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width={size} height={size}>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  )
+}
 
 function Equipo({ codigo }: { codigo: string }) {
   const e = equipoPorCodigo[codigo]
@@ -41,26 +63,71 @@ interface Props {
   evaluado: PartidoEvaluado
   perfil: Perfil
   feedback?: Feedback
+  calendarConnected: boolean
   onFeedback: (gusto: boolean, motivo?: MotivoDislike) => void
   onClear: () => void
 }
 
-export function MatchCard({ evaluado, perfil, feedback, onFeedback, onClear }: Props) {
+export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFeedback, onClear }: Props) {
   const { partido, factores, categoria, horaUsuario, afinidad } = evaluado
   const meta = CATEGORIA_META[categoria]
   const maxContrib = Math.max(...factores.map((f) => f.contribucion), 0.0001)
 
   const [aiText, setAiText] = useState<string | null>(null)
   const [estadoIA, setEstadoIA] = useState<'idle' | 'cargando' | 'error'>('idle')
+  const [calendarState, setCalendarState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [calendarUrl, setCalendarUrl] = useState<string | null>(null)
 
   async function mejorarConIA() {
     setEstadoIA('cargando')
     const t = await justificarConGemini(evaluado, perfil)
-    if (t) {
-      setAiText(t)
-      setEstadoIA('idle')
-    } else {
-      setEstadoIA('error')
+    if (t) { setAiText(t); setEstadoIA('idle') }
+    else setEstadoIA('error')
+  }
+
+  async function agendarEnCalendar() {
+    setCalendarState('loading')
+    const token = localStorage.getItem(TOKEN_KEY)
+    if (!token) { setCalendarState('error'); return }
+
+    // El partido dura ~2 horas
+    const start = new Date(partido.kickoff_utc)
+    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000)
+
+    const localTeam = equipoPorCodigo[partido.local]
+    const awayTeam = equipoPorCodigo[partido.visitante]
+    const summary = `${localTeam?.bandera ?? ''} ${localTeam?.nombre ?? partido.local} vs ${awayTeam?.bandera ?? ''} ${awayTeam?.nombre ?? partido.visitante} — Mundial 2026`
+    const description = [
+      `Grupo ${partido.grupo} · Jornada ${partido.jornada}`,
+      `Estadio: ${partido.sede}`,
+      `Ciudad: ${partido.ciudad}, ${partido.pais}`,
+      `Capacidad: ${partido.capacidad.toLocaleString()} personas`,
+    ].join('\n')
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/calendar/events`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          summary,
+          description,
+          startTime: start.toISOString(),
+          endTime: end.toISOString(),
+          location: `${partido.sede}, ${partido.ciudad}`,
+        }),
+      })
+      const data = (await res.json()) as { eventUrl?: string; error?: string }
+      if (res.ok && data.eventUrl) {
+        setCalendarUrl(data.eventUrl)
+        setCalendarState('done')
+      } else {
+        setCalendarState('error')
+      }
+    } catch {
+      setCalendarState('error')
     }
   }
 
@@ -93,11 +160,7 @@ export function MatchCard({ evaluado, perfil, feedback, onFeedback, onClear }: P
                 disabled={estadoIA === 'cargando'}
                 className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground disabled:opacity-50"
               >
-                {estadoIA === 'cargando' ? (
-                  <Loader2 className="size-3 animate-spin" />
-                ) : (
-                  <Sparkles className="size-3" />
-                )}
+                {estadoIA === 'cargando' ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
                 Mejorar con IA
               </button>
             )}
@@ -113,10 +176,7 @@ export function MatchCard({ evaluado, perfil, feedback, onFeedback, onClear }: P
               <div key={f.factor} className="flex items-center gap-2 text-xs">
                 <span className="w-32 shrink-0 text-muted-foreground">{FEATURE_LABELS[f.factor]}</span>
                 <div className="h-1.5 flex-1 overflow-hidden rounded bg-muted">
-                  <div
-                    className="h-full rounded bg-primary"
-                    style={{ width: `${(f.contribucion / maxContrib) * 100}%` }}
-                  />
+                  <div className="h-full rounded bg-primary" style={{ width: `${(f.contribucion / maxContrib) * 100}%` }} />
                 </div>
               </div>
             ))}
@@ -127,7 +187,39 @@ export function MatchCard({ evaluado, perfil, feedback, onFeedback, onClear }: P
           <div className="text-[10px] text-muted-foreground">
             afinidad {(afinidad * 100).toFixed(0)}% · confianza {nivelConfianza(evaluado.incertidumbre)}
           </div>
-          <div className="flex gap-1">
+          <div className="flex items-center gap-1.5">
+            {/* Botón Agendar en Calendar */}
+            {calendarConnected && (
+              calendarState === 'done' ? (
+                <a
+                  href={calendarUrl ?? undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mc-cal-btn mc-cal-btn--done"
+                  title="Ver en Google Calendar"
+                >
+                  <CheckIcon />
+                  <span>Agendado</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  className="mc-cal-btn"
+                  disabled={calendarState === 'loading'}
+                  onClick={agendarEnCalendar}
+                  title="Agendar en Google Calendar"
+                >
+                  {calendarState === 'loading' ? (
+                    <Loader2 className="animate-spin" style={{ width: 13, height: 13 }} />
+                  ) : (
+                    <CalendarIcon />
+                  )}
+                  <span>{calendarState === 'error' ? 'Reintentar' : 'Agendar'}</span>
+                </button>
+              )
+            )}
+
+            {/* Feedback */}
             <Button
               type="button"
               size="icon"

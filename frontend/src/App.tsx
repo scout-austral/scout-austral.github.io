@@ -352,6 +352,7 @@ function App() {
           registrar={registrar}
           quitar={quitar}
           resetFeedback={resetFeedback}
+          calendarConnected={user.calendarConnected}
         />
       ) : (
         <LandingPage perfil={perfil} actualizar={actualizar} />
@@ -391,6 +392,7 @@ function AppPage({
   registrar,
   quitar,
   resetFeedback,
+  calendarConnected,
 }: {
   page: Page
   user: User
@@ -403,6 +405,7 @@ function AppPage({
   registrar: Parameters<typeof Results>[0]['registrar']
   quitar: Parameters<typeof Results>[0]['quitar']
   resetFeedback: Parameters<typeof Results>[0]['resetFeedback']
+  calendarConnected: boolean
 }) {
   if (page === 'fixture') return <FixturePage />
   if (page === 'calendario') return <CalendarPage />
@@ -448,6 +451,7 @@ function AppPage({
             priors={priors}
             porPartido={porPartido}
             deltas={deltas}
+            calendarConnected={calendarConnected}
             registrar={registrar}
             quitar={quitar}
             resetFeedback={resetFeedback}
