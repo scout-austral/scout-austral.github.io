@@ -11,7 +11,6 @@ import type {
 } from '@/lib/recommender/types'
 import { DEFAULT_WEIGHTS, FEATURE_LABELS } from '@/lib/recommender'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -325,23 +324,21 @@ export function ProfilePage({ perfil, actualizar, reset }: Props) {
           </svg>
           Disponibilidad horaria
         </h3>
-        <div className="profile-franjas">
+        <div className="ff-grid">
           {DIAS.map(({ dia, label }) => (
-            <div key={dia} className="profile-franja-row">
-              <span className="profile-franja-dia">{label}</span>
-              <div className="profile-franja-slots">
-                {SLOTS.map((s) => (
-                  <Button
-                    key={s.label}
-                    type="button"
-                    size="sm"
-                    variant={franjaActiva(dia, s.desde, s.hasta) ? 'default' : 'outline'}
-                    onClick={() => toggleFranja(dia, s.desde, s.hasta)}
-                  >
-                    {s.label}
-                  </Button>
-                ))}
-              </div>
+            <div key={dia} className="ff-row">
+              <span className="ff-dia">{label}</span>
+              {SLOTS.map((s) => (
+                <button
+                  key={s.label}
+                  type="button"
+                  className={`ff-slot${franjaActiva(dia, s.desde, s.hasta) ? ' ff-slot--on' : ''}`}
+                  onClick={() => toggleFranja(dia, s.desde, s.hasta)}
+                  title={s.label}
+                >
+                  {s.label.charAt(0)}
+                </button>
+              ))}
             </div>
           ))}
         </div>
@@ -375,36 +372,32 @@ export function ProfilePage({ perfil, actualizar, reset }: Props) {
 
         <div className="profile-config-row">
           <span className="profile-config-label">Tolerancia horaria</span>
-          <div className="flex gap-1">
+          <div className="profile-toggle-group">
             {(['baja', 'media', 'alta'] as Tolerancia[]).map((t) => (
-              <Button
+              <button
                 key={t}
                 type="button"
-                size="sm"
-                variant={perfil.tolerancia === t ? 'default' : 'outline'}
+                className={`profile-toggle${perfil.tolerancia === t ? ' profile-toggle--on' : ''}`}
                 onClick={() => actualizar({ tolerancia: t })}
-                className="capitalize"
               >
                 {t}
-              </Button>
+              </button>
             ))}
           </div>
         </div>
 
         <div className="profile-config-row">
           <span className="profile-config-label">Perfil de fan</span>
-          <div className="flex gap-1">
+          <div className="profile-toggle-group">
             {(['casual', 'total'] as PerfilFan[]).map((p) => (
-              <Button
+              <button
                 key={p}
                 type="button"
-                size="sm"
-                variant={perfil.perfilFan === p ? 'default' : 'outline'}
+                className={`profile-toggle${perfil.perfilFan === p ? ' profile-toggle--on' : ''}`}
                 onClick={() => actualizar({ perfilFan: p })}
-                className="capitalize"
               >
                 {p === 'casual' ? 'Casual' : 'Total'}
-              </Button>
+              </button>
             ))}
           </div>
         </div>
