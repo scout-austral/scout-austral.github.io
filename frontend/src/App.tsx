@@ -253,7 +253,8 @@ function App() {
       window.history.replaceState({}, '', window.location.pathname)
     }
 
-    if (params.get('calendar_connected')) {
+    const calendarJustConnected = !!params.get('calendar_connected')
+    if (calendarJustConnected) {
       window.history.replaceState({}, '', window.location.pathname)
     }
 
