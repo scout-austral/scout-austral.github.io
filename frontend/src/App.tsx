@@ -61,8 +61,8 @@ import './App.css'
 import { useProfile } from '@/hooks/useProfile'
 import { useFeedback } from '@/hooks/useFeedback'
 import { Results } from '@/components/Results'
-import { QuizSliders } from '@/components/QuizSliders'
-import { PerfilSettings } from '@/components/PerfilSettings'
+import { FranjasFilter } from '@/components/FranjasFilter'
+import { ProfilePage } from '@/components/ProfilePage'
 import type { Perfil } from '@/lib/recommender/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
@@ -360,23 +360,21 @@ function App() {
   )
 }
 
-function LandingPage({
-  perfil,
-  actualizar,
-}: {
-  perfil: Perfil
-  actualizar: (cambios: Partial<Perfil>) => void
-}) {
+function LandingPage(_: { perfil: Perfil; actualizar: (cambios: Partial<Perfil>) => void }) {
   return (
-    <section className="content-shell">
-      <div className="section-heading">
-        <h1>Tu tiempo, tu Mundial.</h1>
-        <p>
-          Scout clasifica los 72 partidos de la fase de grupos del Mundial 2026 según tu
-          afinidad y disponibilidad. Completá el quiz para arrancar.
+    <section className="content-shell landing-page">
+      <div className="landing-hero">
+        <FaFutbol className="landing-hero-icon" aria-hidden="true" />
+        <h1 className="landing-title">Tu tiempo, tu Mundial.</h1>
+        <p className="landing-subtitle">
+          Scout clasifica los 72 partidos del Mundial 2026 según tu afinidad y disponibilidad.
+          Iniciá sesión para ver tus recomendaciones personalizadas.
         </p>
+        <a className="google-nav-button landing-cta" href={`${API_BASE_URL}/auth/google`}>
+          <GoogleIcon />
+          Entrar con Google
+        </a>
       </div>
-      <QuizSliders perfil={perfil} actualizar={actualizar} />
     </section>
   )
 }
@@ -415,29 +413,50 @@ function AppPage({
         <div className="section-heading">
           <h1>{user.name ?? user.email}</h1>
         </div>
-        <PerfilSettings perfil={perfil} actualizar={actualizar} reset={resetPerfil} />
+        <ProfilePage perfil={perfil} actualizar={actualizar} reset={resetPerfil} />
       </section>
     )
   }
 
+  // Inicio
+  const sinEquipo = perfil.equiposFavoritos.length === 0
   return (
     <section className="content-shell">
-      <div className="section-heading">
-        <h1>Bienvenido.</h1>
+      <div className="inicio-layout">
+        <div className="inicio-results">
+          {sinEquipo && (
+            <div className="inicio-hint">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+              </svg>
+              Agregá tu selección favorita en{' '}
+              <button
+                type="button"
+                className="inicio-hint-link"
+                onClick={() => {
+                  window.history.pushState({}, '', '/perfil')
+                  window.dispatchEvent(new PopStateEvent('popstate'))
+                }}
+              >
+                Perfil
+              </button>{' '}
+              para ver imperdibles personalizados.
+            </div>
+          )}
+          <Results
+            perfil={perfil}
+            priors={priors}
+            porPartido={porPartido}
+            deltas={deltas}
+            registrar={registrar}
+            quitar={quitar}
+            resetFeedback={resetFeedback}
+          />
+        </div>
+        <aside className="inicio-sidebar">
+          <FranjasFilter perfil={perfil} actualizar={actualizar} />
+        </aside>
       </div>
-      <div className="inicio-recomendaciones">
-        <h2 className="inicio-recomendaciones-title">Tus recomendaciones</h2>
-        <Results
-          perfil={perfil}
-          priors={priors}
-          porPartido={porPartido}
-          deltas={deltas}
-          registrar={registrar}
-          quitar={quitar}
-          resetFeedback={resetFeedback}
-        />
-      </div>
-      <QuizSliders perfil={perfil} actualizar={actualizar} />
     </section>
   )
 }
