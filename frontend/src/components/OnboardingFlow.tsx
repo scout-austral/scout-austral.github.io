@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 import { equipos, jugadores } from '@/data'
-import type { FeatureKey, Perfil } from '@/lib/recommender/types'
+import type { FeatureKey, Perfil, Tolerancia } from '@/lib/recommender/types'
 import { Badge } from '@/components/ui/badge'
 
 // ─── Tipos internos ───────────────────────────────────────────────────────────
@@ -9,20 +9,22 @@ import { Badge } from '@/components/ui/badge'
 interface Answers {
   equipos: string[]
   jugadores: string[]
+  fanLevel: 'total' | 'casual' | null   // → perfilFan + boost en equipo
   pairwise: 'stars' | 'competitive' | null
   jornada3: number | null
   grupoMuerte: number | null
-  horario: 'siempre' | 'selectivo' | 'evito' | null
+  tolerancia: Tolerancia | null          // → tolerancia horaria
 }
 
 function buildImportancia(a: Answers): Partial<Record<FeatureKey, number>> {
+  const fanBoost = a.fanLevel === 'total' ? 10 : 0
   return {
-    equipo: a.equipos.length > 0 ? 88 : 12,
-    jugador: a.jugadores.length > 0 ? 72 : 8,
-    estrellas: a.pairwise === 'stars' ? 82 : a.pairwise === 'competitive' ? 32 : 50,
-    competitividad: a.pairwise === 'competitive' ? 82 : a.pairwise === 'stars' ? 32 : 50,
-    jornada3: a.jornada3 ?? 50,
-    grupo_muerte: a.grupoMuerte ?? 50,
+    equipo:         a.equipos.length > 0   ? 82 + fanBoost : 12,
+    jugador:        a.jugadores.length > 0 ? 72 : 8,
+    estrellas:      a.pairwise === 'stars'       ? 82 : a.pairwise === 'competitive' ? 32 : 50,
+    competitividad: a.pairwise === 'competitive' ? 82 : a.pairwise === 'stars'       ? 32 : 50,
+    jornada3:       a.jornada3    ?? 50,
+    grupo_muerte:   a.grupoMuerte ?? 50,
   }
 }
 
@@ -90,10 +92,14 @@ function IconClock() {
 function IconSkull() {
   return <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2a9 9 0 0 0-9 9c0 3.03 1.5 5.7 3.8 7.3V21a1 1 0 0 0 1 1h8.4a1 1 0 0 0 1-1v-2.7C19.5 16.7 21 14 21 11A9 9 0 0 0 12 2zm-2 14H8v-2h2v2zm0-4H8v-2h2v2zm4 4h-2v-2h2v2zm0-4h-2v-2h2v2z"/></svg>
 }
+function IconMoon() {
+  return <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+}
 
 // ─── OnboardingFlow ───────────────────────────────────────────────────────────
 
-const TOTAL_STEPS = 5 // pasos con contenido (no cuenta welcome ni done)
+// Pasos: 1 Equipos | 2 Jugadores | 3 FanLevel | 4 Pairwise | 5 Jornada | 6 GrupoMuerte | 7 Tolerancia
+const TOTAL_STEPS = 7
 
 interface Props {
   actualizar: (c: Partial<Perfil>) => void
@@ -101,15 +107,16 @@ interface Props {
 }
 
 export function OnboardingFlow({ actualizar, onDone }: Props) {
-  const [step, setStep] = useState(0) // 0=welcome, 1-5=preguntas, 6=done
+  const [step, setStep] = useState(0) // 0=welcome, 1-7=preguntas, 8=done
   const [dir, setDir] = useState(1)
   const [answers, setAnswers] = useState<Answers>({
     equipos: [],
     jugadores: [],
+    fanLevel: null,
     pairwise: null,
     jornada3: null,
     grupoMuerte: null,
-    horario: null,
+    tolerancia: null,
   })
 
   function go(n: number) {
@@ -139,7 +146,9 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
     const importancia = buildImportancia(answers)
     const equiposFavoritos = answers.equipos.map((codigo, i) => ({ codigo, prioridad: i + 1 }))
     const jugadoresFavoritos = answers.jugadores
-    actualizar({ equiposFavoritos, jugadoresFavoritos, importancia })
+    const perfilFan = answers.fanLevel === 'total' ? 'total' : 'casual'
+    const tolerancia: Tolerancia = answers.tolerancia ?? 'media'
+    actualizar({ equiposFavoritos, jugadoresFavoritos, importancia, perfilFan, tolerancia })
     localStorage.setItem('scout_onboarding_done', '1')
     onDone()
   }
@@ -149,14 +158,14 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
       {/* Header */}
       <div className="ob-top">
         <span className="ob-brand">Scout</span>
-        {step > 0 && step < 6 && (
+        {step > 0 && step < 8 && (
           <div className="ob-dots">
             {Array.from({ length: TOTAL_STEPS }, (_, i) => (
               <span key={i} className={`ob-dot${i < step ? ' ob-dot--done' : i + 1 === step ? ' ob-dot--active' : ''}`} />
             ))}
           </div>
         )}
-        {step > 0 && step < 6 && (
+        {step > 0 && step < 8 && (
           <button type="button" className="ob-skip" onClick={finish}>
             Saltar todo
           </button>
@@ -185,31 +194,45 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
           />
         )}
         {step === 3 && (
-          <Step3Pairwise
+          <Step3FanLevel
+            selected={answers.fanLevel}
+            onSelect={v => { setAnswers(a => ({ ...a, fanLevel: v })); next() }}
+            onBack={back}
+          />
+        )}
+        {step === 4 && (
+          <Step4Pairwise
             selected={answers.pairwise}
             onSelect={v => { setAnswers(a => ({ ...a, pairwise: v })); next() }}
             onBack={back}
           />
         )}
-        {step === 4 && (
-          <Step4Jornada
+        {step === 5 && (
+          <Step5Jornada
             selected={answers.jornada3}
             onSelect={v => { setAnswers(a => ({ ...a, jornada3: v })); next() }}
             onBack={back}
           />
         )}
-        {step === 5 && (
-          <Step5GrupoMuerte
+        {step === 6 && (
+          <Step6GrupoMuerte
             selected={answers.grupoMuerte}
-            onSelect={v => { setAnswers(a => ({ ...a, grupoMuerte: v })); go(6) }}
+            onSelect={v => { setAnswers(a => ({ ...a, grupoMuerte: v })); next() }}
             onBack={back}
           />
         )}
-        {step === 6 && <DoneStep onFinish={finish} />}
+        {step === 7 && (
+          <Step7Tolerancia
+            selected={answers.tolerancia}
+            onSelect={v => { setAnswers(a => ({ ...a, tolerancia: v })); go(8) }}
+            onBack={back}
+          />
+        )}
+        {step === 8 && <DoneStep onFinish={finish} />}
       </div>
 
-      {/* Back nav — visible en pasos 2+ */}
-      {step > 1 && step < 6 && (
+      {/* Back nav */}
+      {step > 1 && step < 8 && (
         <button type="button" className="ob-back-btn" onClick={back} aria-label="Volver">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
             <polyline points="15 18 9 12 15 6" />
@@ -232,7 +255,7 @@ function WelcomeStep({ onStart }: { onStart: () => void }) {
       </div>
       <h1 className="ob-welcome-title">Bienvenido a Scout.</h1>
       <p className="ob-welcome-sub">
-        5 preguntas rápidas y te armo una guía personal de los 72 partidos del Mundial 2026.
+        7 preguntas rápidas y te armo una guía personal de los 72 partidos del Mundial 2026.
         <br />Sin relleno. Solo lo que vale la pena para vos.
       </p>
       <button type="button" className="ob-cta" onClick={onStart}>
@@ -259,7 +282,7 @@ function Step1Equipo({ answers, onAdd, onRemove, onNext, onSkip }: {
 
   return (
     <div className="ob-step">
-      <p className="ob-step-num">1 de 5</p>
+      <p className="ob-step-num">1 de 7</p>
       <h2 className="ob-question">¿Con qué selección vas?</h2>
       <p className="ob-hint">Podés agregar varias, ordenadas por prioridad.</p>
 
@@ -317,7 +340,7 @@ function Step2Jugador({ answers, onAdd, onRemove, onNext, onSkip }: {
 
   return (
     <div className="ob-step">
-      <p className="ob-step-num">2 de 5</p>
+      <p className="ob-step-num">2 de 7</p>
       <h2 className="ob-question">¿Seguís a algún jugador en particular?</h2>
       <p className="ob-hint">Cuando juegue, lo priorizamos para vos.</p>
 
@@ -357,14 +380,48 @@ function Step2Jugador({ answers, onAdd, onRemove, onNext, onSkip }: {
   )
 }
 
-function Step3Pairwise({ selected, onSelect }: {
+function Step3FanLevel({ selected, onSelect }: {
+  selected: 'total' | 'casual' | null
+  onSelect: (v: 'total' | 'casual') => void
+  onBack?: () => void
+}) {
+  return (
+    <div className="ob-step">
+      <p className="ob-step-num">3 de 7</p>
+      <h2 className="ob-question">¿Cómo sos como hincha del fútbol?</h2>
+
+      <div className="ob-cards">
+        <button
+          type="button"
+          className={`ob-card${selected === 'total' ? ' ob-card--selected' : ''}`}
+          onClick={() => onSelect('total')}
+        >
+          <div className="ob-card-icon"><IconFire /></div>
+          <span className="ob-card-title">Fanático total</span>
+          <span className="ob-card-desc">Busco ver todo lo que puedo. El fútbol organiza mi semana.</span>
+        </button>
+        <button
+          type="button"
+          className={`ob-card${selected === 'casual' ? ' ob-card--selected' : ''}`}
+          onClick={() => onSelect('casual')}
+        >
+          <div className="ob-card-icon"><IconStar /></div>
+          <span className="ob-card-title">Hincha selectivo</span>
+          <span className="ob-card-desc">Me engancho con lo que realmente vale. No veo todo.</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function Step4Pairwise({ selected, onSelect }: {
   selected: 'stars' | 'competitive' | null
   onSelect: (v: 'stars' | 'competitive') => void
   onBack?: () => void
 }) {
   return (
     <div className="ob-step">
-      <p className="ob-step-num">3 de 5</p>
+      <p className="ob-step-num">4 de 7</p>
       <h2 className="ob-question">Esta noche tenés libre. Elegís:</h2>
 
       <div className="ob-cards">
@@ -391,7 +448,7 @@ function Step3Pairwise({ selected, onSelect }: {
   )
 }
 
-function Step4Jornada({ selected, onSelect }: {
+function Step5Jornada({ selected, onSelect }: {
   selected: number | null
   onSelect: (v: number) => void
   onBack?: () => void
@@ -404,7 +461,7 @@ function Step4Jornada({ selected, onSelect }: {
 
   return (
     <div className="ob-step">
-      <p className="ob-step-num">4 de 5</p>
+      <p className="ob-step-num">5 de 7</p>
       <h2 className="ob-question">Última jornada de grupos. Todo se define. ¿Cómo te ponés?</h2>
 
       <div className="ob-options">
@@ -427,7 +484,7 @@ function Step4Jornada({ selected, onSelect }: {
   )
 }
 
-function Step5GrupoMuerte({ selected, onSelect }: {
+function Step6GrupoMuerte({ selected, onSelect }: {
   selected: number | null
   onSelect: (v: number) => void
   onBack?: () => void
@@ -440,8 +497,44 @@ function Step5GrupoMuerte({ selected, onSelect }: {
 
   return (
     <div className="ob-step">
-      <p className="ob-step-num">5 de 5</p>
+      <p className="ob-step-num">6 de 7</p>
       <h2 className="ob-question">¿Cómo te llevás con los grupos de la muerte?</h2>
+
+      <div className="ob-options">
+        {options.map(o => (
+          <button
+            key={o.val}
+            type="button"
+            className={`ob-option${selected === o.val ? ' ob-option--selected' : ''}`}
+            onClick={() => onSelect(o.val)}
+          >
+            {o.icon && <span className="ob-option-icon">{o.icon}</span>}
+            <div>
+              <span className="ob-option-label">{o.label}</span>
+              <span className="ob-option-desc">{o.desc}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Step7Tolerancia({ selected, onSelect }: {
+  selected: Tolerancia | null
+  onSelect: (v: Tolerancia) => void
+  onBack?: () => void
+}) {
+  const options: { val: Tolerancia; icon: React.ReactNode; label: string; desc: string }[] = [
+    { val: 'alta',  icon: <IconFire />,  label: 'Sí, siempre encuentro la manera',    desc: 'El horario no me frena si el partido vale la pena.' },
+    { val: 'media', icon: <IconClock />, label: 'Depende cuánto valga la pena',        desc: 'Si el horario es muy malo, lo miro al otro día.' },
+    { val: 'baja',  icon: <IconMoon />,  label: 'No, el horario me importa mucho',     desc: 'Los partidos de madrugada quedan directamente afuera.' },
+  ]
+
+  return (
+    <div className="ob-step">
+      <p className="ob-step-num">7 de 7</p>
+      <h2 className="ob-question">Un partido clave se juega a las 2 AM. ¿Lo mirás?</h2>
 
       <div className="ob-options">
         {options.map(o => (
@@ -474,8 +567,8 @@ function DoneStep({ onFinish }: { onFinish: () => void }) {
       </div>
       <h2 className="ob-welcome-title">Ya sé lo que buscás.</h2>
       <p className="ob-welcome-sub">
-        Clasificamos los 72 partidos del grupo según tus preferencias.
-        <br />Podés ajustar todo esto desde tu perfil cuando quieras.
+        Clasificamos los 72 partidos del Mundial según tus preferencias.
+        <br />Podés ajustar todo desde tu perfil cuando quieras.
       </p>
       <button type="button" className="ob-cta" onClick={onFinish}>
         Ver mis recomendaciones

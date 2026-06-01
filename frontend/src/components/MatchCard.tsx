@@ -97,7 +97,7 @@ export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFee
 
     const localTeam = equipoPorCodigo[partido.local]
     const awayTeam = equipoPorCodigo[partido.visitante]
-    const summary = `${localTeam?.bandera ?? ''} ${localTeam?.nombre ?? partido.local} vs ${awayTeam?.bandera ?? ''} ${awayTeam?.nombre ?? partido.visitante} — Mundial 2026`
+    const summary = `${localTeam?.bandera ?? ''} ${localTeam?.nombre ?? partido.local} vs ${awayTeam?.bandera ?? ''} ${awayTeam?.nombre ?? partido.visitante} | Mundial 2026`
     const description = [
       `Grupo ${partido.grupo} · Jornada ${partido.jornada}`,
       `Estadio: ${partido.sede}`,
