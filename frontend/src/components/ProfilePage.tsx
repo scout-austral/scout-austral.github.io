@@ -158,6 +158,7 @@ interface Props {
   perfil: Perfil
   actualizar: (cambios: Partial<Perfil>) => void
   reset: () => void
+  onRedoSurvey: () => void
 }
 
 const equipoItems: ComboItem[] = equiposOrdenados.map((e) => ({
@@ -169,7 +170,7 @@ const jugadorItems: ComboItem[] = jugadoresOrdenados.map((j) => ({
   label: `${j.nombre} · ${j.seleccion}`,
 }))
 
-export function ProfilePage({ perfil, actualizar, reset }: Props) {
+export function ProfilePage({ perfil, actualizar, reset, onRedoSurvey }: Props) {
   const zonas = useMemo(
     () => Array.from(new Set([perfil.zonaHoraria, ...ZONAS])),
     [perfil.zonaHoraria],
@@ -296,7 +297,8 @@ export function ProfilePage({ perfil, actualizar, reset }: Props) {
         <p className="profile-section-hint">1 = no me importa · 5 = imprescindible</p>
         <div className="profile-factors">
           {FACTOR_CONFIG.map(({ key, label, desc, icon }) => {
-            const activeBtn = valToBtn(importancia[key])
+            // Sin calibrar (importancia no seteada) → ningún botón activo (neutral).
+            const activeBtn = perfil.importancia?.[key] != null ? valToBtn(importancia[key]) : -1
             return (
               <div key={key} className="profile-factor">
                 <div className="profile-factor-label">
@@ -409,9 +411,14 @@ export function ProfilePage({ perfil, actualizar, reset }: Props) {
         </div>
       </section>
 
-      <button type="button" className="profile-reset" onClick={reset}>
-        Limpiar todo el perfil
-      </button>
+      <div className="profile-actions">
+        <button type="button" className="profile-redo" onClick={onRedoSurvey}>
+          Volver a hacer la encuesta
+        </button>
+        <button type="button" className="profile-reset" onClick={reset}>
+          Limpiar todo el perfil
+        </button>
+      </div>
     </div>
   )
 }

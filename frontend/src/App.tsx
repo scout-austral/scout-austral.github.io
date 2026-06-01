@@ -117,6 +117,7 @@ function FieldLines({ side }: { side: 'left' | 'right' }) {
 function App() {
   const [page, setPage] = useState<Page>(getPageFromPath)
   const [user, setUser] = useState<User | null>(null)
+  const [redoOnboarding, setRedoOnboarding] = useState(false)
   const [authChecked, setAuthChecked] = useState(() => {
     const params = new URLSearchParams(window.location.search)
     return !params.get('token') && !localStorage.getItem(TOKEN_KEY)
@@ -183,6 +184,12 @@ function App() {
   function navigate(href: string, nextPage: Page) {
     window.history.pushState({}, '', href)
     setPage(nextPage)
+  }
+
+  function rehacerEncuesta() {
+    localStorage.removeItem('scout_onboarding_done')
+    setRedoOnboarding(true)
+    navigate('/', 'inicio')
   }
 
   function signOut() {
@@ -264,10 +271,10 @@ function App() {
 
       {authError && <p className="auth-error">{authError}</p>}
 
-      {!authChecked ? null : user && needsOnboarding(perfil) ? (
+      {!authChecked ? null : user && (redoOnboarding || needsOnboarding(perfil)) ? (
         <OnboardingFlow
           actualizar={actualizar}
-          onDone={() => { /* re-render automático via actualizar() */ }}
+          onDone={() => setRedoOnboarding(false)}
         />
       ) : !authChecked ? null : user ? (
         <AppPage
@@ -276,6 +283,7 @@ function App() {
           perfil={perfil}
           actualizar={actualizar}
           resetPerfil={resetPerfil}
+          onRedoSurvey={rehacerEncuesta}
           priors={priors}
           deltas={deltas}
           precision={precision}
@@ -320,6 +328,7 @@ function AppPage({
   perfil,
   actualizar,
   resetPerfil,
+  onRedoSurvey,
   priors,
   deltas,
   precision,
@@ -337,6 +346,7 @@ function AppPage({
   perfil: Perfil
   actualizar: (cambios: Partial<Perfil>) => void
   resetPerfil: () => void
+  onRedoSurvey: () => void
   priors: Parameters<typeof Results>[0]['priors']
   deltas: Parameters<typeof Results>[0]['deltas']
   precision: Parameters<typeof Results>[0]['precision']
@@ -358,7 +368,7 @@ function AppPage({
         <div className="section-heading">
           <h1>{user.name ?? user.email}</h1>
         </div>
-        <ProfilePage perfil={perfil} actualizar={actualizar} reset={resetPerfil} />
+        <ProfilePage perfil={perfil} actualizar={actualizar} reset={resetPerfil} onRedoSurvey={onRedoSurvey} />
       </section>
     )
   }
