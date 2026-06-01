@@ -258,6 +258,14 @@ function App() {
       window.history.replaceState({}, '', window.location.pathname)
     }
 
+    const calendarError = params.get('calendar_error')
+    if (calendarError) {
+      window.history.replaceState({}, '', window.location.pathname)
+      if (calendarError === 'scope_denied') {
+        alert('Google no otorgó el permiso de calendario. Intentá de nuevo y asegurate de tildar el acceso al calendario.')
+      }
+    }
+
     const token = tokenFromGoogle ?? localStorage.getItem(TOKEN_KEY)
     if (!token) return
 
@@ -285,6 +293,14 @@ function App() {
     localStorage.removeItem(TOKEN_KEY)
     setUser(null)
     navigate('/', 'inicio')
+  }
+
+  function refreshUser() {
+    const token = localStorage.getItem(TOKEN_KEY)
+    if (!token) return
+    fetch(`${API_BASE_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (r) => { if (r.ok) setUser(((await r.json()) as { user: User }).user) })
+      .catch(() => {})
   }
 
   function connectCalendar() {
@@ -365,6 +381,7 @@ function App() {
           quitar={quitar}
           resetFeedback={resetFeedback}
           calendarConnected={user.calendarConnected}
+          onCalendarDisconnected={refreshUser}
         />
       ) : (
         <LandingPage perfil={perfil} actualizar={actualizar} />
@@ -405,6 +422,7 @@ function AppPage({
   quitar,
   resetFeedback,
   calendarConnected,
+  onCalendarDisconnected,
 }: {
   page: Page
   user: User
@@ -418,6 +436,7 @@ function AppPage({
   quitar: Parameters<typeof Results>[0]['quitar']
   resetFeedback: Parameters<typeof Results>[0]['resetFeedback']
   calendarConnected: boolean
+  onCalendarDisconnected?: () => void
 }) {
   if (page === 'fixture') return <FixturePage />
   if (page === 'calendario') return <CalendarPage />
@@ -467,6 +486,7 @@ function AppPage({
             registrar={registrar}
             quitar={quitar}
             resetFeedback={resetFeedback}
+            onCalendarDisconnected={onCalendarDisconnected}
           />
         </div>
         <aside className="inicio-sidebar">

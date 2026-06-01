@@ -66,9 +66,10 @@ interface Props {
   calendarConnected: boolean
   onFeedback: (gusto: boolean, motivo?: MotivoDislike) => void
   onClear: () => void
+  onCalendarDisconnected?: () => void
 }
 
-export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFeedback, onClear }: Props) {
+export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFeedback, onClear, onCalendarDisconnected }: Props) {
   const { partido, factores, categoria, horaUsuario, afinidad } = evaluado
   const meta = CATEGORIA_META[categoria]
   const maxContrib = Math.max(...factores.map((f) => f.contribucion), 0.0001)
@@ -123,8 +124,9 @@ export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFee
       if (res.ok && data.eventUrl) {
         setCalendarUrl(data.eventUrl)
         setCalendarState('done')
-      } else if (res.status === 403) {
+      } else if (res.status === 403 || res.status === 401) {
         setCalendarState('reconnect')
+        onCalendarDisconnected?.()
       } else {
         setCalendarState('error')
       }

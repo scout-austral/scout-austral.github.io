@@ -29,6 +29,7 @@ interface Props {
   registrar: (partidoId: string, gusto: boolean, motivo?: MotivoDislike) => void
   quitar: (partidoId: string) => void
   resetFeedback: () => void
+  onCalendarDisconnected?: () => void
 }
 
 function Aprendizaje({ deltas, onReset }: { deltas: AprendizajeFactor[]; onReset: () => void }) {
@@ -69,6 +70,7 @@ export function Results({
   registrar,
   quitar,
   resetFeedback,
+  onCalendarDisconnected,
 }: Props) {
   const grupos = useMemo(
     () => agruparPorCategoria(recomendar(perfil, priors)),
@@ -102,6 +104,7 @@ export function Results({
                   calendarConnected={calendarConnected}
                   onFeedback={(gusto, motivo) => registrar(e.partido.id, gusto, motivo)}
                   onClear={() => quitar(e.partido.id)}
+                  onCalendarDisconnected={onCalendarDisconnected}
                 />
               ))
             )}

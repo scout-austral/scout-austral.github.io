@@ -98,6 +98,15 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
     // Calendar connect callback (state = "calendar:userId")
     if (state?.startsWith('calendar:')) {
       const userId = state.replace('calendar:', '')
+      const grantedScopes = (tokens.scope ?? '').split(' ')
+      const hasCalendarScope = grantedScopes.some(
+        (s) => s.includes('calendar.events') || s.includes('calendar'),
+      )
+      if (!hasCalendarScope) {
+        console.error('Calendar connect: scope not granted by Google. Granted:', tokens.scope)
+        res.redirect(`${frontendUrl}?calendar_error=scope_denied`)
+        return
+      }
       await prisma.user.update({
         where: { id: userId },
         data: {

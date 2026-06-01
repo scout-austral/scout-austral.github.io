@@ -121,12 +121,15 @@ router.post('/events', requireAuth, async (req: Request, res: Response): Promise
     const googleError = error?.response?.data?.error ?? error?.message ?? 'unknown'
     console.error('Calendar event create error:', { googleStatus, googleError, error: error?.response?.data })
 
-    if (googleStatus === 403) {
-      res.status(403).json({ error: 'insufficient_scope', message: 'Permiso de escritura no disponible. Reconectá tu Google Calendar.' })
-      return
-    }
-    if (googleStatus === 401) {
-      res.status(401).json({ error: 'token_expired', message: 'Sesión de Calendar expirada. Reconectá tu Google Calendar.' })
+    if (googleStatus === 403 || googleStatus === 401) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { calendarConnected: false },
+      }).catch(() => {})
+      const msg = googleStatus === 403
+        ? 'Permiso de escritura no disponible. Reconectá tu Google Calendar.'
+        : 'Sesión de Calendar expirada. Reconectá tu Google Calendar.'
+      res.status(googleStatus).json({ error: googleStatus === 403 ? 'insufficient_scope' : 'token_expired', message: msg })
       return
     }
     res.status(500).json({ error: 'calendar_error', message: googleError })
