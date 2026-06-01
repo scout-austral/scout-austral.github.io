@@ -13,6 +13,7 @@ const perfil: Perfil = {
   zonaHoraria: 'America/Argentina/Buenos_Aires',
   tolerancia: 'media',
   perfilFan: 'casual',
+  scheduledMatches: {},
 }
 
 // Baseline en cero => saliencia = features crudas (test determinístico).
@@ -23,6 +24,8 @@ const baselineCero: FeatureVector = {
   competitividad: 0,
   grupo_muerte: 0,
   jornada3: 0,
+  rivalidad: 0,
+  ultimo_baile: 0,
 }
 
 const argAlg = partidos.find((p) => p.local === 'ARG' && p.visitante === 'ALG')!

@@ -52,7 +52,7 @@ enriquece la redacción de la justificación; si no está, se usa la justificaci
 
 ## 5. Features del partido
 
-Seis factores normalizados a [0, 1]. Con `fuerza(r) = clamp(1 − (r−1)/50, 0, 1)` sobre el ranking FIFA `r`:
+Ocho factores normalizados a [0, 1]. Con `fuerza(r) = clamp(1 − (r−1)/50, 0, 1)` sobre el ranking FIFA `r`:
 
 | Feature | Fórmula |
 |---|---|
@@ -62,9 +62,18 @@ Seis factores normalizados a [0, 1]. Con `fuerza(r) = clamp(1 − (r−1)/50, 0,
 | `competitividad` | `clamp(1 − |rank_local − rank_visitante| / 30, 0, 1)` |
 | `grupo_muerte` | `fuerzaProm · (0.4 + 0.6·paridad)`, `paridad = 1 − (max − min)` de fuerzas del grupo |
 | `jornada3` | jornada 3 → 1; jornada 2 → 0.25; jornada 1 → 0 |
+| `rivalidad` | `max(`storyline curado`,` derbi de confederación `)`; 0 si ninguno |
+| `ultimo_baile` | intensidad de la leyenda más icónica en (probable) último Mundial; 0 si no juega ninguna |
 
-`competitividad` y `grupo_muerte` son los factores **no obvios más allá del ranking FIFA** que premia la
-competencia: capturan la *paridad* (partido emocionante) por encima del nivel absoluto.
+`competitividad`, `grupo_muerte`, `rivalidad` y `ultimo_baile` son los factores **no obvios más allá del
+ranking FIFA** que premia la competencia: capturan la *paridad* (partido emocionante), el *drama de grupo*,
+el *morbo* del cruce (rivalidades históricas y derbis regionales) y la *narrativa* de ver a un ídolo
+despedirse, por encima del nivel absoluto.
+
+**Datos curados** (`frontend/src/data/`): `rivalidades.ts` lista cruces con storyline verificados contra el
+fixture (p. ej. Francia–Senegal, revancha de 2002; Inglaterra–Croacia, semifinal de 2018) más un piso por
+derbi de confederación; `ultimoBaile.ts` lista figuras en probable último Mundial con su intensidad
+(Messi, Cristiano = 1.0).
 
 ## 6. Modelo de afinidad (bayesiano)
 
@@ -80,15 +89,18 @@ incertidumbre(m) = √Var(m)
 
 | Factor | μ | σ |
 |---|---|---|
-| equipo | 0.34 | 0.04 |
-| jugador | 0.18 | 0.05 |
-| estrellas | 0.16 | 0.09 |
-| competitividad | 0.16 | 0.11 |
-| grupo_muerte | 0.08 | 0.10 |
-| jornada3 | 0.08 | 0.08 |
+| equipo | 0.30 | 0.04 |
+| jugador | 0.16 | 0.05 |
+| estrellas | 0.14 | 0.09 |
+| competitividad | 0.14 | 0.11 |
+| grupo_muerte | 0.07 | 0.10 |
+| jornada3 | 0.07 | 0.08 |
+| rivalidad | 0.06 | 0.10 |
+| ultimo_baile | 0.06 | 0.09 |
 
 σ refleja la **confianza a priori**: alta en lo que el usuario afirma (equipo/jugador), menor en factores
-inferidos (competitividad). **Calibrar** el perfil redefine las medias (normalizadas) y reduce σ a la mitad.
+inferidos o "no obvios" (competitividad, rivalidad, último baile). **Calibrar** el perfil redefine las medias
+(normalizadas) y reduce σ a la mitad.
 
 ## 7. Disponibilidad
 
@@ -105,7 +117,8 @@ disponibilidad (no penaliza).
 ## 8. Clasificación
 
 Combina `(μ, σ, encaje)`. Umbrales por perfil fan: `casual {alto 0.6, medio 0.35}`,
-`total {alto 0.5, medio 0.3}`. Sea `τ_σ = 0.11` el corte de "score poco confiable":
+`total {alto 0.5, medio 0.3}`. Sea `τ_σ = 0.16` el corte de "score poco confiable" (recalibrado para 8
+factores: sumar features independientes eleva el σ agregado del score):
 
 ```
 si encaje == imposible            → Resumen
@@ -137,7 +150,8 @@ equipo favorito):
 2. **Saliencia por sorpresa:** `a_k = max(0, f_k − f̄_k)`, desviación respecto del promedio de la "dieta"
    del usuario (sus K=12 partidos de mayor afinidad). Lo que está *siempre presente* aporta poca información.
 3. **Chip "¿qué no te gustó?":** atribución directa — `horario` no toca pesos (es disponibilidad);
-   `nivel` ajusta estrellas/competitividad/grupo/jornada; `no me interesaba` ajusta equipo/jugador.
+   `nivel` ajusta estrellas/competitividad/grupo/jornada/rivalidad; `no me interesaba` ajusta
+   equipo/jugador/último-baile.
 
 El posterior se obtiene plegando todo el feedback sobre el prior base (replay), de modo que respeta también
 la calibración. La UI muestra **qué aprendió** el modelo (qué factores subieron/bajaron).
@@ -150,20 +164,30 @@ la calibración. La UI muestra **qué aprendió** el modelo (qué factores subie
 
 ## 11. Validación / métrica de éxito
 
-Sin verdad de campo, la validación es de **consistencia y validez aparente**:
+Sin verdad de campo, la validación combina una **métrica de precisión sobre el feedback del usuario** con
+**consistencia y validez aparente**:
 
-- **Suite de tests** (`vitest`, 30 casos) que fija el comportamiento esperado: features, conversión de zona
-  horaria, umbrales de clasificación, rol de la incertidumbre y asignación de crédito del aprendizaje.
+- **Precisión del modelo (implementada y visible en la UI):** para cada partido que el usuario calificó
+  con 👍/👎, se mide si el modelo **cold-start** (los priors derivados del onboarding, *antes* de aprender)
+  lo había predicho correctamente (`afinidad ≥ umbral` ⇔ "le gusta"). Se reporta como *"acertó X de N
+  (Y %)"*. Usar los priors base —no el posterior— evita la fuga de información de medir con los mismos
+  pesos que el feedback ya ajustó; los 👎 por horario se excluyen (son disponibilidad, no afinidad).
+  Implementación en `frontend/src/lib/recommender/accuracy.ts`.
+- **Suite de tests** (`vitest`, 35 casos) que fija el comportamiento esperado: features (incluidos
+  rivalidad y último baile), conversión de zona horaria, umbrales de clasificación, rol de la
+  incertidumbre, asignación de crédito del aprendizaje y el cálculo de precisión.
 - **Escenarios de validez aparente:** p. ej. un hincha argentino obtiene los partidos de Argentina como
   Imperdibles; un partido en horario imposible cae a Resumen.
-- **Métrica propuesta para estudio con usuarios:** *precisión@k* sobre los partidos que el usuario
-  efectivamente declara que mirará, y mejora de esa precisión a medida que da feedback (curva de aprendizaje).
+- **Curva de aprendizaje:** la app expone *qué aprendió* el modelo (movimiento de cada peso con el
+  feedback), de modo que la mejora de la precisión a medida que el usuario califica es observable.
 
 ## 12. Limitaciones y extensiones
 
 - Datos de un evento futuro: ranking y planteles son los mejores disponibles a mayo 2026; algunos clubes de
   jugadores quedaron sin verificar.
 - La disponibilidad se evalúa por día/franja; no modela partidos que cruzan medianoche entre días.
-- **Extensiones:** rivalidades y clubes seguidos, actualizaciones dinámicas de resultados, fases
-  eliminatorias, sincronización del perfil/feedback en la cuenta del usuario (ya hay auth + Google), y
-  estudio con usuarios para calibrar umbrales y pesos.
+- Las rivalidades curadas dependen de que el cruce exista en el fixture de grupos; la cobertura crece con
+  cada storyline agregado.
+- **Extensiones:** clubes seguidos, actualizaciones dinámicas de resultados, fases eliminatorias y estudio
+  con usuarios para calibrar umbrales y pesos. (El perfil/feedback ya se sincronizan con la cuenta vía auth +
+  Google, y los partidos agendados se persisten en la base de datos.)

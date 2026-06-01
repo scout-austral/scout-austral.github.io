@@ -6,7 +6,7 @@
 
 import { equipoPorCodigo } from '@/data'
 import type { Partido } from '@/data/types'
-import { features } from './features'
+import { descripcionRivalidad, features, leyendasEnPartido } from './features'
 import type { FactorClave, FeatureKey, FeatureVector, Perfil } from './types'
 import { DEFAULT_WEIGHTS, FEATURE_LABELS, priorsDesdePerfil, type Prior } from './weights'
 
@@ -41,6 +41,16 @@ function etiquetaFactor(factor: FeatureKey, partido: Partido, perfil: Perfil): s
       return `Grupo ${partido.grupo}: fuerte y parejo`
     case 'jornada3':
       return 'Fecha decisiva del grupo'
+    case 'rivalidad': {
+      const desc = descripcionRivalidad(partido)
+      return desc ? `Morbo: ${desc}` : FEATURE_LABELS[factor]
+    }
+    case 'ultimo_baile': {
+      const leyendas = leyendasEnPartido(partido)
+      return leyendas.length > 0
+        ? `Posible último Mundial de ${leyendas[0].nombre}`
+        : FEATURE_LABELS[factor]
+    }
     default:
       return FEATURE_LABELS[factor]
   }

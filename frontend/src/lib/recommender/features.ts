@@ -2,6 +2,8 @@
 // Funciones puras sobre los datos locales (@/data) y el perfil del usuario.
 
 import { equipoPorCodigo, equipos, jugadores } from '@/data'
+import { rivalidadDe } from '@/data/rivalidades'
+import { leyendasPorSeleccion } from '@/data/ultimoBaile'
 import type { Partido } from '@/data/types'
 import type { FeatureVector, Perfil } from './types'
 
@@ -90,6 +92,30 @@ export function fJornada3(partido: Partido): number {
   return 0
 }
 
+/** Morbo del cruce: rivalidad histórica curada o derbi de confederación. */
+export function fRivalidad(partido: Partido): number {
+  return clamp01(rivalidadDe(partido.local, partido.visitante).intensidad)
+}
+
+/** Descripción legible del morbo del cruce, o null si no hay. */
+export function descripcionRivalidad(partido: Partido): string | null {
+  return rivalidadDe(partido.local, partido.visitante).etiqueta
+}
+
+/** Leyendas en (probable) último Mundial que juegan este partido, más fuerte primero. */
+export function leyendasEnPartido(partido: Partido) {
+  return [
+    ...(leyendasPorSeleccion[partido.local] ?? []),
+    ...(leyendasPorSeleccion[partido.visitante] ?? []),
+  ].sort((a, b) => b.intensidad - a.intensidad)
+}
+
+/** Último baile: ver a una leyenda despedirse del Mundial. Toma la más icónica. */
+export function fUltimoBaile(partido: Partido): number {
+  const leyendas = leyendasEnPartido(partido)
+  return leyendas.length > 0 ? clamp01(leyendas[0].intensidad) : 0
+}
+
 /** Vector de features completo de un partido para un perfil dado. */
 export function features(partido: Partido, perfil: Perfil): FeatureVector {
   return {
@@ -99,5 +125,7 @@ export function features(partido: Partido, perfil: Perfil): FeatureVector {
     competitividad: fCompetitividad(partido),
     grupo_muerte: fGrupoMuerte(partido),
     jornada3: fJornada3(partido),
+    rivalidad: fRivalidad(partido),
+    ultimo_baile: fUltimoBaile(partido),
   }
 }

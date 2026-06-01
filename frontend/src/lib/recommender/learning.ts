@@ -32,8 +32,8 @@ const K_DIETA = 12
 /** Qué factores ajusta cada motivo de 👎 (null = no toca pesos). */
 const FACTORES_POR_MOTIVO: Record<MotivoDislike, FeatureKey[] | null> = {
   horario: null, // es disponibilidad, no afinidad
-  nivel: ['estrellas', 'competitividad', 'grupo_muerte', 'jornada3'],
-  sin_interes: ['equipo', 'jugador'],
+  nivel: ['estrellas', 'competitividad', 'grupo_muerte', 'jornada3', 'rivalidad'],
+  sin_interes: ['equipo', 'jugador', 'ultimo_baile'],
 }
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x))

@@ -12,7 +12,8 @@ import type { Categoria, FeatureKey, PartidoEvaluado, Perfil } from './types'
 export * from './types'
 export { DEFAULT_WEIGHTS, DEFAULT_SIGMA, FEATURE_LABELS, priorsDesdePerfil } from './weights'
 export type { Prior } from './weights'
-export { nivelConfianza } from './classify'
+export { nivelConfianza, umbralPositivo } from './classify'
+export { evaluarPrecision, type PrecisionModelo } from './accuracy'
 export { justificacionLocal } from './justify'
 export {
   aplicarFeedback,

@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { partidos } from '@/data'
 import type { Partido } from '@/data/types'
-import { fCompetitividad, fEquipo, fJugador } from './features'
+import { fCompetitividad, fEquipo, fJugador, fRivalidad, fUltimoBaile } from './features'
 import { encajeHorario } from './availability'
 import { clasificar } from './classify'
 import { scorePartido } from './score'
 import { priorsDesdePerfil } from './weights'
-import { recomendar } from './index'
-import type { Perfil } from './types'
+import { evaluarPrecision, recomendar } from './index'
+import type { Feedback, Perfil } from './types'
 
 const partido = (over: Partial<Partido>): Partido => ({
   id: 'TST',
@@ -33,6 +33,7 @@ const perfilArg: Perfil = {
   zonaHoraria: 'America/Argentina/Buenos_Aires',
   tolerancia: 'media',
   perfilFan: 'total',
+  scheduledMatches: {},
 }
 
 describe('features', () => {
@@ -51,6 +52,19 @@ describe('features', () => {
     const dispar = fCompetitividad(partido({ local: 'ARG', visitante: 'ALG' })) // gap grande
     expect(parejo).toBeGreaterThan(0.9)
     expect(dispar).toBeLessThan(parejo)
+  })
+  it('fRivalidad: storyline curado (FRA-SEN, revancha 2002) muy alto; derbi de confederación moderado', () => {
+    const curado = fRivalidad(partido({ local: 'FRA', visitante: 'SEN' }))
+    const derbi = fRivalidad(partido({ local: 'FRA', visitante: 'NOR' })) // ambos UEFA, sin storyline
+    const nada = fRivalidad(partido({ local: 'ARG', visitante: 'ALG' })) // confeds distintas
+    expect(curado).toBeGreaterThan(0.9)
+    expect(derbi).toBeGreaterThan(0)
+    expect(derbi).toBeLessThan(curado)
+    expect(nada).toBe(0)
+  })
+  it('fUltimoBaile: 1.0 si juega una leyenda (Messi en ARG), 0 si no hay ninguna', () => {
+    expect(fUltimoBaile(partido({ local: 'ARG', visitante: 'ALG' }))).toBe(1)
+    expect(fUltimoBaile(partido({ local: 'MEX', visitante: 'RSA' }))).toBe(0)
   })
 })
 
@@ -115,7 +129,7 @@ describe('clasificar', () => {
 describe('priors e incertidumbre', () => {
   it('priorsDesdePerfil sin calibración usa los pesos por defecto', () => {
     const p = priorsDesdePerfil(undefined)
-    expect(p.equipo.mu).toBeCloseTo(0.34)
+    expect(p.equipo.mu).toBeCloseTo(0.3)
     expect(p.competitividad.sigma).toBeGreaterThan(p.equipo.sigma)
   })
   it('priorsDesdePerfil con calibración normaliza medias a suma 1 y reduce σ', () => {
@@ -146,5 +160,32 @@ describe('recomendar', () => {
     const argMatch = r.find((e) => e.partido.local === 'ARG' || e.partido.visitante === 'ARG')!
     expect(argMatch.categoria).toBe('imperdible')
     expect(argMatch.factores[0].factor).toBe('equipo')
+  })
+})
+
+describe('evaluarPrecision', () => {
+  const base = priorsDesdePerfil(undefined)
+  const argMatch = recomendar(perfilArg).find(
+    (e) => e.partido.local === 'ARG' || e.partido.visitante === 'ARG',
+  )!
+
+  it('no hay feedback → accuracy 0 y total 0', () => {
+    const p = evaluarPrecision(base, perfilArg, [])
+    expect(p.total).toBe(0)
+    expect(p.accuracy).toBe(0)
+  })
+  it('cuenta un acierto cuando el 👍 coincide con una predicción positiva', () => {
+    const fbs: Feedback[] = [{ partidoId: argMatch.partido.id, gusto: true }]
+    const p = evaluarPrecision(base, perfilArg, fbs)
+    expect(p.total).toBe(1)
+    expect(p.aciertos).toBe(1)
+    expect(p.accuracy).toBe(1)
+  })
+  it('los 👎 por "horario" no entran en la métrica (es disponibilidad, no afinidad)', () => {
+    const fbs: Feedback[] = [
+      { partidoId: argMatch.partido.id, gusto: false, motivo: 'horario' },
+    ]
+    const p = evaluarPrecision(base, perfilArg, fbs)
+    expect(p.total).toBe(0)
   })
 })

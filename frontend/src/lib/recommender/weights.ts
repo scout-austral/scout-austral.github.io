@@ -8,12 +8,14 @@ import type { FeatureKey, Weights } from './types'
 
 /** Medias por defecto (suman 1 → afinidad ∈ [0, 1] con features ∈ [0, 1]). */
 export const DEFAULT_WEIGHTS: Weights = {
-  equipo: 0.34,
-  jugador: 0.18,
-  estrellas: 0.16,
-  competitividad: 0.16,
-  grupo_muerte: 0.08,
-  jornada3: 0.08,
+  equipo: 0.3,
+  jugador: 0.16,
+  estrellas: 0.14,
+  competitividad: 0.14,
+  grupo_muerte: 0.07,
+  jornada3: 0.07,
+  rivalidad: 0.06,
+  ultimo_baile: 0.06,
 }
 
 /** Desvío estándar a priori de cada peso (mayor = más incierto). */
@@ -24,6 +26,9 @@ export const DEFAULT_SIGMA: Record<FeatureKey, number> = {
   competitividad: 0.11,
   grupo_muerte: 0.1,
   jornada3: 0.08,
+  // Factores "no obvios": más inciertos a priori, el feedback los calibra.
+  rivalidad: 0.1,
+  ultimo_baile: 0.09,
 }
 
 /** Factor por el que se reduce σ cuando el usuario calibra sus preferencias. */
@@ -41,6 +46,8 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   competitividad: 'Partido parejo',
   grupo_muerte: 'Grupo de la muerte',
   jornada3: 'Fecha decisiva',
+  rivalidad: 'Rivalidad / morbo',
+  ultimo_baile: 'Último baile de una leyenda',
 }
 
 const FEATURE_KEYS = Object.keys(DEFAULT_WEIGHTS) as FeatureKey[]

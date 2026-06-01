@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   aprendizaje,
+  evaluarPrecision,
   posteriorConFeedback,
   priorsDesdePerfil,
   type AprendizajeFactor,
@@ -10,6 +11,7 @@ import {
   type FeatureKey,
   type MotivoDislike,
   type Perfil,
+  type PrecisionModelo,
   type Prior,
 } from '@/lib/recommender'
 
@@ -51,6 +53,12 @@ export function useFeedback(perfil: Perfil) {
     [basePrior, priors],
   )
 
+  // Precisión del modelo cold-start (priors base) contra el feedback real del usuario.
+  const precision = useMemo<PrecisionModelo>(
+    () => evaluarPrecision(basePrior, perfil, feedbacks),
+    [basePrior, perfil, feedbacks],
+  )
+
   const porPartido = useMemo(() => {
     const m = new Map<string, Feedback>()
     for (const f of feedbacks) m.set(f.partidoId, f)
@@ -73,5 +81,5 @@ export function useFeedback(perfil: Perfil) {
 
   const reset = useCallback(() => setFeedbacks([]), [])
 
-  return { feedbacks, priors, deltas, porPartido, registrar, quitar, reset }
+  return { feedbacks, priors, deltas, precision, porPartido, registrar, quitar, reset }
 }

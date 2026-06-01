@@ -13,11 +13,15 @@ interface Answers {
   pairwise: 'stars' | 'competitive' | null
   jornada3: number | null
   grupoMuerte: number | null
+  narrativa: number | null               // → rivalidad + ultimo_baile (morbo / leyendas)
   tolerancia: Tolerancia | null          // → tolerancia horaria
 }
 
+const clamp100 = (x: number) => Math.max(0, Math.min(100, x))
+
 function buildImportancia(a: Answers): Partial<Record<FeatureKey, number>> {
   const fanBoost = a.fanLevel === 'total' ? 10 : 0
+  const narrativa = a.narrativa ?? 50
   return {
     equipo:         a.equipos.length > 0   ? 82 + fanBoost : 12,
     jugador:        a.jugadores.length > 0 ? 72 : 8,
@@ -25,6 +29,9 @@ function buildImportancia(a: Answers): Partial<Record<FeatureKey, number>> {
     competitividad: a.pairwise === 'competitive' ? 82 : a.pairwise === 'stars'       ? 32 : 50,
     jornada3:       a.jornada3    ?? 50,
     grupo_muerte:   a.grupoMuerte ?? 50,
+    rivalidad:      narrativa,
+    // El interés por leyendas se refuerza si además seguís jugadores puntuales.
+    ultimo_baile:   clamp100(narrativa + (a.jugadores.length > 0 ? 10 : 0)),
   }
 }
 
@@ -98,8 +105,8 @@ function IconMoon() {
 
 // ─── OnboardingFlow ───────────────────────────────────────────────────────────
 
-// Pasos: 1 Equipos | 2 Jugadores | 3 FanLevel | 4 Pairwise | 5 Jornada | 6 GrupoMuerte | 7 Tolerancia
-const TOTAL_STEPS = 7
+// Pasos: 1 Equipos | 2 Jugadores | 3 FanLevel | 4 Pairwise | 5 Jornada | 6 GrupoMuerte | 7 Narrativa | 8 Tolerancia
+const TOTAL_STEPS = 8
 
 interface Props {
   actualizar: (c: Partial<Perfil>) => void
@@ -107,7 +114,7 @@ interface Props {
 }
 
 export function OnboardingFlow({ actualizar, onDone }: Props) {
-  const [step, setStep] = useState(0) // 0=welcome, 1-7=preguntas, 8=done
+  const [step, setStep] = useState(0) // 0=welcome, 1-8=preguntas, 9=done
   const [dir, setDir] = useState(1)
   const [answers, setAnswers] = useState<Answers>({
     equipos: [],
@@ -116,6 +123,7 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
     pairwise: null,
     jornada3: null,
     grupoMuerte: null,
+    narrativa: null,
     tolerancia: null,
   })
 
@@ -158,14 +166,14 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
       {/* Header */}
       <div className="ob-top">
         <span className="ob-brand">Scout</span>
-        {step > 0 && step < 8 && (
+        {step > 0 && step < 9 && (
           <div className="ob-dots">
             {Array.from({ length: TOTAL_STEPS }, (_, i) => (
               <span key={i} className={`ob-dot${i < step ? ' ob-dot--done' : i + 1 === step ? ' ob-dot--active' : ''}`} />
             ))}
           </div>
         )}
-        {step > 0 && step < 8 && (
+        {step > 0 && step < 9 && (
           <button type="button" className="ob-skip" onClick={finish}>
             Saltar todo
           </button>
@@ -222,17 +230,24 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
           />
         )}
         {step === 7 && (
-          <Step7Tolerancia
-            selected={answers.tolerancia}
-            onSelect={v => { setAnswers(a => ({ ...a, tolerancia: v })); go(8) }}
+          <Step7Narrativa
+            selected={answers.narrativa}
+            onSelect={v => { setAnswers(a => ({ ...a, narrativa: v })); next() }}
             onBack={back}
           />
         )}
-        {step === 8 && <DoneStep onFinish={finish} />}
+        {step === 8 && (
+          <Step8Tolerancia
+            selected={answers.tolerancia}
+            onSelect={v => { setAnswers(a => ({ ...a, tolerancia: v })); go(9) }}
+            onBack={back}
+          />
+        )}
+        {step === 9 && <DoneStep onFinish={finish} />}
       </div>
 
       {/* Back nav */}
-      {step > 1 && step < 8 && (
+      {step > 1 && step < 9 && (
         <button type="button" className="ob-back-btn" onClick={back} aria-label="Volver">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
             <polyline points="15 18 9 12 15 6" />
@@ -255,7 +270,7 @@ function WelcomeStep({ onStart }: { onStart: () => void }) {
       </div>
       <h1 className="ob-welcome-title">Bienvenido a Scout.</h1>
       <p className="ob-welcome-sub">
-        7 preguntas rápidas y te armo una guía personal de los 72 partidos del Mundial 2026.
+        8 preguntas rápidas y te armo una guía personal de los 72 partidos del Mundial 2026.
         <br />Sin relleno. Solo lo que vale la pena para vos.
       </p>
       <button type="button" className="ob-cta" onClick={onStart}>
@@ -282,7 +297,7 @@ function Step1Equipo({ answers, onAdd, onRemove, onNext, onSkip }: {
 
   return (
     <div className="ob-step">
-      <p className="ob-step-num">1 de 7</p>
+      <p className="ob-step-num">1 de 8</p>
       <h2 className="ob-question">¿Con qué selección vas?</h2>
       <p className="ob-hint">Podés agregar varias, ordenadas por prioridad.</p>
 
@@ -340,7 +355,7 @@ function Step2Jugador({ answers, onAdd, onRemove, onNext, onSkip }: {
 
   return (
     <div className="ob-step">
-      <p className="ob-step-num">2 de 7</p>
+      <p className="ob-step-num">2 de 8</p>
       <h2 className="ob-question">¿Seguís a algún jugador en particular?</h2>
       <p className="ob-hint">Cuando juegue, lo priorizamos para vos.</p>
 
@@ -387,7 +402,7 @@ function Step3FanLevel({ selected, onSelect }: {
 }) {
   return (
     <div className="ob-step">
-      <p className="ob-step-num">3 de 7</p>
+      <p className="ob-step-num">3 de 8</p>
       <h2 className="ob-question">¿Cómo sos como hincha del fútbol?</h2>
 
       <div className="ob-cards">
@@ -421,7 +436,7 @@ function Step4Pairwise({ selected, onSelect }: {
 }) {
   return (
     <div className="ob-step">
-      <p className="ob-step-num">4 de 7</p>
+      <p className="ob-step-num">4 de 8</p>
       <h2 className="ob-question">Esta noche tenés libre. Elegís:</h2>
 
       <div className="ob-cards">
@@ -461,7 +476,7 @@ function Step5Jornada({ selected, onSelect }: {
 
   return (
     <div className="ob-step">
-      <p className="ob-step-num">5 de 7</p>
+      <p className="ob-step-num">5 de 8</p>
       <h2 className="ob-question">Última jornada de grupos. Todo se define. ¿Cómo te ponés?</h2>
 
       <div className="ob-options">
@@ -497,7 +512,7 @@ function Step6GrupoMuerte({ selected, onSelect }: {
 
   return (
     <div className="ob-step">
-      <p className="ob-step-num">6 de 7</p>
+      <p className="ob-step-num">6 de 8</p>
       <h2 className="ob-question">¿Cómo te llevás con los grupos de la muerte?</h2>
 
       <div className="ob-options">
@@ -520,7 +535,43 @@ function Step6GrupoMuerte({ selected, onSelect }: {
   )
 }
 
-function Step7Tolerancia({ selected, onSelect }: {
+function Step7Narrativa({ selected, onSelect }: {
+  selected: number | null
+  onSelect: (v: number) => void
+  onBack?: () => void
+}) {
+  const options = [
+    { val: 85, icon: <IconSkull />, label: 'Muchísimo, eso es lo que me engancha', desc: 'Revanchas, clásicos, un ídolo en su último Mundial: ese es el morbo.' },
+    { val: 50, icon: <IconStar />,  label: 'Suma, pero no decide',                desc: 'Está bueno, aunque miro sobre todo por el fútbol.' },
+    { val: 20, icon: null,          label: 'Poco, voy al juego en sí',            desc: 'La historia alrededor del partido me da bastante igual.' },
+  ]
+
+  return (
+    <div className="ob-step">
+      <p className="ob-step-num">7 de 8</p>
+      <h2 className="ob-question">Más allá del resultado, ¿cuánto pesa la historia de un partido?</h2>
+
+      <div className="ob-options">
+        {options.map(o => (
+          <button
+            key={o.val}
+            type="button"
+            className={`ob-option${selected === o.val ? ' ob-option--selected' : ''}`}
+            onClick={() => onSelect(o.val)}
+          >
+            {o.icon && <span className="ob-option-icon">{o.icon}</span>}
+            <div>
+              <span className="ob-option-label">{o.label}</span>
+              <span className="ob-option-desc">{o.desc}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Step8Tolerancia({ selected, onSelect }: {
   selected: Tolerancia | null
   onSelect: (v: Tolerancia) => void
   onBack?: () => void
@@ -533,7 +584,7 @@ function Step7Tolerancia({ selected, onSelect }: {
 
   return (
     <div className="ob-step">
-      <p className="ob-step-num">7 de 7</p>
+      <p className="ob-step-num">8 de 8</p>
       <h2 className="ob-question">Un partido clave se juega a las 2 AM. ¿Lo mirás?</h2>
 
       <div className="ob-options">

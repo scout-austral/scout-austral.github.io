@@ -40,12 +40,28 @@ function IconStar() {
     </svg>
   )
 }
+function IconSwords() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
+      <path d="M6.92 5L5 6.92l8.06 8.06 1.92-1.92L6.92 5zM2 18.5L9.5 11l1.5 1.5L3.5 20 2 18.5zm15.08-13.5L19 6.92l-3.06 3.06-1.92-1.92L17.08 5zM20.5 18.5L13 11l-1.5 1.5L19 20l1.5-1.5z"/>
+    </svg>
+  )
+}
+function IconCrown() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
+      <path d="M3 7l3.5 4L12 5l5.5 6L21 7v11H3V7zm0 13h18v1H3v-1z"/>
+    </svg>
+  )
+}
 
 const FACTOR_CONFIG: Array<{ key: FeatureKey; label: string; desc: string; icon: React.ReactNode }> = [
   { key: 'grupo_muerte', label: FEATURE_LABELS.grupo_muerte, desc: 'Grupos con varias selecciones fuertes compitiendo.', icon: <IconSkull /> },
   { key: 'jornada3', label: FEATURE_LABELS.jornada3, desc: 'La última jornada, donde todo se define.', icon: <IconFlag /> },
   { key: 'competitividad', label: FEATURE_LABELS.competitividad, desc: 'Partidos reñidos y con incertidumbre.', icon: <IconBolt /> },
   { key: 'estrellas', label: FEATURE_LABELS.estrellas, desc: 'Las figuras más importantes del Mundial en cancha.', icon: <IconStar /> },
+  { key: 'rivalidad', label: FEATURE_LABELS.rivalidad, desc: 'Revanchas, clásicos y derbis con morbo más allá del ranking.', icon: <IconSwords /> },
+  { key: 'ultimo_baile', label: FEATURE_LABELS.ultimo_baile, desc: 'Ver a un ídolo en lo que sería su último Mundial.', icon: <IconCrown /> },
 ]
 
 const BTN_TO_VAL = [0, 25, 50, 75, 100]

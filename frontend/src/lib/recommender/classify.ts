@@ -18,8 +18,15 @@ const UMBRALES: Record<PerfilFan, Umbrales> = {
   total: { alto: 0.5, medio: 0.3 },
 }
 
-/** Por encima de este σ consideramos el score "poco confiable". */
-const TAU_SIGMA = 0.11
+/** Corte de afinidad a partir del cual el modelo predice que un partido "le va a gustar". */
+export function umbralPositivo(perfilFan: PerfilFan): number {
+  return UMBRALES[perfilFan].medio
+}
+
+// Por encima de este σ consideramos el score "poco confiable" (demote a Vale la pena).
+// Recalibrado para 8 factores: sumar features independientes eleva el σ total del
+// score, así que el umbral acompaña ese piso más alto de incertidumbre agregada.
+const TAU_SIGMA = 0.16
 
 export function clasificar(
   afinidad: number,

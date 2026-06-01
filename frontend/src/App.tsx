@@ -231,7 +231,7 @@ function App() {
   })
 
   const { perfil, actualizar, reset: resetPerfil } = useProfile()
-  const { priors, deltas, porPartido, registrar, quitar, reset: resetFeedback } =
+  const { priors, deltas, precision, porPartido, registrar, quitar, reset: resetFeedback } =
     useFeedback(perfil)
 
   useEffect(() => {
@@ -382,6 +382,7 @@ function App() {
           resetPerfil={resetPerfil}
           priors={priors}
           deltas={deltas}
+          precision={precision}
           porPartido={porPartido}
           registrar={registrar}
           quitar={quitar}
@@ -425,6 +426,7 @@ function AppPage({
   resetPerfil,
   priors,
   deltas,
+  precision,
   porPartido,
   registrar,
   quitar,
@@ -441,6 +443,7 @@ function AppPage({
   resetPerfil: () => void
   priors: Parameters<typeof Results>[0]['priors']
   deltas: Parameters<typeof Results>[0]['deltas']
+  precision: Parameters<typeof Results>[0]['precision']
   porPartido: Parameters<typeof Results>[0]['porPartido']
   registrar: Parameters<typeof Results>[0]['registrar']
   quitar: Parameters<typeof Results>[0]['quitar']
@@ -494,6 +497,7 @@ function AppPage({
             priors={priors}
             porPartido={porPartido}
             deltas={deltas}
+            precision={precision}
             calendarConnected={calendarConnected}
             scheduledMatches={scheduledMatches}
             registrar={registrar}

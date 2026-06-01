@@ -55,6 +55,8 @@ export type FeatureKey =
   | 'competitividad'
   | 'grupo_muerte'
   | 'jornada3'
+  | 'rivalidad'
+  | 'ultimo_baile'
 
 /** Vector de features de un partido, cada uno normalizado a [0, 1]. */
 export type FeatureVector = Record<FeatureKey, number>
