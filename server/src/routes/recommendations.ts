@@ -61,9 +61,11 @@ router.post('/elicit', async (req: Request, res: Response): Promise<void> => {
   try {
     const profile = await elicitProfileFromText(text.slice(0, 1000))
     res.json(profile)
-  } catch (err) {
-    console.error('Error en elicitación con Gemini:', err)
-    res.status(502).json({ error: 'No se pudo interpretar la descripción' })
+  } catch (err: any) {
+    const detail = err?.message ?? String(err)
+    const status = err?.status ?? err?.response?.status
+    console.error('Error en elicitación con Gemini:', { status, detail, err })
+    res.status(502).json({ error: 'No se pudo interpretar la descripción', detail, status })
   }
 })
 

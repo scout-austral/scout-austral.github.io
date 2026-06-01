@@ -24,11 +24,16 @@ export async function elicitarPerfil(text: string): Promise<ElicitResult | null>
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
     })
-    if (!res.ok) return null
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      console.error('[elicit] fallo el endpoint:', res.status, body)
+      return null
+    }
     const data = (await res.json()) as ElicitResult
     if (!data || typeof data.importancia !== 'object') return null
     return data
-  } catch {
+  } catch (e) {
+    console.error('[elicit] error de red:', e)
     return null
   }
 }
