@@ -59,7 +59,7 @@ Ocho factores normalizados a [0, 1]. Con `fuerza(r) = clamp(1 − (r−1)/50, 0,
 | `equipo` | `1 − 0.15·(prioridad−1)` si juega un favorito; 0 si no |
 | `jugador` | `0.7 + 0.3·(n−1)` con `n` = favoritos presentes (0 si ninguno) |
 | `estrellas` | `(fuerza(local) + fuerza(visitante)) / 2` |
-| `competitividad` | `clamp(1 − |rank_local − rank_visitante| / 30, 0, 1)` |
+| `competitividad` | `clamp(1 − dist/30, 0, 1)`, con `dist = abs(rank_local − rank_visitante)` |
 | `grupo_muerte` | `fuerzaProm · (0.4 + 0.6·paridad)`, `paridad = 1 − (max − min)` de fuerzas del grupo |
 | `jornada3` | jornada 3 → 1; jornada 2 → 0.25; jornada 1 → 0 |
 | `rivalidad` | `max(`storyline curado`,` derbi de confederación `)`; 0 si ninguno |

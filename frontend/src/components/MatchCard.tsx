@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Loader2, Sparkles, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { Check, Loader2, Sparkles, ThumbsDown, ThumbsUp } from 'lucide-react'
 import { equipoPorCodigo } from '@/data'
 import { justificar, nivelConfianza } from '@/lib/recommender'
 import type {
@@ -272,18 +272,25 @@ export function MatchCard({ evaluado, perfil, feedback, calendarConnected, sched
         {feedback?.gusto === false && (
           <div className="flex flex-wrap items-center gap-1 border-t border-border pt-2">
             <span className="text-xs text-muted-foreground">¿Qué no te gustó?</span>
-            {MOTIVOS.map(({ motivo, label }) => (
-              <Button
-                key={motivo}
-                type="button"
-                size="sm"
-                variant={feedback.motivo === motivo ? 'secondary' : 'ghost'}
-                className="h-6 px-2 text-xs"
-                onClick={() => onFeedback(false, feedback.motivo === motivo ? undefined : motivo)}
-              >
-                {label}
-              </Button>
-            ))}
+            {MOTIVOS.map(({ motivo, label }) => {
+              const activo = feedback.motivo === motivo
+              return (
+                <Button
+                  key={motivo}
+                  type="button"
+                  size="sm"
+                  variant={activo ? 'default' : 'outline'}
+                  className="h-6 gap-1 px-2 text-xs"
+                  onClick={() => onFeedback(false, activo ? undefined : motivo)}
+                >
+                  {activo && <Check className="size-3" />}
+                  {label}
+                </Button>
+              )
+            })}
+            {feedback.motivo && (
+              <span className="text-xs text-emerald-600">✓ anotado, lo tengo en cuenta</span>
+            )}
           </div>
         )}
       </CardContent>
