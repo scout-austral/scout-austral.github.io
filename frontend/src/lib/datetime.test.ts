@@ -9,13 +9,13 @@ describe('partesEnZona', () => {
     const r = partesEnZona(inauguracion, 'America/Argentina/Buenos_Aires')
     expect(r.hora).toBe(16)
     expect(r.diaSemana).toBe(4) // jueves
-    expect(r.etiqueta).toBe('jue 16:00')
+    expect(r.etiqueta).toBe('jue 11 jun · 16:00')
   })
 
   it('proyecta a Nueva York (EDT, UTC-4 en junio)', () => {
     const r = partesEnZona(inauguracion, 'America/New_York')
     expect(r.hora).toBe(15)
-    expect(r.etiqueta).toBe('jue 15:00')
+    expect(r.etiqueta).toBe('jue 11 jun · 15:00')
   })
 
   it('recupera la hora local original en la sede (Ciudad de México, UTC-6)', () => {
@@ -27,6 +27,6 @@ describe('partesEnZona', () => {
     const r = partesEnZona('2026-06-12T00:30:00Z', 'UTC')
     expect(r.hora).toBe(0.5)
     expect(r.diaSemana).toBe(5) // viernes 12
-    expect(r.etiqueta).toBe('vie 00:30')
+    expect(r.etiqueta).toBe('vie 12 jun · 00:30')
   })
 })

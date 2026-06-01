@@ -359,6 +359,15 @@ button.nav-link {
   object-fit: cover;
 }
 
+/* Bandera dentro de las tarjetas de partido (tamaño acorde al texto) */
+.mc-flag {
+  width: 1.4rem;
+  height: auto;
+  border-radius: 2px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
 .group-team-mini {
   display: grid;
   grid-template-columns: 1.55rem auto;
@@ -879,12 +888,36 @@ button.nav-link {
 }
 
 .cal-match-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
   text-align: center;
   font-size: 0.75rem;
   color: #52525b;
   margin-bottom: 0.75rem;
   letter-spacing: 0.02em;
 }
+
+.cal-match-card--scheduled {
+  border-color: rgb(16 185 129 / 0.45);
+  background: rgb(16 185 129 / 0.06);
+}
+
+.cal-scheduled-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: rgb(16 185 129 / 0.15);
+  color: #34d399;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cal-scheduled-badge:hover { background: rgb(16 185 129 / 0.25); }
+.cal-scheduled-badge svg { width: 0.8rem; height: 0.8rem; }
 
 .cal-match-row {
   display: grid;
@@ -1590,6 +1623,40 @@ button.nav-link {
   align-self: flex-start;
 }
 .ob-link:hover { color: #71717a; }
+.ob-link:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Caja de elicitación por IA en el welcome */
+.ob-ai-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 30rem;
+  margin: 0.5rem 0 1rem;
+}
+.ob-ai-input {
+  width: 100%;
+  resize: none;
+  border-radius: 0.6rem;
+  border: 1px solid #d4d4d8;
+  background: #fafafa;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #18181b;
+  line-height: 1.4;
+}
+.ob-ai-input:focus {
+  outline: none;
+  border-color: #18181b;
+  background: #fff;
+}
+.ob-ai-input:disabled { opacity: 0.6; }
+.ob-ai-error {
+  font-size: 0.8rem;
+  color: #b91c1c;
+  margin: 0;
+}
 
 .ob-actions {
   display: flex;

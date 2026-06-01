@@ -97,9 +97,18 @@ histórica* por encima de la métrica tradicional de nivel.
 
 ## Cómo se elicita el perfil (onboarding bayesiano)
 
-El onboarding son **8 preguntas de un toque**, estilo cuestionario. Cada respuesta **elicita los
-priors** del modelo (las medias `μ_k`) y, al calibrar, **reduce la incertidumbre** `σ_k` a la mitad
-(el usuario nos dio información ⇒ más confianza):
+Hay **dos formas** de armar el perfil, y ambas terminan en lo mismo: fijar los **priors** del modelo.
+
+**a) Elicitación asistida por LLM (opcional).** En la bienvenida, el usuario describe en una frase qué
+tipo de hincha es ("soy de Argentina, no me pierdo a Messi, me copan los clásicos…") y un LLM
+(Gemini, vía el server) traduce ese texto a los priors: importancia 0–100 por factor, perfil de fan,
+tolerancia y equipos/jugadores mencionados (que el cliente matchea contra el dataset). **El LLM no
+recomienda nada** —eso lo hace el modelo bayesiano explicable—, solo *elicita el prior* desde lenguaje
+natural. Si el server/LLM no está disponible, esta opción simplemente no aparece y se usa el cuestionario.
+
+**b) Cuestionario** de **8 preguntas de un toque**. Cada respuesta elicita los priors (las medias
+`μ_k`) y, al calibrar, **reduce la incertidumbre** `σ_k` a la mitad (el usuario nos dio información ⇒
+más confianza):
 
 1. **Equipos favoritos** (con prioridad) → `equipo`
 2. **Jugadores favoritos** → `jugador`

@@ -102,6 +102,13 @@ incertidumbre(m) = √Var(m)
 inferidos o "no obvios" (competitividad, rivalidad, último baile). **Calibrar** el perfil redefine las medias
 (normalizadas) y reduce σ a la mitad.
 
+**Elicitación del prior.** Las medias se elicitan de dos maneras intercambiables: (a) un **cuestionario** de
+8 preguntas de un toque que mapea cada respuesta a la importancia de uno o más factores; o (b) **asistida por
+LLM** (opcional): el usuario se describe en lenguaje natural y un LLM (Gemini) traduce esa descripción a la
+importancia 0–100 por factor + perfil de fan + tolerancia + equipos/jugadores mencionados. El LLM **no
+recomienda**: solo convierte texto libre en el prior; todo el razonamiento posterior es del modelo bayesiano
+explicable. Sin servidor/clave, la app usa solo el cuestionario.
+
 ## 7. Disponibilidad
 
 Se convierte `kickoff_utc` a la zona horaria del usuario (`Intl.DateTimeFormat`, sin dependencias) y se mide

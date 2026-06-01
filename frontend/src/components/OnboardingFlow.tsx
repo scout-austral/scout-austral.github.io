@@ -1,8 +1,38 @@
 import { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 import { equipos, jugadores } from '@/data'
-import type { FeatureKey, Perfil, Tolerancia } from '@/lib/recommender/types'
+import type { FeatureKey, Perfil, PerfilFan, Tolerancia } from '@/lib/recommender/types'
+import { elicitarPerfil, type ElicitResult } from '@/lib/elicitApi'
 import { Badge } from '@/components/ui/badge'
+
+// ─── Matching de nombres libres (del LLM) contra el dataset ─────────────────────
+
+const norm = (s: string) =>
+  s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
+
+/** Matchea nombres de selección (en español/inglés) a códigos FIFA del dataset. */
+function matchEquipos(nombres: string[]): string[] {
+  const out: string[] = []
+  for (const n of nombres) {
+    const q = norm(n)
+    const hit = equipos.find((e) => norm(e.nombre) === q || norm(e.codigo) === q)
+      ?? equipos.find((e) => norm(e.nombre).includes(q) || q.includes(norm(e.nombre)))
+    if (hit && !out.includes(hit.codigo)) out.push(hit.codigo)
+  }
+  return out
+}
+
+/** Matchea nombres de jugador (del LLM) a los nombres canónicos del dataset. */
+function matchJugadores(nombres: string[]): string[] {
+  const out: string[] = []
+  for (const n of nombres) {
+    const q = norm(n)
+    const hit = jugadores.find((j) => norm(j.nombre) === q)
+      ?? jugadores.find((j) => norm(j.nombre).includes(q) || q.includes(norm(j.nombre)))
+    if (hit && !out.includes(hit.nombre)) out.push(hit.nombre)
+  }
+  return out
+}
 
 // ─── Tipos internos ───────────────────────────────────────────────────────────
 
@@ -126,6 +156,24 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
     narrativa: null,
     tolerancia: null,
   })
+  // Priors elicitados por el LLM (si el usuario usó "armar con IA"). Si están presentes,
+  // tienen prioridad sobre el mapeo del cuestionario en finish().
+  const [elicited, setElicited] = useState<ElicitResult | null>(null)
+  const [iaLoading, setIaLoading] = useState(false)
+  const [iaError, setIaError] = useState(false)
+
+  async function armarConIA(text: string) {
+    setIaLoading(true)
+    setIaError(false)
+    const r = await elicitarPerfil(text)
+    setIaLoading(false)
+    if (!r) { setIaError(true); return }
+    const equipos = matchEquipos(r.equipos)
+    const jugadores = matchJugadores(r.jugadores)
+    setAnswers(a => ({ ...a, equipos, jugadores }))
+    setElicited(r)
+    go(9) // salta al resumen final
+  }
 
   function go(n: number) {
     setDir(n > step ? 1 : -1)
@@ -151,11 +199,13 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
   }
 
   function finish() {
-    const importancia = buildImportancia(answers)
+    // Si hubo elicitación por IA, sus priors mandan; si no, se deriva del cuestionario.
+    const importancia = elicited?.importancia ?? buildImportancia(answers)
     const equiposFavoritos = answers.equipos.map((codigo, i) => ({ codigo, prioridad: i + 1 }))
     const jugadoresFavoritos = answers.jugadores
-    const perfilFan = answers.fanLevel === 'total' ? 'total' : 'casual'
-    const tolerancia: Tolerancia = answers.tolerancia ?? 'media'
+    const perfilFan: PerfilFan =
+      elicited?.perfilFan ?? (answers.fanLevel === 'total' ? 'total' : 'casual')
+    const tolerancia: Tolerancia = elicited?.tolerancia ?? answers.tolerancia ?? 'media'
     actualizar({ equiposFavoritos, jugadoresFavoritos, importancia, perfilFan, tolerancia })
     localStorage.setItem('scout_onboarding_done', '1')
     onDone()
@@ -182,7 +232,14 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
 
       {/* Content */}
       <div className="ob-body" key={step} style={{ '--dir': dir } as React.CSSProperties}>
-        {step === 0 && <WelcomeStep onStart={() => go(1)} />}
+        {step === 0 && (
+          <WelcomeStep
+            onStart={() => go(1)}
+            onArmarIA={armarConIA}
+            iaLoading={iaLoading}
+            iaError={iaError}
+          />
+        )}
         {step === 1 && (
           <Step1Equipo
             answers={answers}
@@ -243,7 +300,14 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
             onBack={back}
           />
         )}
-        {step === 9 && <DoneStep onFinish={finish} />}
+        {step === 9 && (
+          <DoneStep
+            onFinish={finish}
+            viaIA={elicited != null}
+            equipos={answers.equipos}
+            jugadores={answers.jugadores}
+          />
+        )}
       </div>
 
       {/* Back nav */}
@@ -260,7 +324,15 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
 
 // ─── Steps ────────────────────────────────────────────────────────────────────
 
-function WelcomeStep({ onStart }: { onStart: () => void }) {
+function WelcomeStep({ onStart, onArmarIA, iaLoading, iaError }: {
+  onStart: () => void
+  onArmarIA: (text: string) => void
+  iaLoading: boolean
+  iaError: boolean
+}) {
+  const [text, setText] = useState('')
+  const puedeEnviar = text.trim().length >= 3 && !iaLoading
+
   return (
     <div className="ob-step ob-step--center">
       <div className="ob-welcome-icon">
@@ -270,14 +342,37 @@ function WelcomeStep({ onStart }: { onStart: () => void }) {
       </div>
       <h1 className="ob-welcome-title">Bienvenido a Scout.</h1>
       <p className="ob-welcome-sub">
-        8 preguntas rápidas y te armo una guía personal de los 72 partidos del Mundial 2026.
-        <br />Sin relleno. Solo lo que vale la pena para vos.
+        Contame en una frase qué tipo de hincha sos y te armo el perfil al instante.
+        <br />O respondé 8 preguntas rápidas si preferís.
       </p>
-      <button type="button" className="ob-cta" onClick={onStart}>
-        Empezar
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
+
+      <div className="ob-ai-box">
+        <textarea
+          className="ob-ai-input"
+          rows={3}
+          placeholder="Ej: Soy hincha de Argentina, no me pierdo a Messi y me copan los partidos parejos y los clásicos con historia…"
+          value={text}
+          onChange={e => setText(e.target.value)}
+          disabled={iaLoading}
+        />
+        <button
+          type="button"
+          className="ob-cta"
+          onClick={() => puedeEnviar && onArmarIA(text)}
+          disabled={!puedeEnviar}
+        >
+          {iaLoading ? 'Armando tu perfil…' : 'Armar mi perfil con IA'}
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M12 2l1.6 4.6L18 8l-4.4 1.4L12 14l-1.6-4.6L6 8l4.4-1.4L12 2z"/>
+          </svg>
+        </button>
+        {iaError && (
+          <p className="ob-ai-error">No pude interpretarlo ahora. Seguí con las preguntas 👇</p>
+        )}
+      </div>
+
+      <button type="button" className="ob-link" onClick={onStart} disabled={iaLoading}>
+        Prefiero responder las preguntas
       </button>
     </div>
   )
@@ -607,7 +702,16 @@ function Step8Tolerancia({ selected, onSelect }: {
   )
 }
 
-function DoneStep({ onFinish }: { onFinish: () => void }) {
+function DoneStep({ onFinish, viaIA, equipos, jugadores }: {
+  onFinish: () => void
+  viaIA?: boolean
+  equipos?: string[]
+  jugadores?: string[]
+}) {
+  const equiposDetectados = (equipos ?? [])
+    .map(c => equiposOrdenados.find(e => e.codigo === c))
+    .filter((e): e is NonNullable<typeof e> => e != null)
+
   return (
     <div className="ob-step ob-step--center">
       <div className="ob-done-icon">
@@ -617,8 +721,24 @@ function DoneStep({ onFinish }: { onFinish: () => void }) {
         </svg>
       </div>
       <h2 className="ob-welcome-title">Ya sé lo que buscás.</h2>
+
+      {viaIA && (equiposDetectados.length > 0 || (jugadores ?? []).length > 0) && (
+        <div className="ob-badges" style={{ justifyContent: 'center', marginBottom: '0.25rem' }}>
+          {equiposDetectados.map(e => (
+            <Badge key={e.codigo} variant="secondary" className="text-sm py-1 px-2">
+              {e.bandera} {e.nombre}
+            </Badge>
+          ))}
+          {(jugadores ?? []).map(n => (
+            <Badge key={n} variant="secondary" className="text-sm py-1 px-2">{n}</Badge>
+          ))}
+        </div>
+      )}
+
       <p className="ob-welcome-sub">
-        Clasificamos los 72 partidos del Mundial según tus preferencias.
+        {viaIA
+          ? 'Interpreté tu descripción y armé tu perfil. Clasificamos los 72 partidos según eso.'
+          : 'Clasificamos los 72 partidos del Mundial según tus preferencias.'}
         <br />Podés ajustar todo desde tu perfil cuando quieras.
       </p>
       <button type="button" className="ob-cta" onClick={onFinish}>

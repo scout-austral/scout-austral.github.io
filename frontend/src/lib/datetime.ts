@@ -50,7 +50,18 @@ export function partesEnZona(kickoffUtc: string, zonaHoraria: string): PartesLoc
   const mm = Number(partes.find((p) => p.type === 'minute')?.value ?? '0')
   const hora = hh + mm / 60
 
-  const etiqueta = `${DIAS_ES[diaSemana]} ${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+  // Día del mes + mes corto en la zona del usuario (ej. "11 jun"), para que la
+  // etiqueta no sea ambigua entre fechas con el mismo día de semana.
+  const fechaPartes = new Intl.DateTimeFormat('es', {
+    timeZone: zonaHoraria,
+    day: 'numeric',
+    month: 'short',
+  }).formatToParts(fecha)
+  const dd = fechaPartes.find((p) => p.type === 'day')?.value ?? ''
+  const mes = (fechaPartes.find((p) => p.type === 'month')?.value ?? '').replace('.', '')
+
+  const horaStr = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+  const etiqueta = `${DIAS_ES[diaSemana]} ${dd} ${mes} · ${horaStr}`
 
   return { diaSemana, hora, etiqueta }
 }

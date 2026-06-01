@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Check, Loader2, Sparkles, ThumbsDown, ThumbsUp } from 'lucide-react'
 import { equipoPorCodigo } from '@/data'
+import { TeamFlag } from '@/components/TeamFlag'
 import { justificar, nivelConfianza } from '@/lib/recommender'
 import type {
   Categoria,
@@ -52,8 +53,8 @@ function CheckIcon() {
 function Equipo({ codigo }: { codigo: string }) {
   const e = equipoPorCodigo[codigo]
   return (
-    <span className="inline-flex items-center gap-1">
-      <span className="text-lg">{e?.bandera}</span>
+    <span className="inline-flex items-center gap-1.5">
+      <TeamFlag code={codigo} className="mc-flag" />
       {e?.nombre ?? codigo}
     </span>
   )
