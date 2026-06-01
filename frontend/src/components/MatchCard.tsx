@@ -64,20 +64,25 @@ interface Props {
   perfil: Perfil
   feedback?: Feedback
   calendarConnected: boolean
+  scheduledMatches: Record<string, string>
   onFeedback: (gusto: boolean, motivo?: MotivoDislike) => void
   onClear: () => void
   onCalendarDisconnected?: () => void
+  onScheduled?: (matchId: string, eventUrl: string) => void
 }
 
-export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFeedback, onClear, onCalendarDisconnected }: Props) {
+export function MatchCard({ evaluado, perfil, feedback, calendarConnected, scheduledMatches, onFeedback, onClear, onCalendarDisconnected, onScheduled }: Props) {
   const { partido, factores, categoria, horaUsuario, afinidad } = evaluado
   const meta = CATEGORIA_META[categoria]
   const maxContrib = Math.max(...factores.map((f) => f.contribucion), 0.0001)
 
+  const existingUrl = scheduledMatches[partido.id] ?? null
   const [aiText, setAiText] = useState<string | null>(null)
   const [estadoIA, setEstadoIA] = useState<'idle' | 'cargando' | 'error'>('idle')
-  const [calendarState, setCalendarState] = useState<'idle' | 'loading' | 'done' | 'error' | 'reconnect'>('idle')
-  const [calendarUrl, setCalendarUrl] = useState<string | null>(null)
+  const [calendarState, setCalendarState] = useState<'idle' | 'loading' | 'done' | 'error' | 'reconnect'>(
+    existingUrl ? 'done' : 'idle',
+  )
+  const [calendarUrl, setCalendarUrl] = useState<string | null>(existingUrl)
 
   async function mejorarConIA() {
     setEstadoIA('cargando')
@@ -124,6 +129,7 @@ export function MatchCard({ evaluado, perfil, feedback, calendarConnected, onFee
       if (res.ok && data.eventUrl) {
         setCalendarUrl(data.eventUrl)
         setCalendarState('done')
+        onScheduled?.(partido.id, data.eventUrl)
       } else if (res.status === 403 || res.status === 401) {
         setCalendarState('reconnect')
         onCalendarDisconnected?.()

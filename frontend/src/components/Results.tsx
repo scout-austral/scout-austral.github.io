@@ -26,10 +26,12 @@ interface Props {
   porPartido: Map<string, Feedback>
   deltas: AprendizajeFactor[]
   calendarConnected: boolean
+  scheduledMatches: Record<string, string>
   registrar: (partidoId: string, gusto: boolean, motivo?: MotivoDislike) => void
   quitar: (partidoId: string) => void
   resetFeedback: () => void
   onCalendarDisconnected?: () => void
+  onScheduled?: (matchId: string, eventUrl: string) => void
 }
 
 function Aprendizaje({ deltas, onReset }: { deltas: AprendizajeFactor[]; onReset: () => void }) {
@@ -67,10 +69,12 @@ export function Results({
   porPartido,
   deltas,
   calendarConnected,
+  scheduledMatches,
   registrar,
   quitar,
   resetFeedback,
   onCalendarDisconnected,
+  onScheduled,
 }: Props) {
   const grupos = useMemo(
     () => agruparPorCategoria(recomendar(perfil, priors)),
@@ -102,9 +106,11 @@ export function Results({
                   perfil={perfil}
                   feedback={porPartido.get(e.partido.id)}
                   calendarConnected={calendarConnected}
+                  scheduledMatches={scheduledMatches}
                   onFeedback={(gusto, motivo) => registrar(e.partido.id, gusto, motivo)}
                   onClear={() => quitar(e.partido.id)}
                   onCalendarDisconnected={onCalendarDisconnected}
+                  onScheduled={onScheduled}
                 />
               ))
             )}

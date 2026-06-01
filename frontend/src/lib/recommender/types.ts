@@ -43,6 +43,8 @@ export interface Perfil {
    * Si está presente, fija las medias de los priors y aumenta la confianza (σ menor).
    */
   importancia?: Partial<Record<FeatureKey, number>>
+  /** Partidos ya agendados en Google Calendar: matchId → eventUrl. */
+  scheduledMatches: Record<string, string>
 }
 
 /** Factores de afinidad que pondera el modelo. */

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Perfil } from '@/lib/recommender/types'
 
-const STORAGE_KEY = 'scout_perfil'
+export const PROFILE_STORAGE_KEY = 'scout_perfil'
+const STORAGE_KEY = PROFILE_STORAGE_KEY
 const TOKEN_KEY = 'scout_auth_token'
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
@@ -21,6 +22,7 @@ export function perfilInicial(): Perfil {
     zonaHoraria: zonaHorariaDelBrowser(),
     tolerancia: 'media',
     perfilFan: 'casual',
+    scheduledMatches: {},
   }
 }
 

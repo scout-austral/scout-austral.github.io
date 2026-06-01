@@ -58,7 +58,7 @@ import flagZa from 'flag-icons/flags/4x3/za.svg'
 import { equipos, partidos } from './data'
 import type { Grupo } from './data/types'
 import './App.css'
-import { useProfile } from '@/hooks/useProfile'
+import { useProfile, PROFILE_STORAGE_KEY } from '@/hooks/useProfile'
 import { useFeedback } from '@/hooks/useFeedback'
 import { Results } from '@/components/Results'
 import { FranjasFilter } from '@/components/FranjasFilter'
@@ -291,7 +291,9 @@ function App() {
 
   function signOut() {
     localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(PROFILE_STORAGE_KEY)
     setUser(null)
+    resetPerfil()
     navigate('/', 'inicio')
   }
 
@@ -301,6 +303,10 @@ function App() {
     fetch(`${API_BASE_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
       .then(async (r) => { if (r.ok) setUser(((await r.json()) as { user: User }).user) })
       .catch(() => {})
+  }
+
+  function handleScheduled(matchId: string, eventUrl: string) {
+    actualizar({ scheduledMatches: { ...perfil.scheduledMatches, [matchId]: eventUrl } })
   }
 
   function connectCalendar() {
@@ -381,7 +387,9 @@ function App() {
           quitar={quitar}
           resetFeedback={resetFeedback}
           calendarConnected={user.calendarConnected}
+          scheduledMatches={perfil.scheduledMatches}
           onCalendarDisconnected={refreshUser}
+          onScheduled={handleScheduled}
         />
       ) : (
         <LandingPage perfil={perfil} actualizar={actualizar} />
@@ -422,7 +430,9 @@ function AppPage({
   quitar,
   resetFeedback,
   calendarConnected,
+  scheduledMatches,
   onCalendarDisconnected,
+  onScheduled,
 }: {
   page: Page
   user: User
@@ -436,7 +446,9 @@ function AppPage({
   quitar: Parameters<typeof Results>[0]['quitar']
   resetFeedback: Parameters<typeof Results>[0]['resetFeedback']
   calendarConnected: boolean
+  scheduledMatches: Record<string, string>
   onCalendarDisconnected?: () => void
+  onScheduled?: (matchId: string, eventUrl: string) => void
 }) {
   if (page === 'fixture') return <FixturePage />
   if (page === 'calendario') return <CalendarPage />
@@ -483,10 +495,12 @@ function AppPage({
             porPartido={porPartido}
             deltas={deltas}
             calendarConnected={calendarConnected}
+            scheduledMatches={scheduledMatches}
             registrar={registrar}
             quitar={quitar}
             resetFeedback={resetFeedback}
             onCalendarDisconnected={onCalendarDisconnected}
+            onScheduled={onScheduled}
           />
         </div>
         <aside className="inicio-sidebar">
