@@ -161,6 +161,13 @@ describe('recomendar', () => {
     expect(argMatch.categoria).toBe('imperdible')
     expect(argMatch.factores[0].factor).toBe('equipo')
   })
+
+  it('TODOS los partidos del equipo favorito son Imperdibles (aunque el rival sea flojo)', () => {
+    const r = recomendar(perfilArg) // sin franjas → encaje siempre "bueno"
+    const argMatches = r.filter((e) => e.partido.local === 'ARG' || e.partido.visitante === 'ARG')
+    expect(argMatches.length).toBeGreaterThan(0)
+    for (const m of argMatches) expect(m.categoria).toBe('imperdible')
+  })
 })
 
 describe('evaluarPrecision', () => {

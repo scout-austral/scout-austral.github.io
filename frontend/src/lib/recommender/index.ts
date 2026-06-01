@@ -4,6 +4,7 @@ import { partidos } from '@/data'
 import { partesEnZona } from '../datetime'
 import { encajeHorario } from './availability'
 import { clasificar } from './classify'
+import { fEquipo, fJugador } from './features'
 import { justificacionLocal } from './justify'
 import { scorePartido } from './score'
 import { priorsDesdePerfil, type Prior } from './weights'
@@ -31,7 +32,9 @@ export function recomendar(
   const evaluados = partidos.map((partido): PartidoEvaluado => {
     const { afinidad, incertidumbre, factores } = scorePartido(partido, perfil, priors)
     const encaje = encajeHorario(partido, perfil)
-    const categoria = clasificar(afinidad, incertidumbre, encaje, perfil.perfilFan)
+    // "Favorito fuerte": juega un equipo top-3 del usuario o uno de sus jugadores.
+    const esFavorito = fEquipo(partido, perfil) >= 0.7 || fJugador(partido, perfil) >= 0.7
+    const categoria = clasificar(afinidad, incertidumbre, encaje, perfil.perfilFan, esFavorito)
     const { etiqueta } = partesEnZona(partido.kickoff_utc, perfil.zonaHoraria)
     return {
       partido,

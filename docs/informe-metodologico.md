@@ -129,6 +129,9 @@ factores: sumar features independientes eleva el σ agregado del score):
 
 ```
 si encaje == imposible            → Resumen
+si esFavorito:                                # juega su equipo (top-3) o un jugador favorito
+    si encaje == bueno            → Imperdible
+    si no                         → Vale la pena
 si μ ≥ alto:
     si encaje == bueno y σ ≤ τ_σ  → Imperdible
     si no                         → Vale la pena
@@ -136,9 +139,15 @@ si μ ≥ medio  o  (μ + σ) ≥ medio  → Vale la pena
 si no                             → Resumen
 ```
 
-La **incertidumbre alimenta "Vale la pena"** en dos sentidos: *demote* (afinidad alta pero σ grande no llega
-a Imperdible) y *promote* (afinidad bajo el corte cuyo límite optimista `μ+σ` lo alcanza → "apuesta que
-podría valer", criterio tipo *upper confidence bound*).
+**Override por favorito (señal dura).** Que juegue el equipo o el jugador favorito es, por definición, un
+partido de máxima prioridad: la intuición del hincha domina al score lineal, que diluiría ese interés cuando
+el rival es flojo (p. ej. Argentina vs. un rival de bajo ranking en la fecha 1 no debería caer a "Vale la
+pena" para un hincha argentino). Por eso un favorito fuerte (`fEquipo ≥ 0.7`, es decir top-3, o
+`fJugador ≥ 0.7`) va directo a Imperdible si el horario acompaña, o a Vale la pena si es incómodo.
+
+Para el resto, la **incertidumbre alimenta "Vale la pena"** en dos sentidos: *demote* (afinidad alta pero σ
+grande no llega a Imperdible) y *promote* (afinidad bajo el corte cuyo límite optimista `μ+σ` lo alcanza →
+"apuesta que podría valer", criterio tipo *upper confidence bound*).
 
 ## 9. Aprendizaje por feedback
 
