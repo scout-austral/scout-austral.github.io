@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
+import { FaFutbol } from 'react-icons/fa'
 import { equipos, jugadores } from '@/data'
 import type { FeatureKey, Perfil, PerfilFan, Tolerancia } from '@/lib/recommender/types'
 import { elicitarPerfil, type ElicitResult } from '@/lib/elicitApi'
@@ -336,9 +337,7 @@ function WelcomeStep({ onStart, onArmarIA, iaLoading, iaError }: {
   return (
     <div className="ob-step ob-step--center">
       <div className="ob-welcome-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="40" height="40" opacity="0.9">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
-        </svg>
+        <FaFutbol size={40} aria-hidden="true" />
       </div>
       <h1 className="ob-welcome-title">Bienvenido a Scout.</h1>
       <p className="ob-welcome-sub">

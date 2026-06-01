@@ -1460,10 +1460,10 @@ button.nav-link {
 
 .ob-top {
   width: 100%;
-  max-width: 680px;
   display: flex;
   align-items: center;
-  padding: 1.25rem 1.5rem;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
   gap: 1rem;
 }
 
@@ -1564,7 +1564,7 @@ button.nav-link {
 
 /* Welcome */
 .ob-welcome-icon {
-  color: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.3);
   margin-bottom: 0.5rem;
 }
 
@@ -1645,7 +1645,11 @@ button.nav-link {
   font-family: inherit;
   color: #18181b;
   line-height: 1.4;
+  /* Barra de scroll oculta (sigue siendo scrolleable) */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.ob-ai-input::-webkit-scrollbar { display: none; }
 .ob-ai-input:focus {
   outline: none;
   border-color: #18181b;
