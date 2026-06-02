@@ -1,10 +1,11 @@
 import request from 'supertest'
 
-jest.mock('../lib/gemini', () => ({
+jest.mock('../lib/llm', () => ({
   generateMatchJustification: jest.fn().mockResolvedValue('Justificación generada por IA.'),
+  elicitProfileFromText: jest.fn().mockResolvedValue({}),
 }))
 
-process.env.GEMINI_API_KEY = 'test-key'
+process.env.OPENAI_API_KEY = 'test-key'
 
 import { createApp } from '../app'
 

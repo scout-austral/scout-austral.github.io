@@ -20,7 +20,8 @@
     "express": "^4.21.1",
     "google-auth-library": "^9.14.1",
     "googleapis": "^144.0.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "openai": "^6.41.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

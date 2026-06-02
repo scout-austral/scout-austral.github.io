@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express'
-import { generateMatchJustification, elicitProfileFromText } from '../lib/gemini'
+import { generateMatchJustification, elicitProfileFromText } from '../lib/llm'
 
 const router = Router()
 
@@ -16,8 +16,8 @@ router.post('/justify', async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({ error: 'homeTeam, awayTeam y category válidos son requeridos' })
     return
   }
-  if (!process.env.GEMINI_API_KEY) {
-    res.status(503).json({ error: 'Gemini no está configurado en el servidor' })
+  if (!process.env.OPENAI_API_KEY) {
+    res.status(503).json({ error: 'El modelo de IA no está configurado en el servidor' })
     return
   }
 
@@ -53,7 +53,7 @@ router.post('/elicit', async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({ error: 'Se requiere una descripción de al menos 3 caracteres' })
     return
   }
-  if (!process.env.GEMINI_API_KEY) {
+  if (!process.env.OPENAI_API_KEY) {
     res.status(503).json({ error: 'El asistente de IA no está configurado en el servidor' })
     return
   }
