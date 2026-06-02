@@ -1,7 +1,7 @@
 [
   {
     "codigo": "CZE",
-    "nombre": "Czech Republic",
+    "nombre": "República Checa",
     "grupo": "A",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -10,7 +10,7 @@
   },
   {
     "codigo": "KOR",
-    "nombre": "South Korea",
+    "nombre": "Corea del Sur",
     "grupo": "A",
     "confederacion": "AFC",
     "continente": "Asia",
@@ -19,7 +19,7 @@
   },
   {
     "codigo": "MEX",
-    "nombre": "Mexico",
+    "nombre": "México",
     "grupo": "A",
     "confederacion": "CONCACAF",
     "continente": "North America",
@@ -28,7 +28,7 @@
   },
   {
     "codigo": "RSA",
-    "nombre": "South Africa",
+    "nombre": "Sudáfrica",
     "grupo": "A",
     "confederacion": "CAF",
     "continente": "Africa",
@@ -37,7 +37,7 @@
   },
   {
     "codigo": "BIH",
-    "nombre": "Bosnia & Herzegovina",
+    "nombre": "Bosnia y Herzegovina",
     "grupo": "B",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -46,7 +46,7 @@
   },
   {
     "codigo": "CAN",
-    "nombre": "Canada",
+    "nombre": "Canadá",
     "grupo": "B",
     "confederacion": "CONCACAF",
     "continente": "North America",
@@ -64,7 +64,7 @@
   },
   {
     "codigo": "SUI",
-    "nombre": "Switzerland",
+    "nombre": "Suiza",
     "grupo": "B",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -73,7 +73,7 @@
   },
   {
     "codigo": "BRA",
-    "nombre": "Brazil",
+    "nombre": "Brasil",
     "grupo": "C",
     "confederacion": "CONMEBOL",
     "continente": "South America",
@@ -82,7 +82,7 @@
   },
   {
     "codigo": "HAI",
-    "nombre": "Haiti",
+    "nombre": "Haití",
     "grupo": "C",
     "confederacion": "CONCACAF",
     "continente": "North America",
@@ -91,7 +91,7 @@
   },
   {
     "codigo": "MAR",
-    "nombre": "Morocco",
+    "nombre": "Marruecos",
     "grupo": "C",
     "confederacion": "CAF",
     "continente": "Africa",
@@ -100,7 +100,7 @@
   },
   {
     "codigo": "SCO",
-    "nombre": "Scotland",
+    "nombre": "Escocia",
     "grupo": "C",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -127,7 +127,7 @@
   },
   {
     "codigo": "TUR",
-    "nombre": "Turkey",
+    "nombre": "Turquía",
     "grupo": "D",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -136,7 +136,7 @@
   },
   {
     "codigo": "USA",
-    "nombre": "USA",
+    "nombre": "Estados Unidos",
     "grupo": "D",
     "confederacion": "CONCACAF",
     "continente": "North America",
@@ -145,7 +145,7 @@
   },
   {
     "codigo": "CIV",
-    "nombre": "Ivory Coast",
+    "nombre": "Costa de Marfil",
     "grupo": "E",
     "confederacion": "CAF",
     "continente": "Africa",
@@ -154,7 +154,7 @@
   },
   {
     "codigo": "CUW",
-    "nombre": "Curaçao",
+    "nombre": "Curazao",
     "grupo": "E",
     "confederacion": "CONCACAF",
     "continente": "North America",
@@ -172,7 +172,7 @@
   },
   {
     "codigo": "GER",
-    "nombre": "Germany",
+    "nombre": "Alemania",
     "grupo": "E",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -181,7 +181,7 @@
   },
   {
     "codigo": "JPN",
-    "nombre": "Japan",
+    "nombre": "Japón",
     "grupo": "F",
     "confederacion": "AFC",
     "continente": "Asia",
@@ -190,7 +190,7 @@
   },
   {
     "codigo": "NED",
-    "nombre": "Netherlands",
+    "nombre": "Países Bajos",
     "grupo": "F",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -199,7 +199,7 @@
   },
   {
     "codigo": "SWE",
-    "nombre": "Sweden",
+    "nombre": "Suecia",
     "grupo": "F",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -208,7 +208,7 @@
   },
   {
     "codigo": "TUN",
-    "nombre": "Tunisia",
+    "nombre": "Túnez",
     "grupo": "F",
     "confederacion": "CAF",
     "continente": "Africa",
@@ -217,7 +217,7 @@
   },
   {
     "codigo": "BEL",
-    "nombre": "Belgium",
+    "nombre": "Bélgica",
     "grupo": "G",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -226,7 +226,7 @@
   },
   {
     "codigo": "EGY",
-    "nombre": "Egypt",
+    "nombre": "Egipto",
     "grupo": "G",
     "confederacion": "CAF",
     "continente": "Africa",
@@ -235,7 +235,7 @@
   },
   {
     "codigo": "IRN",
-    "nombre": "Iran",
+    "nombre": "Irán",
     "grupo": "G",
     "confederacion": "AFC",
     "continente": "Asia",
@@ -244,7 +244,7 @@
   },
   {
     "codigo": "NZL",
-    "nombre": "New Zealand",
+    "nombre": "Nueva Zelanda",
     "grupo": "G",
     "confederacion": "OFC",
     "continente": "Oceania",
@@ -253,7 +253,7 @@
   },
   {
     "codigo": "CPV",
-    "nombre": "Cape Verde",
+    "nombre": "Cabo Verde",
     "grupo": "H",
     "confederacion": "CAF",
     "continente": "Africa",
@@ -262,7 +262,7 @@
   },
   {
     "codigo": "ESP",
-    "nombre": "Spain",
+    "nombre": "España",
     "grupo": "H",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -271,7 +271,7 @@
   },
   {
     "codigo": "KSA",
-    "nombre": "Saudi Arabia",
+    "nombre": "Arabia Saudita",
     "grupo": "H",
     "confederacion": "AFC",
     "continente": "Asia",
@@ -289,7 +289,7 @@
   },
   {
     "codigo": "FRA",
-    "nombre": "France",
+    "nombre": "Francia",
     "grupo": "I",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -298,7 +298,7 @@
   },
   {
     "codigo": "IRQ",
-    "nombre": "Iraq",
+    "nombre": "Irak",
     "grupo": "I",
     "confederacion": "AFC",
     "continente": "Asia",
@@ -307,7 +307,7 @@
   },
   {
     "codigo": "NOR",
-    "nombre": "Norway",
+    "nombre": "Noruega",
     "grupo": "I",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -325,7 +325,7 @@
   },
   {
     "codigo": "ALG",
-    "nombre": "Algeria",
+    "nombre": "Argelia",
     "grupo": "J",
     "confederacion": "CAF",
     "continente": "Africa",
@@ -352,7 +352,7 @@
   },
   {
     "codigo": "JOR",
-    "nombre": "Jordan",
+    "nombre": "Jordania",
     "grupo": "J",
     "confederacion": "AFC",
     "continente": "Asia",
@@ -361,7 +361,7 @@
   },
   {
     "codigo": "COD",
-    "nombre": "DR Congo",
+    "nombre": "Congo RD",
     "grupo": "K",
     "confederacion": "CAF",
     "continente": "Africa",
@@ -388,7 +388,7 @@
   },
   {
     "codigo": "UZB",
-    "nombre": "Uzbekistan",
+    "nombre": "Uzbekistán",
     "grupo": "K",
     "confederacion": "AFC",
     "continente": "Asia",
@@ -397,7 +397,7 @@
   },
   {
     "codigo": "CRO",
-    "nombre": "Croatia",
+    "nombre": "Croacia",
     "grupo": "L",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -406,7 +406,7 @@
   },
   {
     "codigo": "ENG",
-    "nombre": "England",
+    "nombre": "Inglaterra",
     "grupo": "L",
     "confederacion": "UEFA",
     "continente": "Europe",
@@ -424,7 +424,7 @@
   },
   {
     "codigo": "PAN",
-    "nombre": "Panama",
+    "nombre": "Panamá",
     "grupo": "L",
     "confederacion": "CONCACAF",
     "continente": "North America",
