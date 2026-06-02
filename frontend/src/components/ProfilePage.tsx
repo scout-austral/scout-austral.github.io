@@ -10,6 +10,7 @@ import type {
   Tolerancia,
 } from '@/lib/recommender/types'
 import { DEFAULT_WEIGHTS, FEATURE_LABELS } from '@/lib/recommender'
+import { TeamFlag } from '@/components/TeamFlag'
 import { Badge } from '@/components/ui/badge'
 
 function IconSkull() {
@@ -96,7 +97,7 @@ const jugadoresOrdenados = [...jugadores].sort((a, b) => a.nombre.localeCompare(
 
 // ─── SearchCombo ──────────────────────────────────────────────────────────────
 
-interface ComboItem { value: string; label: string }
+interface ComboItem { value: string; label: string; flagCode?: string }
 
 function SearchCombo({
   placeholder,
@@ -143,6 +144,7 @@ function SearchCombo({
         <div className="sc-list">
           {filtered.map((item) => (
             <button key={item.value} type="button" className="sc-item" onMouseDown={() => pick(item.value)}>
+              {item.flagCode && <TeamFlag code={item.flagCode} className="ob-sc-flag" />}
               {item.label}
             </button>
           ))}
@@ -163,7 +165,8 @@ interface Props {
 
 const equipoItems: ComboItem[] = equiposOrdenados.map((e) => ({
   value: e.codigo,
-  label: `${e.bandera} ${e.nombre}`,
+  label: e.nombre,
+  flagCode: e.codigo,
 }))
 const jugadorItems: ComboItem[] = jugadoresOrdenados.map((j) => ({
   value: j.nombre,
@@ -247,7 +250,7 @@ export function ProfilePage({ perfil, actualizar, reset, onRedoSurvey }: Props) 
               return (
                 <Badge key={fav.codigo} variant="secondary" className="gap-1">
                   <span className="opacity-50 text-xs">{fav.prioridad}°</span>
-                  {e?.bandera} {e?.nombre}
+                  {e && <TeamFlag code={e.codigo} className="ob-sc-flag" />} {e?.nombre}
                   <button type="button" onClick={() => quitarEquipo(fav.codigo)} aria-label="quitar">
                     <X className="size-3" />
                   </button>

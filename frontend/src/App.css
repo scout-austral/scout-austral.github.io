@@ -1711,7 +1711,9 @@ button.nav-link {
 }
 
 .ob-sc-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
   text-align: left;
   background: none;
@@ -1722,6 +1724,14 @@ button.nav-link {
   cursor: pointer;
 }
 .ob-sc-item:hover { background: rgba(255,255,255,0.06); color: #e4e4e7; }
+
+.ob-sc-flag {
+  width: 1.3rem;
+  height: auto;
+  border-radius: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+}
 
 .ob-badges {
   display: flex;

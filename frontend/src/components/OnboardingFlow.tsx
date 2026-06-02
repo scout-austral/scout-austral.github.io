@@ -4,6 +4,7 @@ import { FaFutbol } from 'react-icons/fa'
 import { equipos, jugadores } from '@/data'
 import type { FeatureKey, Perfil, PerfilFan, Tolerancia } from '@/lib/recommender/types'
 import { elicitarPerfil, type ElicitResult } from '@/lib/elicitApi'
+import { TeamFlag } from '@/components/TeamFlag'
 import { Badge } from '@/components/ui/badge'
 
 // ─── Matching de nombres libres (del LLM) contra el dataset ─────────────────────
@@ -71,7 +72,7 @@ const jugadoresOrdenados = [...jugadores].sort((a, b) => a.nombre.localeCompare(
 
 // ─── SearchCombo inline ───────────────────────────────────────────────────────
 
-interface ComboItem { value: string; label: string }
+interface ComboItem { value: string; label: string; flagCode?: string }
 
 function SearchCombo({ placeholder, items, onSelect, exclude }: {
   placeholder: string
@@ -104,6 +105,7 @@ function SearchCombo({ placeholder, items, onSelect, exclude }: {
         <div className="ob-sc-list">
           {filtered.map(item => (
             <button key={item.value} type="button" className="ob-sc-item" onMouseDown={() => { onSelect(item.value); setQ(''); setOpen(false) }}>
+              {item.flagCode && <TeamFlag code={item.flagCode} className="ob-sc-flag" />}
               {item.label}
             </button>
           ))}
@@ -385,7 +387,7 @@ function Step1Equipo({ answers, onAdd, onRemove, onNext, onSkip }: {
   onSkip: () => void
 }) {
   const equipoItems = useMemo(() =>
-    equiposOrdenados.map(e => ({ value: e.codigo, label: `${e.bandera} ${e.nombre}` })),
+    equiposOrdenados.map(e => ({ value: e.codigo, label: e.nombre, flagCode: e.codigo })),
     [],
   )
 
@@ -409,7 +411,7 @@ function Step1Equipo({ answers, onAdd, onRemove, onNext, onSkip }: {
               return (
                 <Badge key={cod} variant="secondary" className="gap-1 text-sm py-1 px-2">
                   <span className="opacity-50 text-xs">{i + 1}°</span>
-                  {e?.bandera} {e?.nombre}
+                  {e && <TeamFlag code={e.codigo} className="ob-sc-flag" />} {e?.nombre}
                   <button type="button" onClick={() => onRemove(cod)} aria-label="quitar">
                     <X className="size-3" />
                   </button>
