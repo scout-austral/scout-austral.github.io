@@ -65,6 +65,7 @@ interface Props {
   perfil: Perfil
   feedback?: Feedback
   calendarConnected: boolean
+  isLoggedIn: boolean
   scheduledMatches: Record<string, string>
   onFeedback: (gusto: boolean, motivo?: MotivoDislike) => void
   onClear: () => void
@@ -72,7 +73,7 @@ interface Props {
   onScheduled?: (matchId: string, eventUrl: string) => void
 }
 
-export function MatchCard({ evaluado, perfil, feedback, calendarConnected, scheduledMatches, onFeedback, onClear, onCalendarDisconnected, onScheduled }: Props) {
+export function MatchCard({ evaluado, perfil, feedback, calendarConnected, isLoggedIn, scheduledMatches, onFeedback, onClear, onCalendarDisconnected, onScheduled }: Props) {
   const { partido, factores, categoria, horaUsuario, afinidad } = evaluado
   const meta = CATEGORIA_META[categoria]
   const maxContrib = Math.max(...factores.map((f) => f.contribucion), 0.0001)
@@ -235,6 +236,15 @@ export function MatchCard({ evaluado, perfil, feedback, calendarConnected, sched
                 )}
                 <span>{calendarState === 'error' ? 'Reintentar' : 'Agendar'}</span>
               </button>
+            ) : !isLoggedIn ? (
+              <a
+                className="mc-cal-btn mc-cal-btn--connect"
+                href={`${API_BASE_URL}/auth/google`}
+                title="Iniciá sesión para agendar en Google Calendar"
+              >
+                <CalendarIcon />
+                <span>Iniciar sesión</span>
+              </a>
             ) : (
               <a
                 href={`${API_BASE_URL}/auth/google/calendar?token=${localStorage.getItem('scout_auth_token') ?? ''}`}

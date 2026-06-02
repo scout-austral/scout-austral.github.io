@@ -28,6 +28,7 @@ interface Props {
   deltas: AprendizajeFactor[]
   precision: PrecisionModelo
   calendarConnected: boolean
+  isLoggedIn: boolean
   scheduledMatches: Record<string, string>
   registrar: (partidoId: string, gusto: boolean, motivo?: MotivoDislike) => void
   quitar: (partidoId: string) => void
@@ -105,6 +106,7 @@ export function Results({
   deltas,
   precision,
   calendarConnected,
+  isLoggedIn,
   scheduledMatches,
   registrar,
   quitar,
@@ -142,6 +144,7 @@ export function Results({
                   perfil={perfil}
                   feedback={porPartido.get(e.partido.id)}
                   calendarConnected={calendarConnected}
+                  isLoggedIn={isLoggedIn}
                   scheduledMatches={scheduledMatches}
                   onFeedback={(gusto, motivo) => registrar(e.partido.id, gusto, motivo)}
                   onClear={() => quitar(e.partido.id)}

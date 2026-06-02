@@ -2197,6 +2197,50 @@ button.nav-link {
   color: #52525b;
 }
 
+/* ─── Guest banner & login prompt ───────────────────────────────────────────── */
+
+.guest-banner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 0.6rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.82rem;
+  color: #71717a;
+}
+
+.guest-banner-cta {
+  font-size: 0.8rem;
+  min-height: 1.9rem;
+  padding: 0 0.75rem;
+}
+
+.guest-login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.625rem;
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 1.5rem;
+  max-width: 480px;
+}
+
+.guest-login-prompt p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #71717a;
+  line-height: 1.5;
+}
+
 @media (max-width: 600px) {
   .quiz-body {
     padding: 0 1rem 1rem;

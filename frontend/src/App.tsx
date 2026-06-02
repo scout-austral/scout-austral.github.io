@@ -229,7 +229,7 @@ function App() {
           <FaFutbol aria-hidden="true" />
           <span>SCOUT</span>
         </a>
-        {authChecked && user && (
+        {authChecked && (
           <nav className="primary-nav" aria-label="Navegacion principal">
             {navItems.map((item) => {
               const Icon = item.icon
@@ -274,12 +274,21 @@ function App() {
 
       {authError && <p className="auth-error">{authError}</p>}
 
-      {!authChecked ? null : user && (redoOnboarding || needsOnboarding(perfil)) ? (
+      {authChecked && !user && (
+        <div className="guest-banner">
+          <span>Guardá tu perfil y agendá partidos.</span>
+          <a className="google-nav-button guest-banner-cta" href={`${API_BASE_URL}/auth/google`}>
+            <GoogleIcon /> Entrar con Google
+          </a>
+        </div>
+      )}
+
+      {!authChecked ? null : (redoOnboarding || needsOnboarding(perfil)) ? (
         <OnboardingFlow
           actualizar={actualizar}
           onDone={() => setRedoOnboarding(false)}
         />
-      ) : !authChecked ? null : user ? (
+      ) : (
         <AppPage
           page={page}
           user={user}
@@ -294,36 +303,16 @@ function App() {
           registrar={registrar}
           quitar={quitar}
           resetFeedback={resetFeedback}
-          calendarConnected={user.calendarConnected}
+          calendarConnected={user?.calendarConnected ?? false}
           scheduledMatches={perfil.scheduledMatches}
           onCalendarDisconnected={refreshUser}
           onScheduled={handleScheduled}
         />
-      ) : (
-        <LandingPage perfil={perfil} actualizar={actualizar} />
       )}
     </main>
   )
 }
 
-function LandingPage(_: { perfil: Perfil; actualizar: (cambios: Partial<Perfil>) => void }) {
-  return (
-    <section className="content-shell landing-page">
-      <div className="landing-hero">
-        <FaFutbol className="landing-hero-icon" aria-hidden="true" />
-        <h1 className="landing-title">Tu tiempo, tu Mundial.</h1>
-        <p className="landing-subtitle">
-          Scout clasifica los 72 partidos del Mundial 2026 según tu afinidad y disponibilidad.
-          Iniciá sesión para ver tus recomendaciones personalizadas.
-        </p>
-        <a className="google-nav-button landing-cta" href={`${API_BASE_URL}/auth/google`}>
-          <GoogleIcon />
-          Entrar con Google
-        </a>
-      </div>
-    </section>
-  )
-}
 
 function AppPage({
   page,
@@ -345,7 +334,7 @@ function AppPage({
   onScheduled,
 }: {
   page: Page
-  user: User
+  user: User | null
   perfil: Perfil
   actualizar: (cambios: Partial<Perfil>) => void
   resetPerfil: () => void
@@ -369,8 +358,16 @@ function AppPage({
     return (
       <section className="content-shell">
         <div className="section-heading">
-          <h1>{user.name ?? user.email}</h1>
+          <h1>{user ? (user.name ?? user.email) : 'Tu perfil'}</h1>
         </div>
+        {!user && (
+          <div className="guest-login-prompt">
+            <p>Iniciá sesión para guardar tu perfil y tus preferencias en la nube.</p>
+            <a className="google-nav-button" href={`${API_BASE_URL}/auth/google`}>
+              <GoogleIcon /> Entrar con Google
+            </a>
+          </div>
+        )}
         <ProfilePage perfil={perfil} actualizar={actualizar} reset={resetPerfil} onRedoSurvey={onRedoSurvey} />
       </section>
     )
@@ -408,6 +405,7 @@ function AppPage({
             deltas={deltas}
             precision={precision}
             calendarConnected={calendarConnected}
+            isLoggedIn={!!user}
             scheduledMatches={scheduledMatches}
             registrar={registrar}
             quitar={quitar}
