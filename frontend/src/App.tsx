@@ -100,16 +100,16 @@ function FieldLines({ side }: { side: 'left' | 'right' }) {
       viewBox={`0 0 ${W} ${H}`}
       width={W}
     >
-      <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5" x1={vx} x2={vx} y1={0} y2={H} />
-      <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5"
+      <line stroke="#22c55e" strokeOpacity="0.18" strokeWidth="1.5" x1={vx} x2={vx} y1={0} y2={H} />
+      <line stroke="#22c55e" strokeOpacity="0.18" strokeWidth="1.5"
         x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyTop} y2={penaltyTop} />
-      <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5"
+      <line stroke="#22c55e" strokeOpacity="0.18" strokeWidth="1.5"
         x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyBot} y2={penaltyBot} />
-      <line stroke="white" strokeOpacity="0.18" strokeWidth="1.5"
+      <line stroke="#22c55e" strokeOpacity="0.18" strokeWidth="1.5"
         x1={isLeft ? vx + areaLen : vx - areaLen}
         x2={isLeft ? vx + areaLen : vx - areaLen}
         y1={penaltyTop} y2={penaltyBot} />
-      <circle cx={spotX} cy={spotY} r={2.5} fill="white" fillOpacity="0.25" />
+      <circle cx={spotX} cy={spotY} r={2.5} fill="#22c55e" fillOpacity="0.28" />
     </svg>
   )
 }
@@ -227,7 +227,10 @@ function App() {
       <header className="topbar">
         <a className="brand" href="/">
           <FaFutbol aria-hidden="true" />
-          <span>SCOUT</span>
+          <span className="brand-text">
+            <span>SCOUT</span>
+            <span className="brand-sub">Mundial 2026</span>
+          </span>
         </a>
         {authChecked && (
           <nav className="primary-nav" aria-label="Navegacion principal">

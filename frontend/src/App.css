@@ -11,9 +11,9 @@ body {
   min-height: 100svh;
   width: 100%;
   background:
-    radial-gradient(circle at top, rgb(255 255 255 / 0.06), transparent 24rem),
-    #000;
-  color: #fff;
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgb(34 197 94 / 0.07), transparent 60%),
+    #04070a;
+  color: #f0f4f0;
 }
 
 .topbar,
@@ -50,10 +50,10 @@ body {
   width: 100%;
   padding: 1rem 1.5rem;
   box-sizing: border-box;
-  background: rgb(0 0 0 / 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid #1a1a1a;
+  background: rgb(4 7 10 / 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(34, 197, 94, 0.12);
 }
 
 .brand {
@@ -63,19 +63,33 @@ body {
   color: #fff;
   font-family: "Geist", Inter, ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem;
-  font-weight: 680;
-  letter-spacing: 0.06em;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.brand:hover {
-  color: #fff;
-}
+.brand:hover { color: #fff; }
 
 .brand svg {
   width: 1.35rem;
   height: 1.35rem;
-  color: #f4f4f5;
-  filter: drop-shadow(0 0 12px rgb(255 255 255 / 0.14));
+  color: #22c55e;
+  filter: drop-shadow(0 0 10px rgb(34 197 94 / 0.5));
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 2px;
+}
+
+.brand-sub {
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: rgba(34, 197, 94, 0.65);
+  text-transform: uppercase;
 }
 
 .primary-nav {
@@ -91,7 +105,7 @@ body {
   align-items: center;
   gap: 0.4rem;
   min-height: 2.1rem;
-  color: #a1a1aa;
+  color: #5a7a5a;
   padding: 0 0.7rem;
   font-size: 0.88rem;
   font-weight: 400;
@@ -107,12 +121,12 @@ body {
 }
 
 .primary-nav a:hover {
-  color: #fff;
-  text-shadow: 0 0 18px rgb(255 255 255 / 0.28);
+  color: #86efac;
+  text-shadow: 0 0 14px rgb(34 197 94 / 0.35);
 }
 
 .primary-nav a[aria-current='page'] {
-  color: #fff;
+  color: #22c55e;
 }
 
 .user-actions {
@@ -323,22 +337,24 @@ button.nav-link {
   align-content: space-between;
   gap: 1.2rem;
   min-height: 9.5rem;
-  border: 1px solid #242424;
+  border: 1px solid #1a2a1a;
   border-radius: 12px;
-  background: rgb(10 10 10 / 0.72);
-  color: #fff;
+  background: rgb(8 15 8 / 0.8);
+  color: #f0f4f0;
   padding: 1rem;
   text-align: left;
   transition:
     border-color 160ms ease,
     background-color 160ms ease,
-    transform 160ms ease;
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .group-card:hover {
-  border-color: #3f3f46;
-  background: #111113;
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgb(8 20 10 / 0.9);
   transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.07);
 }
 
 .group-title {
@@ -505,7 +521,13 @@ button.nav-link {
   text-align: right;
 }
 
-.match-teams strong,
+.match-teams strong {
+  color: #22c55e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .match-meta {
   color: #71717a;
   font-size: 0.78rem;
@@ -645,8 +667,8 @@ button.nav-link {
 }
 
 .fixture-tab--active {
-  color: #fff;
-  border-bottom-color: #fff;
+  color: #22c55e;
+  border-bottom-color: #22c55e;
 }
 
 /* ─── Knockout bracket ─────────────────────────────────────────────────────── */
@@ -845,8 +867,8 @@ button.nav-link {
 }
 
 .cal-day-btn--active {
-  color: #fff;
-  border-bottom-color: #fff;
+  color: #22c55e;
+  border-bottom-color: #22c55e;
 }
 
 .cal-day-dow {
@@ -946,9 +968,10 @@ button.nav-link {
 .cal-time {
   font-size: 1rem;
   font-weight: 700;
-  color: #a1a1aa;
+  color: #22c55e;
   text-align: center;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .cal-empty {
@@ -2219,10 +2242,10 @@ button.nav-link {
   flex-wrap: wrap;
   width: 100%;
   padding: 0.6rem 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(34, 197, 94, 0.04);
+  border-bottom: 1px solid rgba(34, 197, 94, 0.1);
   font-size: 0.82rem;
-  color: #71717a;
+  color: #6b8f6b;
 }
 
 .guest-banner-cta {
@@ -2262,5 +2285,325 @@ button.nav-link {
 
   .quiz-franja-slots {
     gap: 0.25rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MatchCard v2 — broadcast style
+   ═══════════════════════════════════════════════════════════════════ */
+
+.mc {
+  position: relative;
+  border: 1px solid #1e2b1e;
+  border-radius: 12px;
+  background: #070e07;
+  overflow: hidden;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.mc:hover {
+  border-color: rgba(34, 197, 94, 0.25);
+  box-shadow: 0 4px 24px rgba(34, 197, 94, 0.06);
+}
+
+/* ── Category variants ── */
+.mc-imperdible {
+  background: linear-gradient(160deg, rgba(245, 158, 11, 0.06) 0%, #070e07 40%);
+  border-color: rgba(245, 158, 11, 0.22);
+}
+.mc-imperdible:hover {
+  border-color: rgba(245, 158, 11, 0.42);
+  box-shadow: 0 6px 32px rgba(245, 158, 11, 0.09);
+}
+
+.mc-vale {
+  background: linear-gradient(160deg, rgba(34, 197, 94, 0.05) 0%, #070e07 40%);
+}
+
+/* ── Header strip ── */
+.mc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 1rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.mc-cat-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mc-imperdible .mc-cat-label { color: #f59e0b; }
+.mc-vale      .mc-cat-label { color: #22c55e; }
+.mc-resumen   .mc-cat-label { color: #5a7a5a; }
+
+.mc-head-meta {
+  font-size: 0.68rem;
+  color: #4a6a4a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+}
+
+/* ── Match row ── */
+.mc-match {
+  display: grid;
+  grid-template-columns: 1fr 5rem 1fr;
+  align-items: center;
+  gap: 0;
+  padding: 1rem 1rem 0.75rem;
+}
+
+.mc-side {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mc-side--home {
+  flex-direction: row;
+}
+
+.mc-side--away {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+.mc-flag-lg {
+  width: 2rem !important;
+  height: auto !important;
+  border-radius: 3px !important;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.mc-team-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #dff0df;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.mc-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.mc-hora {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #f0f4f0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.mc-vsep {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #3a5a3a;
+  text-transform: uppercase;
+}
+
+/* ── Reason text ── */
+.mc-reason {
+  margin: 0;
+  padding: 0 1rem 0.75rem;
+  font-size: 0.82rem;
+  color: #7a9a7a;
+  line-height: 1.6;
+}
+
+/* ── Factor tags ── */
+.mc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0 1rem 0.75rem;
+}
+
+.mc-tag {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(34, 197, 94, 0.07);
+  border: 1px solid rgba(34, 197, 94, 0.14);
+  color: #4a7a4a;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mc-tag--dim {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.05);
+  color: #3a4a3a;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+/* ── Footer ── */
+.mc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.mc-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.mc-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.mc-ia-btn,
+.mc-ia-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: #3a5a3a;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.mc-ia-btn:hover:not(:disabled) { color: #6a9a6a; }
+.mc-ia-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.mc-ia-done { cursor: default; }
+
+@keyframes mc-spin { to { transform: rotate(360deg); } }
+.mc-spin { animation: mc-spin 0.7s linear infinite; }
+
+/* Calendar button */
+.mc-cal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 1.65rem;
+  padding: 0 0.55rem;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: transparent;
+  color: #4a6a4a;
+  font-size: 0.68rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+  font-family: inherit;
+}
+.mc-cal-btn:hover { border-color: rgba(255,255,255,0.18); color: #86efac; }
+.mc-cal-btn--done {
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.07);
+}
+.mc-cal-btn--done:hover { border-color: rgba(34,197,94,0.5); color: #22c55e; }
+.mc-cal-btn--warn { border-color: rgba(245,158,11,0.3); color: #f59e0b; }
+.mc-cal-btn--warn:hover { border-color: rgba(245,158,11,0.5); color: #f59e0b; }
+.mc-cal-btn--ghost { border-style: dashed; opacity: 0.6; }
+.mc-cal-btn--ghost:hover { opacity: 1; }
+
+/* Feedback buttons */
+.mc-fb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: #4a6a4a;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+  padding: 0;
+}
+.mc-fb-btn:hover { border-color: rgba(255,255,255,0.2); color: #86efac; }
+.mc-fb-btn--on {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+}
+
+/* Motivos dislike */
+.mc-motivos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.mc-motivos-label {
+  font-size: 0.7rem;
+  color: #4a6a4a;
+  width: 100%;
+  margin-bottom: 0.1rem;
+}
+
+.mc-motivo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 1.5rem;
+  padding: 0 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: #4a6a4a;
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+.mc-motivo-btn:hover { border-color: rgba(255,255,255,0.2); color: #86efac; }
+.mc-motivo-btn--on {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.35);
+  color: #22c55e;
+}
+
+.mc-motivos-ok {
+  font-size: 0.68rem;
+  color: #22c55e;
+  margin-left: 0.25rem;
+}
+
+@media (max-width: 480px) {
+  .mc-match {
+    grid-template-columns: 1fr 4rem 1fr;
+  }
+  .mc-team-name {
+    font-size: 0.78rem;
+  }
+  .mc-flag-lg {
+    width: 1.5rem !important;
   }
 }
