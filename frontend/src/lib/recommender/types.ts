@@ -45,6 +45,8 @@ export interface Perfil {
   importancia?: Partial<Record<FeatureKey, number>>
   /** Partidos ya agendados en Google Calendar: matchId → eventUrl. */
   scheduledMatches: Record<string, string>
+  /** Historial de feedback del usuario, persistido en DB (no en localStorage). */
+  feedbacks: Feedback[]
 }
 
 /** Factores de afinidad que pondera el modelo. */

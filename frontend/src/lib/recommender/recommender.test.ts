@@ -34,6 +34,7 @@ const perfilArg: Perfil = {
   tolerancia: 'media',
   perfilFan: 'total',
   scheduledMatches: {},
+  feedbacks: [],
 }
 
 describe('features', () => {

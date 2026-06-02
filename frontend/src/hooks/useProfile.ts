@@ -23,6 +23,7 @@ export function perfilInicial(): Perfil {
     tolerancia: 'media',
     perfilFan: 'casual',
     scheduledMatches: {},
+    feedbacks: [],
   }
 }
 

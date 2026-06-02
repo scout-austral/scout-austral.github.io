@@ -129,7 +129,7 @@ function App() {
 
   const { perfil, actualizar, reset: resetPerfil } = useProfile()
   const { priors, deltas, precision, porPartido, registrar, quitar, reset: resetFeedback } =
-    useFeedback(perfil)
+    useFeedback(perfil, actualizar)
 
   useEffect(() => {
     const onPopState = () => setPage(getPageFromPath())
@@ -188,6 +188,8 @@ function App() {
 
   function rehacerEncuesta() {
     localStorage.removeItem('scout_onboarding_done')
+    localStorage.removeItem('scout_feedback') // legacy key
+    resetFeedback()
     setRedoOnboarding(true)
     navigate('/', 'inicio')
   }
@@ -195,6 +197,7 @@ function App() {
   function signOut() {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(PROFILE_STORAGE_KEY)
+    localStorage.removeItem('scout_feedback') // legacy key, ya no se usa
     setUser(null)
     resetPerfil()
     navigate('/', 'inicio')

@@ -1,6 +1,8 @@
-// Estado del feedback del usuario, persistido en localStorage.
-// Deriva el posterior de los pesos (priors base + feedback) y qué aprendió el modelo.
-import { useCallback, useEffect, useMemo, useState } from 'react'
+// Estado del feedback del usuario.
+// Los feedbacks viven en perfil.feedbacks → se sincronizan con la DB via useProfile.
+// No se usa localStorage: el aislamiento por usuario y la persistencia los maneja la DB.
+
+import { useCallback, useMemo } from 'react'
 import {
   aprendizaje,
   evaluarPrecision,
@@ -15,28 +17,8 @@ import {
   type Prior,
 } from '@/lib/recommender'
 
-const STORAGE_KEY = 'scout_feedback'
-
-function cargar(): Feedback[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as Feedback[]
-  } catch {
-    /* ignore */
-  }
-  return []
-}
-
-export function useFeedback(perfil: Perfil) {
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>(cargar)
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(feedbacks))
-    } catch {
-      /* ignore */
-    }
-  }, [feedbacks])
+export function useFeedback(perfil: Perfil, actualizarPerfil: (cambios: Partial<Perfil>) => void) {
+  const feedbacks = perfil.feedbacks ?? []
 
   const basePrior = useMemo(
     () => priorsDesdePerfil(perfil.importancia),
@@ -53,7 +35,6 @@ export function useFeedback(perfil: Perfil) {
     [basePrior, priors],
   )
 
-  // Precisión del modelo cold-start (priors base) contra el feedback real del usuario.
   const precision = useMemo<PrecisionModelo>(
     () => evaluarPrecision(basePrior, perfil, feedbacks),
     [basePrior, perfil, feedbacks],
@@ -67,19 +48,27 @@ export function useFeedback(perfil: Perfil) {
 
   const registrar = useCallback(
     (partidoId: string, gusto: boolean, motivo?: MotivoDislike) => {
-      setFeedbacks((prev) => [
-        ...prev.filter((f) => f.partidoId !== partidoId),
+      const next = [
+        ...(perfil.feedbacks ?? []).filter((f) => f.partidoId !== partidoId),
         { partidoId, gusto, motivo },
-      ])
+      ]
+      actualizarPerfil({ feedbacks: next })
     },
-    [],
+    [perfil.feedbacks, actualizarPerfil],
   )
 
-  const quitar = useCallback((partidoId: string) => {
-    setFeedbacks((prev) => prev.filter((f) => f.partidoId !== partidoId))
-  }, [])
+  const quitar = useCallback(
+    (partidoId: string) => {
+      actualizarPerfil({
+        feedbacks: (perfil.feedbacks ?? []).filter((f) => f.partidoId !== partidoId),
+      })
+    },
+    [perfil.feedbacks, actualizarPerfil],
+  )
 
-  const reset = useCallback(() => setFeedbacks([]), [])
+  const reset = useCallback(() => {
+    actualizarPerfil({ feedbacks: [] })
+  }, [actualizarPerfil])
 
   return { feedbacks, priors, deltas, precision, porPartido, registrar, quitar, reset }
 }

@@ -14,6 +14,7 @@ const perfil: Perfil = {
   tolerancia: 'media',
   perfilFan: 'casual',
   scheduledMatches: {},
+  feedbacks: [],
 }
 
 // Baseline en cero => saliencia = features crudas (test determinístico).
