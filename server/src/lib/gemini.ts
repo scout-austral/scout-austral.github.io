@@ -34,7 +34,7 @@ Factores de scoring: ${JSON.stringify(params.scoreBreakdown)}
 Sé específico y mencioná los factores más relevantes. No uses markdown.`
 
   const response = await ai.models.generateContent({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.0-flash',
     contents: prompt,
   })
 
@@ -163,7 +163,7 @@ Respondé SOLO con un objeto JSON válido, sin texto adicional ni markdown:
 {"importancia":{"equipo":0,"jugador":0,"estrellas":0,"competitividad":0,"grupo_muerte":0,"jornada3":0,"rivalidad":0,"ultimo_baile":0},"perfilFan":"casual","tolerancia":"media","equipos":[],"jugadores":[]}`
 
   const response = await ai.models.generateContent({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.0-flash',
     contents: prompt,
   })
 

@@ -1656,6 +1656,8 @@ button.nav-link {
   background: #fff;
 }
 .ob-ai-input:disabled { opacity: 0.6; }
+/* El textarea tiene fondo claro → override de selección para que el texto sea oscuro */
+.ob-ai-input::selection { background: rgb(57 255 136 / 0.45); color: #18181b; }
 .ob-ai-error {
   font-size: 0.8rem;
   color: #b91c1c;
