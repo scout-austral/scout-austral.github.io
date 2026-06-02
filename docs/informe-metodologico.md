@@ -1,9 +1,18 @@
 # Scout — Informe metodológico
 
-Competencia **"Tu tiempo, tu Mundial"** · Facultad de Ingeniería, Universidad Austral.
+**Competencia "Tu tiempo, tu Mundial"** · Facultad de Ingeniería, Universidad Austral · Junio 2026
 
-> Borrador técnico que sirve de insumo para el informe PDF (máx. 8 páginas). Todos los valores,
-> fórmulas y umbrales coinciden con el código en `frontend/src/lib/recommender/`.
+---
+
+## Resumen ejecutivo
+
+Scout es un sistema de recomendación de partidos del Mundial 2026 que clasifica los 72 encuentros de la fase de grupos en tres categorías (**Imperdible**, **Vale la pena**, **Para ver el resumen**) a partir del perfil de cada usuario. El sistema fue diseñado para operar sin datos etiquetados —los partidos aún no se jugaron— lo que hizo inviable el aprendizaje supervisado clásico y motivó una arquitectura bayesiana explicable.
+
+**Enfoque central:** cada partido se describe con 8 factores normalizados, 4 de ellos no derivables del ranking FIFA (*competitividad*, *grupo de la muerte*, *rivalidad histórica*, *último baile de una leyenda*). Los pesos de esos factores son distribuciones —no números fijos— lo que permite: (1) propagar la incertidumbre al score para guiar la clasificación, (2) aprender del feedback del usuario con un filtro de Kalman preservando lo que el usuario explícitamente declaró, y (3) elicitar el prior desde una descripción en lenguaje natural asistida por LLM.
+
+**Resultados:** la demo es pública, funciona sin login, integra Google Calendar, muestra la justificación de cada recomendación y reporta la precisión del modelo contra el feedback real del usuario.
+
+---
 
 ## 1. Problema y objetivo
 
@@ -189,7 +198,7 @@ Sin verdad de campo, la validación combina una **métrica de precisión sobre e
   (Y %)"*. Usar los priors base —no el posterior— evita la fuga de información de medir con los mismos
   pesos que el feedback ya ajustó; los 👎 por horario se excluyen (son disponibilidad, no afinidad).
   Implementación en `frontend/src/lib/recommender/accuracy.ts`.
-- **Suite de tests** (`vitest`, 35 casos) que fija el comportamiento esperado: features (incluidos
+- **Suite de tests** (`vitest`, 36 casos) que fija el comportamiento esperado: features (incluidos
   rivalidad y último baile), conversión de zona horaria, umbrales de clasificación, rol de la
   incertidumbre, asignación de crédito del aprendizaje y el cálculo de precisión.
 - **Escenarios de validez aparente:** p. ej. un hincha argentino obtiene los partidos de Argentina como
