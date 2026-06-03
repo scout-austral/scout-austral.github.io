@@ -164,8 +164,12 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
   const [elicited, setElicited] = useState<ElicitResult | null>(null)
   const [iaLoading, setIaLoading] = useState(false)
   const [iaError, setIaError] = useState(false)
-  // Respuestas a preguntas de complemento (métricas no cubiertas por IA)
+  // Cola de preguntas de complemento (métricas sin cubrir por IA)
+  const [complementQueue, setComplementQueue] = useState<string[]>([])
   const [complementAnswers, setComplementAnswers] = useState<Record<string, string | number>>({})
+
+  // Paso dinámico: tras las preguntas de complemento (9..9+n-1) viene el DoneStep
+  const DONE_STEP = 9 + complementQueue.length
 
   async function armarConIA(text: string) {
     setIaLoading(true)
@@ -175,9 +179,11 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
     if (!r) { setIaError(true); return }
     const eqs = matchEquipos(r.equipos)
     const jugs = matchJugadores(r.jugadores)
+    const queue = (r.sin_cubrir ?? []).filter(k => COMPLEMENT_QUESTIONS[k]).slice(0, 3)
     setAnswers(a => ({ ...a, equipos: eqs, jugadores: jugs }))
+    setComplementQueue(queue)
     setElicited(r)
-    go(9) // salta al resumen final (con preguntas de complemento si hay sin_cubrir)
+    go(9) // si queue está vacía, 9 === DONE_STEP y va directo al resumen
   }
 
   function go(n: number) {
@@ -317,16 +323,28 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
             onBack={back}
           />
         )}
-        {step === 9 && (
+        {/* Pasos de complemento: una pregunta por paso, auto-avanza al seleccionar */}
+        {step >= 9 && step < DONE_STEP && (
+          <ComplementStep
+            questionKey={complementQueue[step - 9]}
+            answered={complementAnswers[complementQueue[step - 9]]}
+            onSelect={(val) => {
+              const key = complementQueue[step - 9]
+              setComplementAnswers(prev => ({ ...prev, [key]: val }))
+              go(step + 1)
+            }}
+            onBack={() => go(step - 1 < 9 ? 0 : step - 1)}
+            index={step - 9}
+            total={complementQueue.length}
+          />
+        )}
+        {step === DONE_STEP && (
           <DoneStep
             onFinish={finish}
             viaIA={elicited != null}
             equipos={answers.equipos}
             jugadores={answers.jugadores}
             importancia={elicited?.importancia}
-            sinCubrir={elicited?.sin_cubrir ?? []}
-            complementAnswers={complementAnswers}
-            onComplementAnswer={(key, val) => setComplementAnswers(prev => ({ ...prev, [key]: val }))}
           />
         )}
       </div>
@@ -752,35 +770,56 @@ const COMPLEMENT_QUESTIONS: Record<string, {
   },
 }
 
-// Orden de prioridad para mostrar preguntas de complemento
-const COMPLEMENT_PRIORITY = ['tolerancia', 'competitividad', 'rivalidad']
+function ComplementStep({ questionKey, answered, onSelect, onBack, index, total }: {
+  questionKey: string
+  answered?: string | number
+  onSelect: (val: string | number) => void
+  onBack: () => void
+  index: number
+  total: number
+}) {
+  const q = COMPLEMENT_QUESTIONS[questionKey]
+  if (!q) return null
+  return (
+    <div className="ob-step ob-step--center">
+      <p className="ob-step-num">{index + 1} de {total}</p>
+      <h2 className="ob-question">{q.label}</h2>
+      <div className="ob-options">
+        {q.options.map(opt => (
+          <button
+            key={String(opt.value)}
+            type="button"
+            className={`ob-option${answered === opt.value ? ' ob-option--selected' : ''}`}
+            onClick={() => onSelect(opt.value)}
+          >
+            <div>
+              <span className="ob-option-label">{opt.label}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+      <button type="button" className="ob-link" onClick={onBack} style={{ marginTop: '1rem' }}>
+        ← Volver
+      </button>
+    </div>
+  )
+}
 
-function DoneStep({ onFinish, viaIA, equipos, jugadores, importancia, sinCubrir, complementAnswers, onComplementAnswer }: {
+function DoneStep({ onFinish, viaIA, equipos, jugadores, importancia }: {
   onFinish: () => void
   viaIA?: boolean
   equipos?: string[]
   jugadores?: string[]
   importancia?: Partial<Record<string, number>>
-  sinCubrir?: string[]
-  complementAnswers?: Record<string, string | number>
-  onComplementAnswer?: (key: string, value: string | number) => void
 }) {
   const equiposDetectados = (equipos ?? [])
     .map(c => equiposOrdenados.find(e => e.codigo === c))
     .filter((e): e is NonNullable<typeof e> => e != null)
 
-  // Jugadores de último baile a mostrar si ultimo_baile es alto y no ya están en jugadores
   const ultimoBailePlayers = viaIA && (importancia?.ultimo_baile ?? 0) >= 65
     ? LEYENDAS_ULTIMO_BAILE
         .filter(l => l.intensidad >= 0.8 && !(jugadores ?? []).includes(l.nombre))
         .slice(0, 3)
-    : []
-
-  // Preguntas de complemento: máximo 2, en orden de prioridad
-  const preguntasComplement = viaIA
-    ? COMPLEMENT_PRIORITY
-        .filter(k => (sinCubrir ?? []).includes(k) && COMPLEMENT_QUESTIONS[k])
-        .slice(0, 2)
     : []
 
   return (
@@ -794,7 +833,7 @@ function DoneStep({ onFinish, viaIA, equipos, jugadores, importancia, sinCubrir,
       <h2 className="ob-welcome-title">Ya sé lo que buscás.</h2>
 
       {viaIA && (equiposDetectados.length > 0 || (jugadores ?? []).length > 0 || ultimoBailePlayers.length > 0) && (
-        <div className="ob-badges" style={{ justifyContent: 'center', marginBottom: '0.25rem' }}>
+        <div className="ob-badges" style={{ justifyContent: 'center', marginBottom: '0.5rem' }}>
           {equiposDetectados.map(e => (
             <Badge key={e.codigo} variant="secondary" className="text-sm py-1 px-2">
               {e.bandera} {e.nombre}
@@ -808,33 +847,6 @@ function DoneStep({ onFinish, viaIA, equipos, jugadores, importancia, sinCubrir,
               {l.nombre} <span style={{ opacity: 0.6, fontSize: '0.75em', marginLeft: '0.25rem' }}>último baile</span>
             </Badge>
           ))}
-        </div>
-      )}
-
-      {preguntasComplement.length > 0 && (
-        <div className="ob-complement">
-          <p className="ob-complement-header">Perfecto. Para afinar tu perfil, te consulto:</p>
-          {preguntasComplement.map(key => {
-            const q = COMPLEMENT_QUESTIONS[key]
-            const answered = complementAnswers?.[key]
-            return (
-              <div key={key} className="ob-complement-q">
-                <p className="ob-complement-label">{q.label}</p>
-                <div className="ob-complement-opts">
-                  {q.options.map(opt => (
-                    <button
-                      key={String(opt.value)}
-                      type="button"
-                      className={`ob-complement-btn${answered === opt.value ? ' ob-complement-btn--active' : ''}`}
-                      onClick={() => onComplementAnswer?.(key, opt.value)}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
         </div>
       )}
 

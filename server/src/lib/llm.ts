@@ -73,18 +73,18 @@ const FEATURES_DESC: { key: string; desc: string }[] = [
   { key: 'ultimo_baile', desc: 'ver a un ídolo (Messi, Cristiano, Modrić…) en su probable último Mundial' },
 ]
 
-const JUGADORES_POR_SELECCION = `Argentina: Lionel Messi, Lautaro Martínez, Julián Álvarez
-Portugal: Cristiano Ronaldo, Bruno Fernandes, Rafael Leão
-Francia: Kylian Mbappé, Aurélien Tchouaméni, Ousmane Dembélé
-España: Lamine Yamal, Rodri, Pedri
-Brasil: Vinícius Júnior, Rodrygo, Raphinha
-Alemania: Jamal Musiala, Florian Wirtz, Kai Havertz
-Inglaterra: Jude Bellingham, Harry Kane, Bukayo Saka
-Países Bajos: Virgil van Dijk, Cody Gakpo, Frenkie de Jong
+const JUGADORES_POR_SELECCION = `Argentina: Lionel Messi, Lautaro Martínez, Julián Álvarez, Ángel Di María, Nahuel Molina, Gonzalo Montiel, Franco Armani, Rodrigo De Paul, Alexis Mac Allister, Paulo Dybala, Enzo Fernández, Lisandro Martínez, Cristian Romero, Nicolás Tagliafico, Giovani Lo Celso
+Portugal: Cristiano Ronaldo, Bruno Fernandes, Rafael Leão, Rúben Dias, João Cancelo, Bernardo Silva, Gonçalo Ramos, Diogo Jota, João Félix, Nuno Mendes
+Francia: Kylian Mbappé, Aurélien Tchouaméni, Ousmane Dembélé, Mike Maignan, Theo Hernández, Eduardo Camavinga, Marcus Thuram, Randal Kolo Muani, Bradley Barcola
+España: Lamine Yamal, Rodri, Pedri, Unai Simón, Dani Carvajal, Alejandro Grimaldo, Gavi, Mikel Merino, Nico Williams, Ferran Torres, Dani Olmo
+Brasil: Vinícius Júnior, Rodrygo, Raphinha, Alisson Becker, Éder Militão, Marquinhos, Casemiro, Lucas Paquetá, Endrick, Gabriel Martinelli
+Alemania: Jamal Musiala, Florian Wirtz, Kai Havertz, Manuel Neuer, Antonio Rüdiger, Joshua Kimmich, Leroy Sané, Thomas Müller
+Inglaterra: Jude Bellingham, Harry Kane, Bukayo Saka, Jordan Pickford, Kyle Walker, John Stones, Declan Rice, Phil Foden, Marcus Rashford, Trent Alexander-Arnold
+Países Bajos: Virgil van Dijk, Cody Gakpo, Frenkie de Jong, Bart Verbruggen, Denzel Dumfries, Memphis Depay, Tijjani Reijnders
 Bélgica: Kevin De Bruyne, Jeremy Doku, Romelu Lukaku
-Croacia: Luka Modrić, Joško Gvardiol, Mateo Kovačić
-Uruguay: Federico Valverde, Darwin Núñez, Ronald Araújo
-Colombia: Luis Díaz, James Rodríguez, Jhon Durán
+Croacia: Luka Modrić, Joško Gvardiol, Mateo Kovačić, Dominik Livaković, Andrej Kramarić, Lovro Majer
+Uruguay: Federico Valverde, Darwin Núñez, Ronald Araújo, José María Giménez, Mathías Olivera, Rodrigo Bentancur, Facundo Pellistri, Maximiliano Araújo
+Colombia: Luis Díaz, James Rodríguez, Jhon Durán, Davinson Sánchez, Jefferson Lerma, Luis Sinisterra, Daniel Muñoz
 Noruega: Erling Haaland, Martin Ødegaard, Alexander Sørloth
 Marruecos: Achraf Hakimi, Brahim Díaz, Hakim Ziyech
 Turquía: Arda Güler, Hakan Çalhanoğlu, Kenan Yıldız
@@ -94,7 +94,8 @@ Japón: Takefusa Kubo, Kaoru Mitoma, Wataru Endō
 Suiza: Granit Xhaka, Manuel Akanji, Breel Embolo
 Senegal: Sadio Mané, Nicolas Jackson, Pape Matar Sarr
 Egipto: Mohamed Salah, Omar Marmoush, Mohamed Elneny
-Ecuador: Moisés Caicedo, Enner Valencia, Pervis Estupiñán
+Ecuador: Moisés Caicedo, Enner Valencia, Pervis Estupiñán, Piero Hincapié, Jeremy Sarmiento
+Paraguay: Miguel Almirón, Antonio Sanabria, Julio Enciso, Gustavo Gómez, Robert Rojas, Ramón Sosa
 Suecia: Alexander Isak, Viktor Gyökeres, Dejan Kulusevski
 Austria: David Alaba, Marcel Sabitzer, Marko Arnautović
 Canadá: Alphonso Davies, Jonathan David, Tajon Buchanan
@@ -104,7 +105,6 @@ Irán: Mehdi Taremi, Alireza Jahanbakhsh, Sardar Azmoun
 Bosnia: Edin Džeko, Sead Kolašinac, Ermedin Demirović
 Argelia: Riyad Mahrez, Amine Gouiri, Ismaël Bennacer
 Ghana: Antoine Semenyo, Thomas Partey, Jordan Ayew
-Paraguay: Miguel Almirón, Antonio Sanabria, Julio Enciso
 Arabia Saudita: Salem Al-Dawsari, Firas Al-Buraikan, Saud Abdulhamid
 Escocia: Scott McTominay, Andrew Robertson, John McGinn
 Túnez: Hannibal Mejbri, Ellyes Skhiri, Aïssa Laïdouni
@@ -158,7 +158,15 @@ A. ALIAS DE JUGADORES (aplicalos ANTES de cualquier interpretación):
    "son" | "heung-min" → "Son Heung-min"
    Ejemplo correcto: "el bicho yamal y messi" → [Cristiano Ronaldo, Lamine Yamal, Lionel Messi]
 
-B. CLUBS → JUGADORES (resolvé siempre clubs a jugadores del Mundial que estén en la lista):
+B. REGIONES → SELECCIONES: Si el usuario menciona una región o confederación, agregá todas las selecciones relevantes en "equipos":
+   "sudamericanos" / "CONMEBOL" / "sudamérica" → Argentina, Brasil, Uruguay, Colombia, Ecuador, Paraguay
+   "europeos" / "UEFA" / "europa" → España, Francia, Alemania, Inglaterra, Portugal, Croacia, Países Bajos, Bélgica
+   "africanos" / "CAF" / "áfrica" → Marruecos, Senegal, Egipto, Ghana, DR Congo, Costa de Marfil, Argelia
+   "asiáticos" / "AFC" → Japón, Corea del Sur, Irán, Arabia Saudita, Australia
+   "CONCACAF" / "centroamérica" / "norteamérica" → México, EEUU, Canadá, Panamá
+   Ejemplo: "sigo equipos sudamericanos" → equipos: [Argentina, Brasil, Uruguay, Colombia, Ecuador, Paraguay]
+
+C. CLUBS → JUGADORES (resolvé siempre clubs a jugadores del Mundial que estén en la lista):
    Real Madrid / Madrid → Vinícius Júnior, Kylian Mbappé, Jude Bellingham, Luka Modrić, Rodrygo, Federico Valverde, Aurélien Tchouaméni
    Barcelona / Barça → Lamine Yamal, Pedri, Raphinha, Ronald Araújo
    Manchester City / City → Kevin De Bruyne, Rodri, Manuel Akanji, Erling Haaland
@@ -170,11 +178,22 @@ B. CLUBS → JUGADORES (resolvé siempre clubs a jugadores del Mundial que esté
    Atletico Madrid / Atleti → Julián Álvarez
    Chelsea → Nicolas Jackson, Moisés Caicedo
    Al-Nassr → Cristiano Ronaldo
-   River Plate / River → Julián Álvarez
-   Boca Juniors / Boca → (ninguno relevante en lista)
-   Juventus / Juve → (ninguno relevante en lista)
-   Si el club no está arriba, usá tu conocimiento del fútbol para identificar sus jugadores en la LISTA DE JUGADORES del Mundial.
+   River Plate / River → Gonzalo Montiel, Julián Álvarez (si en lista), Franco Armani
+   Boca Juniors / Boca → usá tu conocimiento del plantel actual
+   Juventus / Juve → usá tu conocimiento del plantel actual
+   Si el club no está arriba, usá tu conocimiento general del fútbol para mapear sus jugadores a la lista del Mundial.
    IMPORTANTE: solo incluí jugadores que aparezcan EXACTAMENTE en la lista dada en el userPrompt.
+
+D_EXTRA. CUALQUIER INPUT: el usuario puede describirse de muchas formas. Interpretá el CONTEXTO y la INTENCIÓN:
+   - "paladar negro" → valora fútbol táctico/competitivo → competitividad ≥ 75, rivalidad ≥ 65
+   - "vivo el fútbol" / "fanático de fanáticos" → perfilFan: "total"
+   - "veo todo" / "no me pierdo nada" → tolerancia: "alta", perfilFan: "total"
+   - "los clásicos" / "los derbis" → rivalidad ≥ 75
+   - "grupos difíciles" / "grupos de fuego" → grupo_muerte ≥ 75
+   - "la última fecha" / "el partido que define" → jornada3 ≥ 75
+   - "las estrellas" / "los mejores del mundo" → estrellas ≥ 70
+   - "hincha de X" / "soy de X" → equipo ≥ 80, ese equipo en "equipos"
+   Nunca devuelvas 0 en todas las importancias. Si podés inferir algo, hazlo.
 
 C. IMPORTANCIA — valores 0-100, OBLIGATORIOS:
    - Menciona jugador por nombre/apodo → "jugador" ≥ 75
@@ -208,12 +227,12 @@ Devolvé este JSON completado (sin markdown, sin texto extra):
 
   const client = getClient()
   const res = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4o',
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
-    max_tokens: 500,
+    max_tokens: 600,
     temperature: 0.2,
     response_format: { type: 'json_object' },
   })

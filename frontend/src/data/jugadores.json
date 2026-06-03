@@ -1006,5 +1006,523 @@
     "club": "León",
     "posicion": "FW",
     "es_figura": true
+  },
+  {
+    "nombre": "Ángel Di María",
+    "seleccion": "ARG",
+    "club": "Benfica",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Nahuel Molina",
+    "seleccion": "ARG",
+    "club": "Atletico Madrid",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Gonzalo Montiel",
+    "seleccion": "ARG",
+    "club": "River Plate",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Franco Armani",
+    "seleccion": "ARG",
+    "club": "River Plate",
+    "posicion": "GK",
+    "es_figura": false
+  },
+  {
+    "nombre": "Rodrigo De Paul",
+    "seleccion": "ARG",
+    "club": "Atletico Madrid",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Alexis Mac Allister",
+    "seleccion": "ARG",
+    "club": "Liverpool",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Paulo Dybala",
+    "seleccion": "ARG",
+    "club": "Roma",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Enzo Fernández",
+    "seleccion": "ARG",
+    "club": "Chelsea",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Lisandro Martínez",
+    "seleccion": "ARG",
+    "club": "Manchester United",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Cristian Romero",
+    "seleccion": "ARG",
+    "club": "Tottenham",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Nicolás Tagliafico",
+    "seleccion": "ARG",
+    "club": "Lyon",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Giovani Lo Celso",
+    "seleccion": "ARG",
+    "club": "Villarreal",
+    "posicion": "MF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Alisson Becker",
+    "seleccion": "BRA",
+    "club": "Liverpool",
+    "posicion": "GK",
+    "es_figura": true
+  },
+  {
+    "nombre": "Éder Militão",
+    "seleccion": "BRA",
+    "club": "Real Madrid",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Marquinhos",
+    "seleccion": "BRA",
+    "club": "PSG",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Casemiro",
+    "seleccion": "BRA",
+    "club": "Manchester United",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Lucas Paquetá",
+    "seleccion": "BRA",
+    "club": "West Ham",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Endrick",
+    "seleccion": "BRA",
+    "club": "Real Madrid",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Gabriel Martinelli",
+    "seleccion": "BRA",
+    "club": "Arsenal",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "José María Giménez",
+    "seleccion": "URU",
+    "club": "Atletico Madrid",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Mathías Olivera",
+    "seleccion": "URU",
+    "club": "Napoli",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Rodrigo Bentancur",
+    "seleccion": "URU",
+    "club": "Tottenham",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Facundo Pellistri",
+    "seleccion": "URU",
+    "club": "Manchester United",
+    "posicion": "FW",
+    "es_figura": false
+  },
+  {
+    "nombre": "Maximiliano Araújo",
+    "seleccion": "URU",
+    "club": "Sporting CP",
+    "posicion": "FW",
+    "es_figura": false
+  },
+  {
+    "nombre": "Davinson Sánchez",
+    "seleccion": "COL",
+    "club": "Galatasaray",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Jefferson Lerma",
+    "seleccion": "COL",
+    "club": "Crystal Palace",
+    "posicion": "MF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Luis Sinisterra",
+    "seleccion": "COL",
+    "club": "Bournemouth",
+    "posicion": "FW",
+    "es_figura": false
+  },
+  {
+    "nombre": "Daniel Muñoz",
+    "seleccion": "COL",
+    "club": "Crystal Palace",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Robert Rojas",
+    "seleccion": "PAR",
+    "club": "River Plate",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Gustavo Gómez",
+    "seleccion": "PAR",
+    "club": "Palmeiras",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Ramón Sosa",
+    "seleccion": "PAR",
+    "club": "Nottingham Forest",
+    "posicion": "FW",
+    "es_figura": false
+  },
+  {
+    "nombre": "Piero Hincapié",
+    "seleccion": "ECU",
+    "club": "Bayer Leverkusen",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Jeremy Sarmiento",
+    "seleccion": "ECU",
+    "club": "Brighton",
+    "posicion": "FW",
+    "es_figura": false
+  },
+  {
+    "nombre": "Rúben Dias",
+    "seleccion": "POR",
+    "club": "Manchester City",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "João Cancelo",
+    "seleccion": "POR",
+    "club": "Barcelona",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Bernardo Silva",
+    "seleccion": "POR",
+    "club": "Manchester City",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Gonçalo Ramos",
+    "seleccion": "POR",
+    "club": "PSG",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Diogo Jota",
+    "seleccion": "POR",
+    "club": "Liverpool",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "João Félix",
+    "seleccion": "POR",
+    "club": "Barcelona",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Nuno Mendes",
+    "seleccion": "POR",
+    "club": "PSG",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Mike Maignan",
+    "seleccion": "FRA",
+    "club": "AC Milan",
+    "posicion": "GK",
+    "es_figura": true
+  },
+  {
+    "nombre": "Theo Hernández",
+    "seleccion": "FRA",
+    "club": "AC Milan",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Eduardo Camavinga",
+    "seleccion": "FRA",
+    "club": "Real Madrid",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Marcus Thuram",
+    "seleccion": "FRA",
+    "club": "Inter Milan",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Randal Kolo Muani",
+    "seleccion": "FRA",
+    "club": "Juventus",
+    "posicion": "FW",
+    "es_figura": false
+  },
+  {
+    "nombre": "Bradley Barcola",
+    "seleccion": "FRA",
+    "club": "PSG",
+    "posicion": "FW",
+    "es_figura": false
+  },
+  {
+    "nombre": "Unai Simón",
+    "seleccion": "ESP",
+    "club": "Athletic Club",
+    "posicion": "GK",
+    "es_figura": true
+  },
+  {
+    "nombre": "Dani Carvajal",
+    "seleccion": "ESP",
+    "club": "Real Madrid",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Alejandro Grimaldo",
+    "seleccion": "ESP",
+    "club": "Bayer Leverkusen",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Gavi",
+    "seleccion": "ESP",
+    "club": "Barcelona",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Mikel Merino",
+    "seleccion": "ESP",
+    "club": "Arsenal",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Nico Williams",
+    "seleccion": "ESP",
+    "club": "Athletic Club",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Ferran Torres",
+    "seleccion": "ESP",
+    "club": "Barcelona",
+    "posicion": "FW",
+    "es_figura": false
+  },
+  {
+    "nombre": "Dani Olmo",
+    "seleccion": "ESP",
+    "club": "Barcelona",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Jordan Pickford",
+    "seleccion": "ENG",
+    "club": "Everton",
+    "posicion": "GK",
+    "es_figura": true
+  },
+  {
+    "nombre": "Kyle Walker",
+    "seleccion": "ENG",
+    "club": "Manchester City",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "John Stones",
+    "seleccion": "ENG",
+    "club": "Manchester City",
+    "posicion": "DF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Declan Rice",
+    "seleccion": "ENG",
+    "club": "Arsenal",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Phil Foden",
+    "seleccion": "ENG",
+    "club": "Manchester City",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Marcus Rashford",
+    "seleccion": "ENG",
+    "club": "Manchester United",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Trent Alexander-Arnold",
+    "seleccion": "ENG",
+    "club": "Real Madrid",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Anthony Gordon",
+    "seleccion": "ENG",
+    "club": "Newcastle",
+    "posicion": "FW",
+    "es_figura": false
+  },
+  {
+    "nombre": "Manuel Neuer",
+    "seleccion": "GER",
+    "club": "Bayern Munich",
+    "posicion": "GK",
+    "es_figura": true
+  },
+  {
+    "nombre": "Antonio Rüdiger",
+    "seleccion": "GER",
+    "club": "Real Madrid",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Joshua Kimmich",
+    "seleccion": "GER",
+    "club": "Bayern Munich",
+    "posicion": "MF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Leroy Sané",
+    "seleccion": "GER",
+    "club": "Bayern Munich",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Thomas Müller",
+    "seleccion": "GER",
+    "club": "Bayern Munich",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Dominik Livaković",
+    "seleccion": "CRO",
+    "club": "Fenerbahce",
+    "posicion": "GK",
+    "es_figura": true
+  },
+  {
+    "nombre": "Andrej Kramarić",
+    "seleccion": "CRO",
+    "club": "Hoffenheim",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Lovro Majer",
+    "seleccion": "CRO",
+    "club": "Real Sociedad",
+    "posicion": "MF",
+    "es_figura": false
+  },
+  {
+    "nombre": "Bart Verbruggen",
+    "seleccion": "NED",
+    "club": "Brighton",
+    "posicion": "GK",
+    "es_figura": false
+  },
+  {
+    "nombre": "Denzel Dumfries",
+    "seleccion": "NED",
+    "club": "Inter Milan",
+    "posicion": "DF",
+    "es_figura": true
+  },
+  {
+    "nombre": "Memphis Depay",
+    "seleccion": "NED",
+    "club": "Corinthians",
+    "posicion": "FW",
+    "es_figura": true
+  },
+  {
+    "nombre": "Tijjani Reijnders",
+    "seleccion": "NED",
+    "club": "AC Milan",
+    "posicion": "MF",
+    "es_figura": true
   }
 ]
