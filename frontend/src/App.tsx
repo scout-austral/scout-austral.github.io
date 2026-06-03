@@ -229,7 +229,6 @@ function App() {
           <FaFutbol aria-hidden="true" />
           <span className="brand-text">
             <span>SCOUT</span>
-            <span className="brand-sub">Mundial 2026</span>
           </span>
         </a>
         {authChecked && (
