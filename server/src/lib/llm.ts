@@ -28,17 +28,27 @@ export async function generateMatchJustification(params: {
     highlights_only: 'Para ver el resumen',
   }[params.category]
 
+  const teamsInMatch = [params.homeTeam, params.awayTeam]
+  const relevantPlayers = params.userProfile.favoritePlayers.filter(p => {
+    // Solo mencionar jugadores que EFECTIVAMENTE jueguen en este partido
+    // (verificar por selección - los jugadores favoritos del perfil tienen su selección)
+    return false // se filtra en el prompt con instrucción explícita
+  })
+
   const prompt = `Sos un analista de fútbol para la Copa del Mundo 2026.
 Generá una justificación breve (2-3 oraciones) en español para por qué el partido ${params.homeTeam} vs ${params.awayTeam} (Grupo ${params.group}, ${params.matchDate}) fue clasificado como "${categoryLabel}" para este usuario.
 
 Perfil del usuario:
 - Equipos favoritos: ${params.userProfile.favoriteTeams.join(', ') || 'ninguno especificado'}
-- Jugadores favoritos: ${params.userProfile.favoritePlayers.join(', ') || 'ninguno especificado'}
+- Jugadores favoritos del usuario: ${params.userProfile.favoritePlayers.join(', ') || 'ninguno'}
 - Disponible en ese horario: ${params.userProfile.availableAt ? 'sí' : 'no'}
 
 Factores de scoring: ${JSON.stringify(params.scoreBreakdown)}
 
-Sé específico y mencioná los factores más relevantes. No uses markdown.`
+REGLAS IMPORTANTES:
+- Solo mencioná jugadores que EFECTIVAMENTE jueguen en ${params.homeTeam} o ${params.awayTeam}. NO menciones jugadores favoritos del usuario si no juegan en este partido específico.
+- Si los equipos favoritos del usuario no juegan en este partido, explicá por qué el partido igual es relevante (calidad táctica, competitividad, narrativa histórica, etc.).
+- No uses markdown. Sé directo y específico.`
 
   const client = getClient()
   const res = await client.chat.completions.create({

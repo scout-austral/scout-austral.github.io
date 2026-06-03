@@ -28,6 +28,16 @@ const MOTIVOS: { motivo: MotivoDislike; label: string }[] = [
   { motivo: 'sin_interes', label: 'No me interesaba' },
 ]
 
+// Canales de TV/streaming (perspectiva Argentina)
+const CANALES_ARG = ['TyC Sports', 'TV Pública']
+const CANAL_UNIVERSAL = 'Paramount+'
+
+function getCanales(local: string, visitante: string): string[] {
+  const esArgentina = local === 'ARG' || visitante === 'ARG'
+  if (esArgentina) return [...CANALES_ARG, CANAL_UNIVERSAL]
+  return [CANAL_UNIVERSAL]
+}
+
 function CalendarIcon({ size = 14 }: { size?: number }) {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width={size} height={size}>
@@ -156,6 +166,14 @@ export function MatchCard({
           <span className="mc-tag mc-tag--dim">{(afinidad * 100).toFixed(0)}% afinidad · {nivelConfianza(evaluado.incertidumbre)}</span>
         </div>
       )}
+
+      {/* ── ¿Dónde ver? ── */}
+      <div className="mc-donde">
+        <span className="mc-donde-label">📺 Ver en:</span>
+        {getCanales(partido.local, partido.visitante).map(canal => (
+          <span key={canal} className="mc-donde-canal">{canal}</span>
+        ))}
+      </div>
 
       {/* ── Footer: IA + calendar + feedback ── */}
       <div className="mc-footer">

@@ -2770,6 +2770,33 @@ button.nav-link {
   font-weight: 400;
 }
 
+/* ── ¿Dónde ver? ── */
+.mc-donde {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0 0.85rem 0.6rem;
+}
+
+.mc-donde-label {
+  font-size: 0.68rem;
+  color: #52836e;
+  font-weight: 600;
+}
+
+.mc-donde-canal {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0,200,83,0.08);
+  border: 1px solid rgba(0,200,83,0.18);
+  color: #69f0ae;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
 /* ── Footer ── */
 .mc-footer {
   display: flex;

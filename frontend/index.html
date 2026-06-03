@@ -5,6 +5,18 @@
     <link rel="icon" type="image/svg+xml" href="/scout-icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scout</title>
+    <script>
+      // Restore path redirected by 404.html (GitHub Pages SPA workaround)
+      (function() {
+        var q = window.location.search;
+        if (q.indexOf('?p=') === 0 || q.indexOf('&p=') !== -1) {
+          var params = q.slice(1).split('&').reduce(function(a, v) {
+            var p = v.split('='); a[p[0]] = decodeURIComponent(p.slice(1).join('=')); return a;
+          }, {});
+          if (params.p) window.history.replaceState(null, null, params.p + (params.h || ''));
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
