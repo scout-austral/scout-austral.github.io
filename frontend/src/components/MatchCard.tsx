@@ -135,11 +135,12 @@ export function MatchCard({
         <div className="mc-center">
           <span className="mc-hora">{horaUsuario}</span>
           <span className="mc-vsep">VS</span>
+          <span className="mc-sede">{partido.sede}</span>
         </div>
 
         <div className="mc-side mc-side--away">
-          <span className="mc-team-name">{awayEquipo?.nombre ?? partido.visitante}</span>
           <TeamFlag code={partido.visitante} className="mc-flag-lg" />
+          <span className="mc-team-name">{awayEquipo?.nombre ?? partido.visitante}</span>
         </div>
       </div>
 

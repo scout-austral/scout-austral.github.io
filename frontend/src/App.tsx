@@ -8,7 +8,7 @@ import {
   FaTable,
 } from 'react-icons/fa'
 import { TeamFlag } from '@/components/TeamFlag'
-import { equipos, partidos } from './data'
+import { equipos, partidos, equipoPorCodigo } from './data'
 import type { Grupo } from './data/types'
 import './App.css'
 import { useProfile, PROFILE_STORAGE_KEY } from '@/hooks/useProfile'
@@ -100,16 +100,16 @@ function FieldLines({ side }: { side: 'left' | 'right' }) {
       viewBox={`0 0 ${W} ${H}`}
       width={W}
     >
-      <line stroke="#22c55e" strokeOpacity="0.18" strokeWidth="1.5" x1={vx} x2={vx} y1={0} y2={H} />
-      <line stroke="#22c55e" strokeOpacity="0.18" strokeWidth="1.5"
+      <line stroke="#00d2ff" strokeOpacity="0.12" strokeWidth="1.5" x1={vx} x2={vx} y1={0} y2={H} />
+      <line stroke="#00d2ff" strokeOpacity="0.12" strokeWidth="1.5"
         x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyTop} y2={penaltyTop} />
-      <line stroke="#22c55e" strokeOpacity="0.18" strokeWidth="1.5"
+      <line stroke="#00d2ff" strokeOpacity="0.12" strokeWidth="1.5"
         x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyBot} y2={penaltyBot} />
-      <line stroke="#22c55e" strokeOpacity="0.18" strokeWidth="1.5"
+      <line stroke="#00d2ff" strokeOpacity="0.12" strokeWidth="1.5"
         x1={isLeft ? vx + areaLen : vx - areaLen}
         x2={isLeft ? vx + areaLen : vx - areaLen}
         y1={penaltyTop} y2={penaltyBot} />
-      <circle cx={spotX} cy={spotY} r={2.5} fill="#22c55e" fillOpacity="0.28" />
+      <circle cx={spotX} cy={spotY} r={2.5} fill="#00d2ff" fillOpacity="0.2" />
     </svg>
   )
 }
@@ -715,84 +715,130 @@ function generateCalendarDays(): string[] {
 
 const CALENDAR_DAYS = generateCalendarDays()
 
+const MATCH_BY_DATE = partidos.reduce<Record<string, typeof partidos>>(
+  (acc, p) => { (acc[p.fecha] ??= []).push(p); return acc },
+  {},
+)
+
+const FULL_DAYS   = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+const FULL_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+
+type MonthGroup = { month: string; monthIdx: number; days: string[] }
+
+const DAY_GROUPS: MonthGroup[] = (() => {
+  const groups: MonthGroup[] = []
+  for (const day of CALENDAR_DAYS) {
+    const [, dm] = day.split('-').map(Number)
+    const last = groups[groups.length - 1]
+    if (!last || last.monthIdx !== dm) groups.push({ month: MONTHS_ES[dm - 1], monthIdx: dm, days: [] })
+    groups[groups.length - 1].days.push(day)
+  }
+  return groups
+})()
+
 function CalendarPage({ scheduledMatches }: { scheduledMatches: Record<string, string> }) {
   const [selectedDay, setSelectedDay] = useState(CALENDAR_DAYS[0])
 
-  const matchesByDate = partidos.reduce<Record<string, typeof partidos>>(
-    (acc, partido) => {
-      const key = partido.fecha
-      if (!acc[key]) acc[key] = []
-      acc[key].push(partido)
-      return acc
-    },
-    {},
-  )
-
-  const dayMatches = matchesByDate[selectedDay] ?? []
+  const dayMatches  = MATCH_BY_DATE[selectedDay] ?? []
   const knockoutLabel = getKnockoutLabel(selectedDay)
   const [, m, d] = selectedDay.split('-').map(Number)
-  const date = new Date(2026, m - 1, d)
-  const fullLabel = `${['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][date.getDay()]} ${d} ${['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][m - 1]} 2026`
+  const dow = FULL_DAYS[new Date(2026, m - 1, d).getDay()]
 
   return (
     <section className="cal-page">
+
+      {/* ── Sliding date strip ── */}
       <div className="cal-strip-wrap">
         <div className="cal-strip">
-          {CALENDAR_DAYS.map((dateStr) => {
-            const [, dm, dd] = dateStr.split('-').map(Number)
-            const dt = new Date(2026, dm - 1, dd)
-            const dow = DAYS_ES[dt.getDay()]
-            return (
-              <button
-                key={dateStr}
-                className={`cal-day-btn${dateStr === selectedDay ? ' cal-day-btn--active' : ''}`}
-                type="button"
-                onClick={() => setSelectedDay(dateStr)}
-              >
-                <span className="cal-day-dow">{dow}</span>
-                <span className="cal-day-num">{dd} {MONTHS_ES[dm - 1]}</span>
-              </button>
-            )
-          })}
+          {DAY_GROUPS.map(({ month, monthIdx, days }) => (
+            <div key={month} className="cal-month-group">
+              <span className="cal-month-label">{month}</span>
+              <div className="cal-month-days">
+                {days.map((dateStr) => {
+                  const [, , dd] = dateStr.split('-').map(Number)
+                  const dt  = new Date(2026, monthIdx - 1, Number(dd))
+                  const dow = DAYS_ES[dt.getDay()]
+                  const hasMatches = (MATCH_BY_DATE[dateStr]?.length ?? 0) > 0
+                  const active = dateStr === selectedDay
+                  return (
+                    <button
+                      key={dateStr}
+                      type="button"
+                      className={`cal-day-btn${active ? ' cal-day-btn--active' : ''}${hasMatches ? ' cal-day-btn--has' : ''}`}
+                      onClick={() => setSelectedDay(dateStr)}
+                    >
+                      <span className="cal-day-dow">{dow}</span>
+                      <span className="cal-day-num">{dd}</span>
+                      {hasMatches && <span className="cal-day-pip" />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
+      {/* ── Day content ── */}
       <div className="cal-content content-shell">
-        <h2 className="cal-day-title">{fullLabel}</h2>
 
+        {/* Day header */}
+        <header className="cal-day-header">
+          <span className="cal-day-header-dow">{dow}</span>
+          <div className="cal-day-header-date">
+            <span className="cal-day-header-num">{d}</span>
+            <span className="cal-day-header-month">{FULL_MONTHS[m - 1]}</span>
+          </div>
+          {dayMatches.length > 0 && (
+            <span className="cal-day-header-count">
+              {dayMatches.length} partido{dayMatches.length > 1 ? 's' : ''}
+            </span>
+          )}
+        </header>
+
+        {/* Matches */}
         {dayMatches.length > 0 && (
           <div className="cal-matches">
             {dayMatches.map((partido) => {
               const eventUrl = scheduledMatches[partido.id]
+              const localNombre = equipoPorCodigo[partido.local]?.nombre ?? partido.local
+              const awayNombre  = equipoPorCodigo[partido.visitante]?.nombre ?? partido.visitante
               return (
                 <article
-                  className={`cal-match-card${eventUrl ? ' cal-match-card--scheduled' : ''}`}
                   key={partido.id}
+                  className={`cal-mc${eventUrl ? ' cal-mc--sched' : ''}`}
                 >
-                  <div className="cal-match-meta">
-                    <span>Fase de grupos · Grupo {partido.grupo}</span>
+                  {/* card top bar */}
+                  <div className="cal-mc-top">
+                    <span className="cal-mc-grupo">GRP {partido.grupo} · J{partido.jornada} · {partido.sede}</span>
                     {eventUrl && (
                       <a
-                        className="cal-scheduled-badge"
+                        className="cal-mc-badge-sched"
                         href={eventUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title="Ver en Google Calendar"
                       >
                         <FaRegCalendarAlt aria-hidden="true" /> Agendado
                       </a>
                     )}
                   </div>
-                  <div className="cal-match-row">
-                    <span className="cal-team cal-team--home">
-                      {partido.local}
-                      <TeamFlag code={partido.local} />
-                    </span>
-                    <span className="cal-time">{partido.hora_local}</span>
-                    <span className="cal-team cal-team--away">
-                      <TeamFlag code={partido.visitante} />
-                      {partido.visitante}
-                    </span>
+
+                  {/* teams */}
+                  <div className="cal-mc-match">
+                    <div className="cal-mc-team cal-mc-team--home">
+                      <TeamFlag code={partido.local} className="cal-mc-flag" />
+                      <span className="cal-mc-name">{localNombre}</span>
+                    </div>
+
+                    <div className="cal-mc-center">
+                      <span className="cal-mc-hora">{partido.hora_local}</span>
+                      <span className="cal-mc-vs">VS</span>
+                    </div>
+
+                    <div className="cal-mc-team cal-mc-team--away">
+                      <TeamFlag code={partido.visitante} className="cal-mc-flag" />
+                      <span className="cal-mc-name">{awayNombre}</span>
+                    </div>
                   </div>
                 </article>
               )
@@ -802,19 +848,22 @@ function CalendarPage({ scheduledMatches }: { scheduledMatches: Record<string, s
 
         {knockoutLabel && dayMatches.length === 0 && (
           <div className="cal-matches">
-            <article className="cal-match-card">
-              <div className="cal-match-meta">{knockoutLabel}</div>
-              <div className="cal-match-row">
-                <span className="cal-team cal-team--home">Por definir</span>
-                <span className="cal-time">—</span>
-                <span className="cal-team cal-team--away">Por definir</span>
+            <article className="cal-mc">
+              <div className="cal-mc-top"><span className="cal-mc-grupo">{knockoutLabel}</span></div>
+              <div className="cal-mc-match">
+                <div className="cal-mc-team cal-mc-team--home"><span className="cal-mc-name cal-mc-name--tbd">Por definir</span></div>
+                <div className="cal-mc-center"><span className="cal-mc-hora">—</span></div>
+                <div className="cal-mc-team cal-mc-team--away"><span className="cal-mc-name cal-mc-name--tbd">Por definir</span></div>
               </div>
             </article>
           </div>
         )}
 
         {dayMatches.length === 0 && !knockoutLabel && (
-          <p className="cal-empty">Sin partidos programados</p>
+          <div className="cal-empty-day">
+            <span className="cal-empty-icon">⚽</span>
+            <p>Sin partidos este día</p>
+          </div>
         )}
       </div>
     </section>
