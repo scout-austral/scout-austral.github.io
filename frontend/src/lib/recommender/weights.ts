@@ -46,7 +46,7 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   competitividad: 'Partido parejo',
   grupo_muerte: 'Grupo de la muerte',
   jornada3: 'Fecha decisiva',
-  rivalidad: 'Rivalidad / morbo',
+  rivalidad: 'Rivalidad / emoción',
   ultimo_baile: 'Último baile de una leyenda',
 }
 

@@ -61,7 +61,7 @@ const FACTOR_CONFIG: Array<{ key: FeatureKey; label: string; desc: string; icon:
   { key: 'jornada3', label: FEATURE_LABELS.jornada3, desc: 'La última jornada, donde todo se define.', icon: <IconFlag /> },
   { key: 'competitividad', label: FEATURE_LABELS.competitividad, desc: 'Partidos reñidos y con incertidumbre.', icon: <IconBolt /> },
   { key: 'estrellas', label: FEATURE_LABELS.estrellas, desc: 'Las figuras más importantes del Mundial en cancha.', icon: <IconStar /> },
-  { key: 'rivalidad', label: FEATURE_LABELS.rivalidad, desc: 'Revanchas, clásicos y derbis con morbo más allá del ranking.', icon: <IconSwords /> },
+  { key: 'rivalidad', label: FEATURE_LABELS.rivalidad, desc: 'Revanchas, clásicos y derbis que te emocionan más allá del ranking.', icon: <IconSwords /> },
   { key: 'ultimo_baile', label: FEATURE_LABELS.ultimo_baile, desc: 'Ver a un ídolo en lo que sería su último Mundial.', icon: <IconCrown /> },
 ]
 

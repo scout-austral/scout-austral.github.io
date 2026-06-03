@@ -673,7 +673,7 @@ function Step7Narrativa({ selected, onSelect }: {
   onBack?: () => void
 }) {
   const options = [
-    { val: 85, icon: <IconSkull />, label: 'Muchísimo, eso es lo que me engancha', desc: 'Revanchas, clásicos, un ídolo en su último Mundial: ese es el morbo.' },
+    { val: 85, icon: <IconSkull />, label: 'Muchísimo, eso es lo que me engancha', desc: 'Revanchas, clásicos, un ídolo en su último Mundial: eso me emociona.' },
     { val: 50, icon: <IconStar />,  label: 'Suma, pero no decide',                desc: 'Está bueno, aunque miro sobre todo por el fútbol.' },
     { val: 20, icon: null,          label: 'Poco, voy al juego en sí',            desc: 'La historia alrededor del partido me da bastante igual.' },
   ]
@@ -763,7 +763,7 @@ const COMPLEMENT_QUESTIONS: Record<string, {
   rivalidad: {
     label: '¿Te enganchan los clásicos con historia?',
     options: [
-      { label: 'Sí, el morbo me encanta', value: 85 },
+      { label: 'Sí, me emocionan los clásicos', value: 85 },
       { label: 'Un poco', value: 50 },
       { label: 'No me interesa', value: 10 },
     ],
