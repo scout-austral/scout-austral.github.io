@@ -229,7 +229,10 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
     <div className="ob-overlay">
       {/* Header */}
       <div className="ob-top">
-        <span className="ob-brand">Scout</span>
+        <span className="ob-brand">
+          <img src="/scout-icon.svg" alt="" width={18} height={18} aria-hidden="true" />
+          Scout
+        </span>
         {step > 0 && step < 9 && (
           <div className="ob-dots">
             {Array.from({ length: TOTAL_STEPS }, (_, i) => (
