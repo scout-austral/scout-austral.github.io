@@ -182,7 +182,9 @@ export function ProfilePage({ perfil, actualizar, reset, onRedoSurvey }: Props) 
   const importancia: Record<FeatureKey, number> = { ...IMPORTANCIA_DEFAULT, ...perfil.importancia }
 
   function setFactor(k: FeatureKey, btnIdx: number) {
-    actualizar({ importancia: { ...importancia, [k]: BTN_TO_VAL[btnIdx] ?? 50 } })
+    // Spread solo perfil.importancia (lo que el usuario setteó explícitamente),
+    // no importancia completa (que incluye defaults y haría aparecer todos marcados)
+    actualizar({ importancia: { ...perfil.importancia, [k]: BTN_TO_VAL[btnIdx] ?? 50 } })
   }
 
   function agregarEquipo(codigo: string) {
