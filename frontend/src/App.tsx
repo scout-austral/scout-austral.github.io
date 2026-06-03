@@ -20,8 +20,12 @@ import { OnboardingFlow } from '@/components/OnboardingFlow'
 import type { Perfil } from '@/lib/recommender/types'
 
 function needsOnboarding(perfil: Perfil): boolean {
-  if (localStorage.getItem('scout_onboarding_done')) return false
-  return perfil.equiposFavoritos.length === 0 && !perfil.importancia
+  const hasPrefs =
+    perfil.equiposFavoritos.length > 0 ||
+    perfil.jugadoresFavoritos.length > 0 ||
+    (perfil.importancia && Object.keys(perfil.importancia).length > 0)
+  // Sin preferencias reales → siempre pedir encuesta, ignorar el flag
+  return !hasPrefs
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
