@@ -100,16 +100,16 @@ function FieldLines({ side }: { side: 'left' | 'right' }) {
       viewBox={`0 0 ${W} ${H}`}
       width={W}
     >
-      <line stroke="#00d2ff" strokeOpacity="0.12" strokeWidth="1.5" x1={vx} x2={vx} y1={0} y2={H} />
-      <line stroke="#00d2ff" strokeOpacity="0.12" strokeWidth="1.5"
+      <line stroke="#00c853" strokeOpacity="0.12" strokeWidth="1.5" x1={vx} x2={vx} y1={0} y2={H} />
+      <line stroke="#00c853" strokeOpacity="0.12" strokeWidth="1.5"
         x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyTop} y2={penaltyTop} />
-      <line stroke="#00d2ff" strokeOpacity="0.12" strokeWidth="1.5"
+      <line stroke="#00c853" strokeOpacity="0.12" strokeWidth="1.5"
         x1={vx} x2={isLeft ? vx + areaLen : vx - areaLen} y1={penaltyBot} y2={penaltyBot} />
-      <line stroke="#00d2ff" strokeOpacity="0.12" strokeWidth="1.5"
+      <line stroke="#00c853" strokeOpacity="0.12" strokeWidth="1.5"
         x1={isLeft ? vx + areaLen : vx - areaLen}
         x2={isLeft ? vx + areaLen : vx - areaLen}
         y1={penaltyTop} y2={penaltyBot} />
-      <circle cx={spotX} cy={spotY} r={2.5} fill="#00d2ff" fillOpacity="0.2" />
+      <circle cx={spotX} cy={spotY} r={2.5} fill="#00c853" fillOpacity="0.2" />
     </svg>
   )
 }
