@@ -175,7 +175,8 @@ C. CLUBS → JUGADORES (resolvé siempre clubs a jugadores del Mundial que esté
    Bayern Munich / Bayern → Jamal Musiala, Alphonso Davies, Harry Kane
    PSG → Ousmane Dembélé, Achraf Hakimi
    Inter Milan / Inter → Lautaro Martínez, Mehdi Taremi
-   Atletico Madrid / Atleti → Julián Álvarez
+   Atletico Madrid / Atleti → Julián Álvarez, Nahuel Molina
+   Inter Miami → Rodrigo De Paul, Lionel Messi
    Chelsea → Nicolas Jackson, Moisés Caicedo
    Al-Nassr → Cristiano Ronaldo
    River Plate / River → Gonzalo Montiel, Julián Álvarez (si en lista), Franco Armani
