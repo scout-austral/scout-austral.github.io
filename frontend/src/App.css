@@ -430,13 +430,13 @@ button.nav-link {
   display: grid;
   place-items: center;
   background: rgb(0 0 0 / 0.72);
-  padding: 1rem;
+  padding: 5rem 1rem 1rem;
   z-index: 20;
 }
 
 .group-modal {
   width: min(720px, 100%);
-  max-height: min(680px, calc(100svh - 2rem));
+  max-height: min(680px, calc(100svh - 6rem));
   overflow: auto;
   border: 1px solid rgba(0, 200, 83, 0.15);
   border-radius: 14px;
@@ -1930,6 +1930,72 @@ button.nav-link {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+/* Complement questions */
+.ob-complement {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: rgba(0, 200, 83, 0.04);
+  border: 1px solid rgba(0, 200, 83, 0.15);
+  border-radius: 12px;
+  text-align: left;
+  margin-bottom: 0.25rem;
+}
+
+.ob-complement-header {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #69f0ae;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ob-complement-q {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ob-complement-label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #f0fff4;
+  font-weight: 500;
+}
+
+.ob-complement-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ob-complement-btn {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  color: #a1a1aa;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms, color 150ms;
+}
+
+.ob-complement-btn:hover {
+  border-color: rgba(0,200,83,0.3);
+  color: #f0fff4;
+  background: rgba(0,200,83,0.06);
+}
+
+.ob-complement-btn--active {
+  border-color: #00c853;
+  background: rgba(0, 200, 83, 0.12);
+  color: #f0fff4;
 }
 
 /* Pairwise cards */

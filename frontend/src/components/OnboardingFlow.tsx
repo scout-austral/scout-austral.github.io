@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 import { FaFutbol } from 'react-icons/fa'
 import { equipos, jugadores } from '@/data'
+import { LEYENDAS_ULTIMO_BAILE } from '@/data/ultimoBaile'
 import type { FeatureKey, Perfil, PerfilFan, Tolerancia } from '@/lib/recommender/types'
 import { elicitarPerfil, type ElicitResult } from '@/lib/elicitApi'
 import { TeamFlag } from '@/components/TeamFlag'
@@ -164,6 +165,8 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
   const [elicited, setElicited] = useState<ElicitResult | null>(null)
   const [iaLoading, setIaLoading] = useState(false)
   const [iaError, setIaError] = useState(false)
+  // Respuestas a preguntas de complemento (métricas no cubiertas por IA)
+  const [complementAnswers, setComplementAnswers] = useState<Record<string, string | number>>({})
 
   async function armarConIA(text: string) {
     setIaLoading(true)
@@ -171,11 +174,11 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
     const r = await elicitarPerfil(text)
     setIaLoading(false)
     if (!r) { setIaError(true); return }
-    const equipos = matchEquipos(r.equipos)
-    const jugadores = matchJugadores(r.jugadores)
-    setAnswers(a => ({ ...a, equipos, jugadores }))
+    const eqs = matchEquipos(r.equipos)
+    const jugs = matchJugadores(r.jugadores)
+    setAnswers(a => ({ ...a, equipos: eqs, jugadores: jugs }))
     setElicited(r)
-    go(9) // salta al resumen final
+    go(9) // salta al resumen final (con preguntas de complemento si hay sin_cubrir)
   }
 
   function go(n: number) {
@@ -203,12 +206,21 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
 
   function finish() {
     // Si hubo elicitación por IA, sus priors mandan; si no, se deriva del cuestionario.
-    const importancia = elicited?.importancia ?? buildImportancia(answers)
+    const importanciaBase = elicited?.importancia ?? buildImportancia(answers)
+    // Las respuestas del complemento sobreescriben los valores por defecto del LLM
+    const importancia = { ...importanciaBase }
+    if (typeof complementAnswers.competitividad === 'number') {
+      importancia.competitividad = complementAnswers.competitividad as number
+    }
+    if (typeof complementAnswers.rivalidad === 'number') {
+      importancia.rivalidad = complementAnswers.rivalidad as number
+    }
     const equiposFavoritos = answers.equipos.map((codigo, i) => ({ codigo, prioridad: i + 1 }))
     const jugadoresFavoritos = answers.jugadores
     const perfilFan: PerfilFan =
       elicited?.perfilFan ?? (answers.fanLevel === 'total' ? 'total' : 'casual')
-    const tolerancia: Tolerancia = elicited?.tolerancia ?? answers.tolerancia ?? 'media'
+    const toleranciaComplement = complementAnswers.tolerancia as Tolerancia | undefined
+    const tolerancia: Tolerancia = toleranciaComplement ?? elicited?.tolerancia ?? answers.tolerancia ?? 'media'
     actualizar({ equiposFavoritos, jugadoresFavoritos, importancia, perfilFan, tolerancia })
     localStorage.setItem('scout_onboarding_done', '1')
     onDone()
@@ -309,6 +321,10 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
             viaIA={elicited != null}
             equipos={answers.equipos}
             jugadores={answers.jugadores}
+            importancia={elicited?.importancia}
+            sinCubrir={elicited?.sin_cubrir ?? []}
+            complementAnswers={complementAnswers}
+            onComplementAnswer={(key, val) => setComplementAnswers(prev => ({ ...prev, [key]: val }))}
           />
         )}
       </div>
@@ -703,15 +719,67 @@ function Step8Tolerancia({ selected, onSelect }: {
   )
 }
 
-function DoneStep({ onFinish, viaIA, equipos, jugadores }: {
+// Preguntas de complemento por métrica no cubierta
+const COMPLEMENT_QUESTIONS: Record<string, {
+  label: string
+  options: { label: string; value: string | number }[]
+}> = {
+  tolerancia: {
+    label: '¿Cómo manejás el horario de los partidos?',
+    options: [
+      { label: 'Los veo a cualquier hora', value: 'alta' },
+      { label: 'Depende del día', value: 'media' },
+      { label: 'El horario me importa mucho', value: 'baja' },
+    ],
+  },
+  competitividad: {
+    label: '¿Preferís partidos parejos o te da igual?',
+    options: [
+      { label: 'Me encantan los partidos reñidos', value: 85 },
+      { label: 'Me da igual', value: 50 },
+      { label: 'Prefiero ver a favoritos ganar', value: 20 },
+    ],
+  },
+  rivalidad: {
+    label: '¿Te enganchan los clásicos con historia?',
+    options: [
+      { label: 'Sí, el morbo me encanta', value: 85 },
+      { label: 'Un poco', value: 50 },
+      { label: 'No me interesa', value: 10 },
+    ],
+  },
+}
+
+// Orden de prioridad para mostrar preguntas de complemento
+const COMPLEMENT_PRIORITY = ['tolerancia', 'competitividad', 'rivalidad']
+
+function DoneStep({ onFinish, viaIA, equipos, jugadores, importancia, sinCubrir, complementAnswers, onComplementAnswer }: {
   onFinish: () => void
   viaIA?: boolean
   equipos?: string[]
   jugadores?: string[]
+  importancia?: Partial<Record<string, number>>
+  sinCubrir?: string[]
+  complementAnswers?: Record<string, string | number>
+  onComplementAnswer?: (key: string, value: string | number) => void
 }) {
   const equiposDetectados = (equipos ?? [])
     .map(c => equiposOrdenados.find(e => e.codigo === c))
     .filter((e): e is NonNullable<typeof e> => e != null)
+
+  // Jugadores de último baile a mostrar si ultimo_baile es alto y no ya están en jugadores
+  const ultimoBailePlayers = viaIA && (importancia?.ultimo_baile ?? 0) >= 65
+    ? LEYENDAS_ULTIMO_BAILE
+        .filter(l => l.intensidad >= 0.8 && !(jugadores ?? []).includes(l.nombre))
+        .slice(0, 3)
+    : []
+
+  // Preguntas de complemento: máximo 2, en orden de prioridad
+  const preguntasComplement = viaIA
+    ? COMPLEMENT_PRIORITY
+        .filter(k => (sinCubrir ?? []).includes(k) && COMPLEMENT_QUESTIONS[k])
+        .slice(0, 2)
+    : []
 
   return (
     <div className="ob-step ob-step--center">
@@ -723,7 +791,7 @@ function DoneStep({ onFinish, viaIA, equipos, jugadores }: {
       </div>
       <h2 className="ob-welcome-title">Ya sé lo que buscás.</h2>
 
-      {viaIA && (equiposDetectados.length > 0 || (jugadores ?? []).length > 0) && (
+      {viaIA && (equiposDetectados.length > 0 || (jugadores ?? []).length > 0 || ultimoBailePlayers.length > 0) && (
         <div className="ob-badges" style={{ justifyContent: 'center', marginBottom: '0.25rem' }}>
           {equiposDetectados.map(e => (
             <Badge key={e.codigo} variant="secondary" className="text-sm py-1 px-2">
@@ -733,6 +801,38 @@ function DoneStep({ onFinish, viaIA, equipos, jugadores }: {
           {(jugadores ?? []).map(n => (
             <Badge key={n} variant="secondary" className="text-sm py-1 px-2">{n}</Badge>
           ))}
+          {ultimoBailePlayers.map(l => (
+            <Badge key={l.nombre} variant="outline" className="text-sm py-1 px-2" style={{ borderColor: 'rgba(0,200,83,0.4)', color: '#69f0ae' }}>
+              {l.nombre} <span style={{ opacity: 0.6, fontSize: '0.75em', marginLeft: '0.25rem' }}>último baile</span>
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {preguntasComplement.length > 0 && (
+        <div className="ob-complement">
+          <p className="ob-complement-header">Perfecto. Para afinar tu perfil, te consulto:</p>
+          {preguntasComplement.map(key => {
+            const q = COMPLEMENT_QUESTIONS[key]
+            const answered = complementAnswers?.[key]
+            return (
+              <div key={key} className="ob-complement-q">
+                <p className="ob-complement-label">{q.label}</p>
+                <div className="ob-complement-opts">
+                  {q.options.map(opt => (
+                    <button
+                      key={String(opt.value)}
+                      type="button"
+                      className={`ob-complement-btn${answered === opt.value ? ' ob-complement-btn--active' : ''}`}
+                      onClick={() => onComplementAnswer?.(key, opt.value)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 

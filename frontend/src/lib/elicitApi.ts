@@ -15,6 +15,8 @@ export interface ElicitResult {
   equipos: string[]
   /** Nombres de jugadores detectados (a matchear contra el dataset en el cliente). */
   jugadores: string[]
+  /** Keys de importancia que el LLM no pudo inferir del texto. */
+  sin_cubrir: string[]
 }
 
 export async function elicitarPerfil(text: string): Promise<ElicitResult | null> {

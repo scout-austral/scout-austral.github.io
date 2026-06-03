@@ -59,6 +59,7 @@ export interface ElicitedProfile {
   tolerancia: 'baja' | 'media' | 'alta'
   equipos: string[]
   jugadores: string[]
+  sin_cubrir: string[]
 }
 
 const FEATURES_DESC: { key: string; desc: string }[] = [
@@ -140,38 +141,54 @@ const clamp100 = (x: unknown): number => {
 export async function elicitProfileFromText(text: string): Promise<ElicitedProfile> {
   const factores = FEATURES_DESC.map((f) => `  - "${f.key}": ${f.desc}`).join('\n')
 
-  const systemPrompt = `Sos un asistente experto en fútbol que arma el PERFIL de un hincha para un recomendador de partidos del Mundial 2026. Respondés SOLO con JSON válido, sin texto adicional.`
+  const systemPrompt = `Sos un experto en fútbol mundial. Tu tarea es leer la descripción de un hincha y extraer un perfil estructurado para un recomendador de partidos del Mundial 2026.
 
-  const userPrompt = `El dataset del sistema tiene exactamente ESTAS figuras por selección (son las únicas que podés devolver en "jugadores"):
+REGLAS ABSOLUTAS — nunca las violes:
+
+A. ALIAS DE JUGADORES (aplicalos ANTES de cualquier interpretación):
+   "bicho" | "el bicho" | "CR7" | "cr7" | "cristiano" | "ronaldo" → "Cristiano Ronaldo" (NUNCA es Yamal)
+   "pulga" | "la pulga" | "leo" | "messi" | "el 10" → "Lionel Messi"
+   "yamal" | "lamine" | "el niño" → "Lamine Yamal"
+   "mbappé" | "kylian" | "kyky" → "Kylian Mbappé"
+   "haaland" | "erling" → "Erling Haaland"
+   "modric" | "modrić" | "luka" → "Luka Modrić"
+   "vini" | "viní" | "vinicius" → "Vinícius Júnior"
+   "bellingham" | "jude" → "Jude Bellingham"
+   "salah" | "mo salah" → "Mohamed Salah"
+   "son" | "heung-min" → "Son Heung-min"
+   Ejemplo correcto: "el bicho yamal y messi" → [Cristiano Ronaldo, Lamine Yamal, Lionel Messi]
+
+B. CLUBS → JUGADORES: Si menciona un club, resolverlo a los jugadores de ese club en el Mundial. "Soy de River" → jugadores de River en el Mundial (ej. Julián Álvarez si está en la lista). "Sigo al Real Madrid" → jugadores del Real Madrid en la lista.
+
+C. IMPORTANCIA — valores 0-100, OBLIGATORIOS:
+   - Menciona jugador por nombre/apodo → "jugador" ≥ 75
+   - Menciona equipo favorito explícito → "equipo" ≥ 65
+   - "No me pierdo a X" / "fan número 1" / "fanático" → "jugador" o "equipo" ≥ 85
+   - "Últimas leyendas" / "último baile" / "despedida" / "retiro" → "ultimo_baile" ≥ 80
+   - "Partidos parejos" / "emocionantes" / "no se sabe quién gana" → "competitividad" ≥ 70
+   - "Clásicos" / "revanchas" / "morbo" / "historia" → "rivalidad" ≥ 70
+   - "Grupos de la muerte" / "grupos difíciles" → "grupo_muerte" ≥ 70
+   - "Última fecha" / "jornada decisiva" → "jornada3" ≥ 70
+   - "Estrellas" / "cracks" / "lo mejor del mundo" → "estrellas" ≥ 65
+
+D. ÚLTIMO BAILE: Si "ultimo_baile" ≥ 70, agregá "Luka Modrić" en "jugadores" (es el ícono del último baile junto a Messi y CR7), a menos que ya esté.
+
+E. SIN_CUBRIR: listá SOLO las keys que el texto NO mencionó ni permite inferir. Si el usuario no dijo nada sobre horarios → ponés "tolerancia". Si no habló de partidos parejos → "competitividad". Si no mencionó si le interesan los grupos duros → "grupo_muerte". Etc. No pongas una key si la podés inferir razonablemente. SOLO estas keys válidas: equipo, jugador, estrellas, competitividad, grupo_muerte, jornada3, rivalidad, ultimo_baile, tolerancia.
+
+F. PERFILFAN: "total" si usa palabras como "fanático", "no me pierdo nada", "fan número 1", "vivo el fútbol". "casual" para el resto.
+
+G. TOLERANCIA: "alta" si dice que vería a cualquier hora o no le importa el horario. "baja" si menciona que el horario es importante. "media" por defecto o si es ambiguo. Si no lo menciona → incluí "tolerancia" en sin_cubrir.
+
+Respondés EXCLUSIVAMENTE con JSON válido, sin markdown, sin texto adicional.`
+
+  const userPrompt = `LISTA DE JUGADORES EN EL DATASET (solo podés devolver estos nombres exactos en "jugadores"):
 ${JUGADORES_POR_SELECCION}
 
-Descripción del usuario:
+Descripción del hincha:
 """${text}"""
 
-TU TAREA:
-
-1. RESOLVÉ clubs a jugadores del Mundial: si el usuario menciona un club (ej. "soy de River", "sigo al Real Madrid"), usá tu conocimiento del fútbol actual para identificar qué jugadores del plantel ACTUAL de ese club están en la lista de arriba y clasifican para el Mundial 2026. Solo incluí los que aparezcan EXACTAMENTE en la lista de arriba.
-
-2. RESOLVÉ apodos SIEMPRE antes de buscar en la lista:
-   - "bicho", "el bicho", "CR7", "cr7", "cristiano", "ronaldo" → "Cristiano Ronaldo"
-   - "pulga", "la pulga", "leo", "messi", "lionel" → "Lionel Messi"
-   - "yamal", "lamine" → "Lamine Yamal"
-   - "mbappé", "kylian" → "Kylian Mbappé"
-   - "haaland", "erling" → "Erling Haaland"
-   Luego verificá que el nombre resuelto aparezca EXACTAMENTE en la lista de arriba. Si está, incluiló; si no, ignoralo.
-
-3. ESTIMÁ la importancia de cada factor 0–100:
-${factores}
-   IMPORTANTE: si el usuario menciona jugadores específicos (aunque sea por apodo), "jugador" debe ser ≥ 70. Si menciona un equipo favorito, "equipo" debe ser ≥ 60.
-
-4. INFERÍ:
-- "perfilFan": "total" si suena a fanático, "casual" si es selectivo.
-- "tolerancia": "alta" si vería partidos a cualquier horario, "media" si depende, "baja" si el horario importa mucho.
-- "equipos": selecciones mencionadas como favoritas (nombres en español). [] si no hay.
-- "jugadores": SOLO nombres que aparezcan EXACTAMENTE en la lista de arriba. [] si no hay match.
-
-Respondé SOLO con este JSON (sin markdown):
-{"importancia":{"equipo":0,"jugador":0,"estrellas":0,"competitividad":0,"grupo_muerte":0,"jornada3":0,"rivalidad":0,"ultimo_baile":0},"perfilFan":"casual","tolerancia":"media","equipos":[],"jugadores":[]}`
+Devolvé este JSON completado (sin markdown, sin texto extra):
+{"importancia":{"equipo":0,"jugador":0,"estrellas":0,"competitividad":0,"grupo_muerte":0,"jornada3":0,"rivalidad":0,"ultimo_baile":0},"perfilFan":"casual","tolerancia":"media","equipos":[],"jugadores":[],"sin_cubrir":[]}`
 
   const client = getClient()
   const res = await client.chat.completions.create({
@@ -180,7 +197,7 @@ Respondé SOLO con este JSON (sin markdown):
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
-    max_tokens: 400,
+    max_tokens: 500,
     temperature: 0.2,
     response_format: { type: 'json_object' },
   })
@@ -200,5 +217,10 @@ Respondé SOLO con este JSON (sin markdown):
     ? parsed.jugadores.filter((x: unknown) => typeof x === 'string').slice(0, 8)
     : []
 
-  return { importancia, perfilFan, tolerancia, equipos, jugadores }
+  const VALID_KEYS = new Set([...FEATURES_DESC.map(f => f.key), 'tolerancia'])
+  const sin_cubrir = Array.isArray(parsed?.sin_cubrir)
+    ? parsed.sin_cubrir.filter((x: unknown) => typeof x === 'string' && VALID_KEYS.has(x as string))
+    : []
+
+  return { importancia, perfilFan, tolerancia, equipos, jugadores, sin_cubrir }
 }
