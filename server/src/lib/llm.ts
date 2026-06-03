@@ -152,10 +152,17 @@ TU TAREA:
 
 1. RESOLVÉ clubs a jugadores del Mundial: si el usuario menciona un club (ej. "soy de River", "sigo al Real Madrid"), usá tu conocimiento del fútbol actual para identificar qué jugadores del plantel ACTUAL de ese club están en la lista de arriba y clasifican para el Mundial 2026. Solo incluí los que aparezcan EXACTAMENTE en la lista de arriba.
 
-2. RESOLVÉ apodos: "el bicho" o "CR7" → Cristiano Ronaldo, "la pulga" o "Leo" → Lionel Messi, "Yamal" → Lamine Yamal, etc. Si el jugador no está en la lista de arriba, no lo incluyas.
+2. RESOLVÉ apodos SIEMPRE antes de buscar en la lista:
+   - "bicho", "el bicho", "CR7", "cr7", "cristiano", "ronaldo" → "Cristiano Ronaldo"
+   - "pulga", "la pulga", "leo", "messi", "lionel" → "Lionel Messi"
+   - "yamal", "lamine" → "Lamine Yamal"
+   - "mbappé", "kylian" → "Kylian Mbappé"
+   - "haaland", "erling" → "Erling Haaland"
+   Luego verificá que el nombre resuelto aparezca EXACTAMENTE en la lista de arriba. Si está, incluiló; si no, ignoralo.
 
 3. ESTIMÁ la importancia de cada factor 0–100:
 ${factores}
+   IMPORTANTE: si el usuario menciona jugadores específicos (aunque sea por apodo), "jugador" debe ser ≥ 70. Si menciona un equipo favorito, "equipo" debe ser ≥ 60.
 
 4. INFERÍ:
 - "perfilFan": "total" si suena a fanático, "casual" si es selectivo.

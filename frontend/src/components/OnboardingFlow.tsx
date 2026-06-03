@@ -339,7 +339,7 @@ function WelcomeStep({ onStart, onArmarIA, iaLoading, iaError }: {
   return (
     <div className="ob-step ob-step--center">
       <div className="ob-welcome-icon">
-        <FaFutbol size={40} aria-hidden="true" />
+        <img src="/scout-icon.svg" alt="Scout" width={48} height={48} style={{ opacity: 0.9 }} />
       </div>
       <h1 className="ob-welcome-title">Bienvenido a Scout.</h1>
       <p className="ob-welcome-sub">
