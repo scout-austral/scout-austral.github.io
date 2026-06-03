@@ -158,7 +158,23 @@ A. ALIAS DE JUGADORES (aplicalos ANTES de cualquier interpretación):
    "son" | "heung-min" → "Son Heung-min"
    Ejemplo correcto: "el bicho yamal y messi" → [Cristiano Ronaldo, Lamine Yamal, Lionel Messi]
 
-B. CLUBS → JUGADORES: Si menciona un club, resolverlo a los jugadores de ese club en el Mundial. "Soy de River" → jugadores de River en el Mundial (ej. Julián Álvarez si está en la lista). "Sigo al Real Madrid" → jugadores del Real Madrid en la lista.
+B. CLUBS → JUGADORES (resolvé siempre clubs a jugadores del Mundial que estén en la lista):
+   Real Madrid / Madrid → Vinícius Júnior, Kylian Mbappé, Jude Bellingham, Luka Modrić, Rodrygo, Federico Valverde, Aurélien Tchouaméni
+   Barcelona / Barça → Lamine Yamal, Pedri, Raphinha, Ronald Araújo
+   Manchester City / City → Kevin De Bruyne, Rodri, Manuel Akanji, Erling Haaland
+   Liverpool → Mohamed Salah, Virgil van Dijk, Cody Gakpo, Darwin Núñez, Luis Díaz
+   Arsenal → Bukayo Saka, Martin Ødegaard
+   Bayern Munich / Bayern → Jamal Musiala, Alphonso Davies, Harry Kane
+   PSG → Ousmane Dembélé, Achraf Hakimi
+   Inter Milan / Inter → Lautaro Martínez, Mehdi Taremi
+   Atletico Madrid / Atleti → Julián Álvarez
+   Chelsea → Nicolas Jackson, Moisés Caicedo
+   Al-Nassr → Cristiano Ronaldo
+   River Plate / River → Julián Álvarez
+   Boca Juniors / Boca → (ninguno relevante en lista)
+   Juventus / Juve → (ninguno relevante en lista)
+   Si el club no está arriba, usá tu conocimiento del fútbol para identificar sus jugadores en la LISTA DE JUGADORES del Mundial.
+   IMPORTANTE: solo incluí jugadores que aparezcan EXACTAMENTE en la lista dada en el userPrompt.
 
 C. IMPORTANCIA — valores 0-100, OBLIGATORIOS:
    - Menciona jugador por nombre/apodo → "jugador" ≥ 75
