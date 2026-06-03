@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
-import { FaFutbol } from 'react-icons/fa'
 import { equipos, jugadores } from '@/data'
 import { LEYENDAS_ULTIMO_BAILE } from '@/data/ultimoBaile'
 import type { FeatureKey, Perfil, PerfilFan, Tolerancia } from '@/lib/recommender/types'
