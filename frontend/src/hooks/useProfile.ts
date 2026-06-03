@@ -49,7 +49,7 @@ export function useProfile() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(perfil)) } catch { /* ignore */ }
   }, [perfil])
 
-  // Load from API on mount (if logged in)
+  // Load from API on mount (if logged in AND token was already in localStorage)
   useEffect(() => {
     const token = getToken()
     if (!token) { setApiLoaded(true); return }
@@ -68,6 +68,26 @@ export function useProfile() {
       })
       .catch(() => {})
       .finally(() => setApiLoaded(true))
+  }, [])
+
+  // Carga explícita desde servidor — llamar cuando el token llega por URL (Google OAuth)
+  // Prioriza el perfil guardado en servidor sobre cualquier perfil guest local
+  const reloadFromServer = useCallback(async (token: string) => {
+    try {
+      const r = await fetch(`${API_BASE_URL}/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!r.ok) return
+      const data = (await r.json()) as { perfil: Partial<Perfil> | null }
+      if (data.perfil) {
+        // Usuario existente: su perfil del servidor tiene prioridad total
+        const merged = { ...perfilInicial(), ...data.perfil }
+        setPerfil(merged)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+      }
+      // Si data.perfil es null → usuario nuevo → el perfil guest local se conserva y se sube
+      setApiLoaded(true)
+    } catch { /* ignore */ }
   }, [])
 
   // Save to API with debounce (only after initial load)
@@ -99,5 +119,5 @@ export function useProfile() {
 
   const reset = useCallback(() => setPerfil(perfilInicial()), [])
 
-  return { perfil, setPerfil, actualizar, reset }
+  return { perfil, setPerfil, actualizar, reset, reloadFromServer }
 }

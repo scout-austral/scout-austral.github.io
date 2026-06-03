@@ -127,7 +127,7 @@ function App() {
     return err ? `Error: ${decodeURIComponent(err)}` : ''
   })
 
-  const { perfil, actualizar, reset: resetPerfil } = useProfile()
+  const { perfil, actualizar, reset: resetPerfil, reloadFromServer } = useProfile()
   const { priors, deltas, precision, porPartido, registrar, quitar, reset: resetFeedback } =
     useFeedback(perfil, actualizar)
 
@@ -176,10 +176,15 @@ function App() {
         }
         const data = (await response.json()) as { user: User }
         setUser(data.user)
+        // Si el token vino de Google OAuth, cargar perfil del servidor explícitamente.
+        // Prioridad: perfil en servidor (usuario existente) > perfil guest local (usuario nuevo).
+        if (tokenFromGoogle) {
+          reloadFromServer(token)
+        }
       })
       .catch(() => localStorage.removeItem(TOKEN_KEY))
       .finally(() => setAuthChecked(true))
-  }, [])
+  }, [reloadFromServer])
 
   function navigate(href: string, nextPage: Page) {
     window.history.pushState({}, '', href)
@@ -197,7 +202,8 @@ function App() {
   function signOut() {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(PROFILE_STORAGE_KEY)
-    localStorage.removeItem('scout_feedback') // legacy key, ya no se usa
+    localStorage.removeItem('scout_onboarding_done') // → vuelve a pedir encuesta
+    localStorage.removeItem('scout_feedback')
     setUser(null)
     resetPerfil()
     navigate('/', 'inicio')

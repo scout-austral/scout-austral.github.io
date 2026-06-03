@@ -29,10 +29,15 @@ const MOTIVOS: { motivo: MotivoDislike; label: string }[] = [
 ]
 
 // Canales de TV/streaming (perspectiva Argentina)
-const CANALES_ARG = ['TyC Sports', 'TV Pública']
-const CANAL_UNIVERSAL = 'Paramount+'
+interface Canal { nombre: string; url: string }
 
-function getCanales(local: string, visitante: string): string[] {
+const CANALES_ARG: Canal[] = [
+  { nombre: 'TyC Sports', url: 'https://www.tycsports.com/en-vivo.html' },
+  { nombre: 'TV Pública', url: 'https://www.tvpublica.com.ar/en-vivo/' },
+]
+const CANAL_UNIVERSAL: Canal = { nombre: 'Paramount+', url: 'https://www.paramountplus.com/ar/' }
+
+function getCanales(local: string, visitante: string): Canal[] {
   const esArgentina = local === 'ARG' || visitante === 'ARG'
   if (esArgentina) return [...CANALES_ARG, CANAL_UNIVERSAL]
   return [CANAL_UNIVERSAL]
@@ -169,9 +174,15 @@ export function MatchCard({
 
       {/* ── ¿Dónde ver? ── */}
       <div className="mc-donde">
-        <span className="mc-donde-label">📺 Ver en:</span>
+        <span className="mc-donde-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="12" height="12" aria-hidden="true">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M8 7V5a4 4 0 0 1 8 0v2"/>
+          </svg>
+          Ver en:
+        </span>
         {getCanales(partido.local, partido.visitante).map(canal => (
-          <span key={canal} className="mc-donde-canal">{canal}</span>
+          <a key={canal.nombre} href={canal.url} target="_blank" rel="noopener noreferrer" className="mc-donde-canal">{canal.nombre}</a>
         ))}
       </div>
 
