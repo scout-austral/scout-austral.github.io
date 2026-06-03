@@ -2780,6 +2780,9 @@ button.nav-link {
 }
 
 .mc-donde-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   font-size: 0.68rem;
   color: #52836e;
   font-weight: 600;
