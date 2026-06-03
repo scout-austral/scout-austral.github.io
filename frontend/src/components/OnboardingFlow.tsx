@@ -226,7 +226,8 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
       elicited?.perfilFan ?? (answers.fanLevel === 'total' ? 'total' : 'casual')
     const toleranciaComplement = complementAnswers.tolerancia as Tolerancia | undefined
     const tolerancia: Tolerancia = toleranciaComplement ?? elicited?.tolerancia ?? answers.tolerancia ?? 'media'
-    actualizar({ equiposFavoritos, jugadoresFavoritos, importancia, perfilFan, tolerancia })
+    const franjas = elicited?.franjas ?? []
+    actualizar({ equiposFavoritos, jugadoresFavoritos, importancia, perfilFan, tolerancia, ...(franjas.length > 0 ? { franjas } : {}) })
     localStorage.setItem('scout_onboarding_done', '1')
     onDone()
   }

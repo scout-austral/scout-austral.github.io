@@ -70,6 +70,7 @@ export interface ElicitedProfile {
   equipos: string[]
   jugadores: string[]
   sin_cubrir: string[]
+  franjas: { dia: number; desde: number; hasta: number }[]
 }
 
 const FEATURES_DESC: { key: string; desc: string }[] = [
@@ -225,6 +226,31 @@ F. PERFILFAN: "total" si usa palabras como "fanático", "no me pierdo nada", "fa
 
 G. TOLERANCIA: "alta" si dice que vería a cualquier hora o no le importa el horario. "baja" si menciona que el horario es importante. "media" por defecto o si es ambiguo. Si no lo menciona → incluí "tolerancia" en sin_cubrir.
 
+H. FRANJAS DE DISPONIBILIDAD — MUY IMPORTANTE:
+   Si el usuario menciona CUÁNDO puede ver partidos, inferí las franjas disponibles.
+   Formato: array de {dia, desde, hasta} donde:
+     - dia: 0=domingo, 1=lunes, 2=martes, 3=miércoles, 4=jueves, 5=viernes, 6=sábado
+     - Slots disponibles: mañana={desde:8,hasta:12}, tarde={desde:12,hasta:18}, noche={desde:18,hasta:24}
+
+   Reglas de inferencia:
+   - "a la mañana no puedo" → incluir tarde+noche para TODOS los días (0-6)
+   - "solo tarde y noche" → incluir tarde+noche para todos los días
+   - "solo lunes por la mañana" → solo {dia:1,desde:8,hasta:12}
+   - "días de semana a la tarde" → dias 1-5, slot tarde (12-18)
+   - "sábado y domingo mañana tarde y noche" → dia 0 y 6, los 3 slots
+   - "días de semana solo tarde, fin de semana todo" → dias 1-5 tarde; dias 0,6 los 3 slots
+   - "no puedo a la mañana" + sin restricción de días → tarde+noche, todos los días (0-6)
+   - Si no menciona horarios → franjas: [] (sin restricción = puede a cualquier hora)
+   - Si solo dice "no puedo a la mañana" sin aclarar días → asumí todos los días
+
+   Ejemplos completos:
+   "a la mañana no puedo ver ningún partido" →
+     [{dia:0,desde:12,hasta:18},{dia:0,desde:18,hasta:24},{dia:1,desde:12,hasta:18},{dia:1,desde:18,hasta:24},...para dias 2-6 igual]
+   "solo lunes por la mañana puedo ver" →
+     [{dia:1,desde:8,hasta:12}]
+   "días de semana solo a la tarde" →
+     [{dia:1,desde:12,hasta:18},{dia:2,desde:12,hasta:18},{dia:3,desde:12,hasta:18},{dia:4,desde:12,hasta:18},{dia:5,desde:12,hasta:18}]
+
 Respondés EXCLUSIVAMENTE con JSON válido, sin markdown, sin texto adicional.`
 
   const userPrompt = `LISTA DE JUGADORES EN EL DATASET (solo podés devolver estos nombres exactos en "jugadores"):
@@ -234,7 +260,7 @@ Descripción del hincha:
 """${text}"""
 
 Devolvé este JSON completado (sin markdown, sin texto extra):
-{"importancia":{"equipo":0,"jugador":0,"estrellas":0,"competitividad":0,"grupo_muerte":0,"jornada3":0,"rivalidad":0,"ultimo_baile":0},"perfilFan":"casual","tolerancia":"media","equipos":[],"jugadores":[],"sin_cubrir":[]}`
+{"importancia":{"equipo":0,"jugador":0,"estrellas":0,"competitividad":0,"grupo_muerte":0,"jornada3":0,"rivalidad":0,"ultimo_baile":0},"perfilFan":"casual","tolerancia":"media","equipos":[],"jugadores":[],"sin_cubrir":[],"franjas":[]}`
 
   const client = getClient()
   const res = await client.chat.completions.create({
@@ -243,7 +269,7 @@ Devolvé este JSON completado (sin markdown, sin texto extra):
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
-    max_tokens: 600,
+    max_tokens: 900,
     temperature: 0.2,
     response_format: { type: 'json_object' },
   })
@@ -268,5 +294,17 @@ Devolvé este JSON completado (sin markdown, sin texto extra):
     ? parsed.sin_cubrir.filter((x: unknown) => typeof x === 'string' && VALID_KEYS.has(x as string))
     : []
 
-  return { importancia, perfilFan, tolerancia, equipos, jugadores, sin_cubrir }
+  const VALID_DIAS = new Set([0,1,2,3,4,5,6])
+  const VALID_DESDE = new Set([8,12,18])
+  const VALID_HASTA = new Set([12,18,24])
+  const franjas = Array.isArray(parsed?.franjas)
+    ? parsed.franjas.filter((f: unknown) =>
+        f && typeof f === 'object' &&
+        VALID_DIAS.has((f as any).dia) &&
+        VALID_DESDE.has((f as any).desde) &&
+        VALID_HASTA.has((f as any).hasta)
+      ).slice(0, 42) // max 7 días × 3 slots
+    : []
+
+  return { importancia, perfilFan, tolerancia, equipos, jugadores, sin_cubrir, franjas }
 }

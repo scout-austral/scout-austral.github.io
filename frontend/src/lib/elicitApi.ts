@@ -3,7 +3,7 @@
 // cualquier problema (server caído, sin API key, offline) → el llamador hace fallback al
 // cuestionario manual.
 
-import type { FeatureKey, PerfilFan, Tolerancia } from '@/lib/recommender/types'
+import type { FeatureKey, Franja, PerfilFan, Tolerancia } from '@/lib/recommender/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
@@ -17,6 +17,8 @@ export interface ElicitResult {
   jugadores: string[]
   /** Keys de importancia que el LLM no pudo inferir del texto. */
   sin_cubrir: string[]
+  /** Franjas de disponibilidad horaria inferidas del texto. */
+  franjas: Franja[]
 }
 
 export async function elicitarPerfil(text: string): Promise<ElicitResult | null> {
