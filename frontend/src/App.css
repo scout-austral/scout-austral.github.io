@@ -436,7 +436,7 @@ button.nav-link {
 
 .group-modal {
   width: min(720px, 100%);
-  max-height: min(680px, calc(100svh - 6rem));
+  max-height: calc(100svh - 6rem);
   overflow: auto;
   border: 1px solid rgba(0, 200, 83, 0.15);
   border-radius: 14px;
@@ -492,8 +492,8 @@ button.nav-link {
 
 .group-match {
   display: grid;
-  gap: 0.65rem;
-  padding: 1.1rem 1rem;
+  gap: 0.4rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid #202024;
 }
 
