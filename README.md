@@ -1,7 +1,8 @@
-# Scout — Tu tiempo, tu Mundial ⚽🤖
+# Scout - Tu tiempo, tu Mundial ⚽🤖
 
-Demo interactiva para la competencia **"Tu tiempo, tu Mundial"** (Facultad de Ingeniería,
-Universidad Austral). Scout analiza el **perfil de un usuario** (equipos y jugadores favoritos,
+https://github.com/user-attachments/assets/93456614-497d-4fef-ac66-536a69e0821e
+
+Scout analiza el **perfil de un usuario** (equipos y jugadores favoritos,
 disponibilidad horaria, gustos) y clasifica los **72 partidos de la fase de grupos del Mundial
 2026** en tres categorías, **justificando** cada decisión:
 
@@ -9,18 +10,9 @@ disponibilidad horaria, gustos) y clasifica los **72 partidos de la fase de grup
 - **Vale la pena** — interesantes pero no cruciales, o en horarios complejos.
 - **Para ver el resumen** — de bajo interés para el perfil, o en horarios imposibles.
 
-> **Demo en vivo:** GitHub Pages (build de `frontend/`).
-> **Informe metodológico:** [`docs/informe-metodologico.md`](docs/informe-metodologico.md).
+> **Demo en vivo:** https://scout-austral.github.io/
 
----
-
-## Idea central
-
-No hay datos etiquetados: los partidos no se jugaron y nadie marcó qué es "imperdible". Eso
-descarta un modelo supervisado clásico y motiva una **heurística explicable con una capa
-bayesiana**: cada partido se describe con features interpretables, los pesos son **distribuciones**
-(no números fijos) y el modelo **aprende** de cada 👍/👎 con un update bayesiano. Todo corre
-**client-side** (sin backend obligatorio), de modo que la demo es 100% pública y reproducible.
+> **Informe metodológico:** [`docs/informe-metodologico.md`](docs/informe-metodologico.md)
 
 ---
 
@@ -95,13 +87,13 @@ histórica* por encima de la métrica tradicional de nivel.
 
 ---
 
-## Cómo se elicita el perfil (onboarding bayesiano)
+## Cómo se elicita el perfil
 
 Hay **dos formas** de armar el perfil, y ambas terminan en lo mismo: fijar los **priors** del modelo.
 
 **a) Elicitación asistida por LLM (opcional).** En la bienvenida, el usuario describe en una frase qué
-tipo de hincha es ("soy de Argentina, no me pierdo a Messi, me copan los clásicos…") y un LLM
-(Gemini, vía el server) traduce ese texto a los priors: importancia 0–100 por factor, perfil de fan,
+tipo de hincha es ("soy de Argentina, no me pierdo a Messi, me copan los clásicos…") y un LLM (GPT)
+traduce ese texto a los priors: importancia 0–100 por factor, perfil de fan,
 tolerancia y equipos/jugadores mencionados (que el cliente matchea contra el dataset). **El LLM no
 recomienda nada** —eso lo hace el modelo bayesiano explicable—, solo *elicita el prior* desde lenguaje
 natural. Si el server/LLM no está disponible, esta opción simplemente no aparece y se usa el cuestionario.
@@ -213,14 +205,4 @@ referencial y la regla FIFA de fecha 3 simultánea en los 12 grupos.
 
 ## Stack
 
-React · TypeScript · Vite · Tailwind CSS · Vitest — (server: Express · Prisma · Google APIs · Gemini)
-
-## Cronograma de la competencia
-
-- Inscripción: viernes 22/05/2026 23:59 hs.
-- Entregas: jueves 04/06/2026 23:59 hs.
-- Finalistas y evento final: lunes 08/06/2026.
-
-## Canal de consultas
-
-dcastro-ext@austral.edu.ar
+React · TypeScript · Vite · Tailwind CSS · Vitest — (server: Express · Prisma · Google APIs · GPT)
