@@ -1,4 +1,4 @@
-# Scout — Informe metodológico
+# Scout, Informe metodológico
 
 **Competencia "Tu tiempo, tu Mundial"** · Facultad de Ingeniería, Universidad Austral · Junio 2026
 
@@ -6,9 +6,9 @@
 
 ## Resumen ejecutivo
 
-Scout es un sistema de recomendación de partidos del Mundial 2026 que clasifica los 72 encuentros de la fase de grupos en tres categorías (**Imperdible**, **Vale la pena**, **Para ver el resumen**) a partir del perfil de cada usuario. El sistema fue diseñado para operar sin datos etiquetados —los partidos aún no se jugaron— lo que hizo inviable el aprendizaje supervisado clásico y motivó una arquitectura bayesiana explicable.
+Scout es un sistema de recomendación de partidos del Mundial 2026 que clasifica los 72 encuentros de la fase de grupos en tres categorías (**Imperdible**, **Vale la pena**, **Para ver el resumen**) a partir del perfil de cada usuario. El sistema fue diseñado para operar sin datos etiquetados, los partidos aún no se jugaron, lo que hizo inviable el aprendizaje supervisado clásico y motivó una arquitectura bayesiana explicable.
 
-**Enfoque central:** cada partido se describe con 8 factores normalizados, 4 de ellos no derivables del ranking FIFA (*competitividad*, *grupo de la muerte*, *rivalidad histórica*, *último baile de una leyenda*). Los pesos de esos factores son distribuciones —no números fijos— lo que permite: (1) propagar la incertidumbre al score para guiar la clasificación, (2) aprender del feedback del usuario con un filtro de Kalman preservando lo que el usuario explícitamente declaró, y (3) elicitar el prior desde una descripción en lenguaje natural asistida por LLM.
+**Enfoque central:** cada partido se describe con 8 factores normalizados, 4 de ellos no derivables del ranking FIFA (*competitividad*, *grupo de la muerte*, *rivalidad histórica*, *último baile de una leyenda*). Los pesos de esos factores son distribuciones, no números fijos, lo que permite: (1) propagar la incertidumbre al score para guiar la clasificación, (2) aprender del feedback del usuario con un filtro de Kalman preservando lo que el usuario explícitamente declaró, y (3) elicitar el prior desde una descripción en lenguaje natural asistida por LLM.
 
 **Resultados:** la demo es pública, funciona sin login, integra Google Calendar, muestra la justificación de cada recomendación y reporta la precisión del modelo contra el feedback real del usuario.
 
@@ -180,7 +180,7 @@ equipo favorito):
 1. **σ angosto** en lo afirmado → ganancia chica → casi no se mueve.
 2. **Saliencia por sorpresa:** `a_k = max(0, f_k − f̄_k)`, desviación respecto del promedio de la "dieta"
    del usuario (sus K=12 partidos de mayor afinidad). Lo que está *siempre presente* aporta poca información.
-3. **Chip "¿qué no te gustó?":** atribución directa — `horario` no toca pesos (es disponibilidad);
+3. **Chip "¿qué no te gustó?":** atribución directa, `horario` no toca pesos (es disponibilidad);
    `nivel` ajusta estrellas/competitividad/grupo/jornada/rivalidad; `no me interesaba` ajusta
    equipo/jugador/último-baile.
 
@@ -202,7 +202,7 @@ Sin verdad de campo, la validación combina una **métrica de precisión sobre e
 - **Precisión del modelo (implementada y visible en la UI):** para cada partido que el usuario calificó
   con 👍/👎, se mide si el modelo **cold-start** (los priors derivados del onboarding, *antes* de aprender)
   lo había predicho correctamente (`afinidad ≥ umbral` ⇔ "le gusta"). Se reporta como *"acertó X de N
-  (Y %)"*. Usar los priors base —no el posterior— evita la fuga de información de medir con los mismos
+  (Y %)"*. Usar los priors base, no el posterior, evita la fuga de información de medir con los mismos
   pesos que el feedback ya ajustó; los 👎 por horario se excluyen (son disponibilidad, no afinidad).
   Implementación en `frontend/src/lib/recommender/accuracy.ts`.
 - **Suite de tests** (`vitest`, 36 casos) que fija el comportamiento esperado: features (incluidos
