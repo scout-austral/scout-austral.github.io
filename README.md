@@ -25,7 +25,7 @@ scout/
 │   ├── src/data/              Dataset estático (fixture, equipos, jugadores) + datos curados
 │   ├── src/components/        UI (onboarding, resultados, tarjetas de partido, perfil)
 │   └── src/hooks/             Estado de perfil y feedback (persistencia local + API)
-├── server/              API Express opcional (perfil en DB, Google Calendar, justificación con Gemini)
+├── server/              API Express opcional (perfil en DB, Google Calendar, justificación con GPT)
 └── docs/                Informe metodológico
 ```
 
@@ -176,7 +176,7 @@ npm run lint       # ESLint
 ```bash
 cd server
 npm install
-# Configurar .env: DATABASE_URL, GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI, GEMINI_API_KEY, JWT_SECRET
+# Configurar .env: DATABASE_URL, GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI, OPENAI_API_KEY, JWT_SECRET
 npx prisma migrate deploy
 npm run dev
 ```
