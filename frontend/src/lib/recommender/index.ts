@@ -47,7 +47,12 @@ export function recomendar(
     }
   })
 
-  evaluados.sort((a, b) => b.afinidad - a.afinidad)
+  evaluados.sort((a, b) => {
+    const catOrder = { imperdible: 0, vale_la_pena: 1, resumen: 2 }
+    const catDiff = catOrder[a.categoria] - catOrder[b.categoria]
+    if (catDiff !== 0) return catDiff
+    return new Date(a.partido.kickoff_utc).getTime() - new Date(b.partido.kickoff_utc).getTime()
+  })
   return evaluados
 }
 
