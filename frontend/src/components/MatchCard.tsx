@@ -35,12 +35,15 @@ const CANALES_ARG: Canal[] = [
   { nombre: 'TyC Sports', url: 'https://www.tycsports.com/en-vivo.html' },
   { nombre: 'TV Pública', url: 'https://www.tvpublica.com.ar/en-vivo/' },
 ]
-const CANAL_UNIVERSAL: Canal = { nombre: 'Paramount+', url: 'https://www.paramountplus.com/ar/' }
+const CANALES_UNIVERSALES: Canal[] = [
+  { nombre: 'Paramount+', url: 'https://www.paramountplus.com/ar/' },
+  { nombre: 'Flow', url: 'https://www.flow.com.ar/' },
+]
 
 function getCanales(local: string, visitante: string): Canal[] {
   const esArgentina = local === 'ARG' || visitante === 'ARG'
-  if (esArgentina) return [...CANALES_ARG, CANAL_UNIVERSAL]
-  return [CANAL_UNIVERSAL]
+  if (esArgentina) return [...CANALES_ARG, ...CANALES_UNIVERSALES]
+  return CANALES_UNIVERSALES
 }
 
 function CalendarIcon({ size = 14 }: { size?: number }) {
