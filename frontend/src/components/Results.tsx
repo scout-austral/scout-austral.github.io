@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { Target, TrendingDown, TrendingUp } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { ListFilter, Target, TrendingDown, TrendingUp } from 'lucide-react'
 import { agruparPorCategoria, recomendar, FEATURE_LABELS } from '@/lib/recommender'
 import type {
   AprendizajeFactor,
@@ -114,10 +114,25 @@ export function Results({
   onCalendarDisconnected,
   onScheduled,
 }: Props) {
-  const grupos = useMemo(
-    () => agruparPorCategoria(recomendar(perfil, priors)),
-    [perfil, priors],
-  )
+  const [orden, setOrden] = useState<'afinidad' | 'fecha'>('afinidad')
+
+  const grupos = useMemo(() => {
+    const base = agruparPorCategoria(recomendar(perfil, priors))
+    if (orden === 'fecha') {
+      const sorted = (cat: Categoria) =>
+        [...base[cat]].sort(
+          (a, b) =>
+            new Date(a.partido.kickoff_utc).getTime() -
+            new Date(b.partido.kickoff_utc).getTime(),
+        )
+      return {
+        imperdible: sorted('imperdible'),
+        vale_la_pena: sorted('vale_la_pena'),
+        resumen: sorted('resumen'),
+      }
+    }
+    return base
+  }, [perfil, priors, orden])
 
   return (
     <div>
@@ -130,6 +145,23 @@ export function Results({
             </TabsTrigger>
           ))}
         </TabsList>
+        <div className="mt-2 flex items-center justify-end gap-1.5">
+          <ListFilter className="size-3.5 text-muted-foreground" />
+          {(['afinidad', 'fecha'] as const).map((o) => (
+            <button
+              key={o}
+              type="button"
+              onClick={() => setOrden(o)}
+              className={`rounded-full px-2.5 py-0.5 text-xs transition-colors ${
+                orden === o
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {o === 'afinidad' ? 'Más afinidad' : 'Por fecha'}
+            </button>
+          ))}
+        </div>
         {ORDEN.map(({ cat }) => (
           <TabsContent key={cat} value={cat} className="space-y-3">
             {grupos[cat].length === 0 ? (
