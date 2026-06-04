@@ -43,7 +43,7 @@ function etiquetaFactor(factor: FeatureKey, partido: Partido, perfil: Perfil): s
       return 'Fecha decisiva del grupo'
     case 'rivalidad': {
       const desc = descripcionRivalidad(partido)
-      return desc ? `Morbo: ${desc}` : FEATURE_LABELS[factor]
+      return desc ? `Rivalidad: ${desc}` : FEATURE_LABELS[factor]
     }
     case 'ultimo_baile': {
       const leyendas = leyendasEnPartido(partido)
