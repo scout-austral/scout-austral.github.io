@@ -317,6 +317,24 @@ button.nav-link {
   margin-bottom: 1.5rem;
 }
 
+.profile-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.profile-heading-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(0,200,83,0.07);
+  border: 1px solid rgba(0,200,83,0.18);
+  flex-shrink: 0;
+}
+
 .section-heading p {
   margin: 0;
   color: #a1a1aa;
