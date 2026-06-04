@@ -2,6 +2,8 @@
 
 **Competencia "Tu tiempo, tu Mundial"** · Facultad de Ingeniería, Universidad Austral · Junio 2026
 
+**Integrantes:** Julián Ritondale, Fernando Santisi, Juan Decoud
+
 ---
 
 ## Resumen ejecutivo
@@ -95,7 +97,7 @@ varianza  Var(m) = Σ_k f_k(m)² · σ_k²
 incertidumbre(m) = √Var(m)
 ```
 
-**Priors por defecto** (medias suman 1 → afinidad ∈ [0,1]):
+**Priors por defecto** (medias suman 1 → afinidad en [0,1]):
 
 | Factor | μ | σ |
 |---|---|---|
@@ -166,7 +168,7 @@ grande no llega a Imperdible) y *promote* (afinidad bajo el corte cuyo límite o
 
 ## 9. Aprendizaje por feedback
 
-Cada 👍/👎 sobre un partido visto actualiza el **posterior** de los pesos con un update bayesiano conjugado
+Cada [+1]/[-1] sobre un partido visto actualiza el **posterior** de los pesos con un update bayesiano conjugado
 (filtro de Kalman diagonal), con `y = 1/0`, ruido de observación `R = 0.25`:
 
 ```
@@ -174,7 +176,7 @@ Cada 👍/👎 sobre un partido visto actualiza el **posterior** de los pesos co
 g_k = σ_k² a_k / S ;  μ_k ← μ_k + g_k·e ;  σ_k² ← σ_k²·(1 − g_k a_k)
 ```
 
-**Asignación de crédito** (para no castigar lo afirmado ante un 👎 a, p. ej., un partido aburrido del
+**Asignación de crédito** (para no castigar lo afirmado ante un [-1] a, p. ej., un partido aburrido del
 equipo favorito):
 
 1. **σ angosto** en lo afirmado → ganancia chica → casi no se mueve.
@@ -200,10 +202,10 @@ Sin verdad de campo, la validación combina una **métrica de precisión sobre e
 **consistencia y validez aparente**:
 
 - **Precisión del modelo (implementada y visible en la UI):** para cada partido que el usuario calificó
-  con 👍/👎, se mide si el modelo **cold-start** (los priors derivados del onboarding, *antes* de aprender)
-  lo había predicho correctamente (`afinidad ≥ umbral` ⇔ "le gusta"). Se reporta como *"acertó X de N
+  con [+1]/[-1], se mide si el modelo **cold-start** (los priors derivados del onboarding, *antes* de aprender)
+  lo había predicho correctamente (`afinidad ≥ umbral` <==> "le gusta"). Se reporta como *"acertó X de N
   (Y %)"*. Usar los priors base, no el posterior, evita la fuga de información de medir con los mismos
-  pesos que el feedback ya ajustó; los 👎 por horario se excluyen (son disponibilidad, no afinidad).
+  pesos que el feedback ya ajustó; los [-1] por horario se excluyen (son disponibilidad, no afinidad).
   Implementación en `frontend/src/lib/recommender/accuracy.ts`.
 - **Suite de tests** (`vitest`, 36 casos) que fija el comportamiento esperado: features (incluidos
   rivalidad y último baile), conversión de zona horaria, umbrales de clasificación, rol de la
