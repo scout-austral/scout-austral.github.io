@@ -35,8 +35,9 @@ Dataset estático, versionado en el repo (`frontend/scripts/sources/` → genera
 
 - **Fixture, equipos y sedes:** dataset *openfootball/world-cup* (72 partidos de grupos, 48 selecciones,
   16 estadios). Cada partido trae `kickoff_utc` (instante UTC ISO), sede, ciudad y zona horaria.
-- **Ranking FIFA y figuras** (hasta 3 por selección): verificados por búsqueda web (mayo 2026) y unidos
-  por código FIFA.
+- **Ranking FIFA y figuras** (hasta 15 por selección, 218 jugadores en total): expandidos y verificados
+  por búsqueda web (mayo–junio 2026), unidos por código FIFA. Incluye plantel completo de los equipos
+  sudamericanos y europeos principales (ARG, BRA, URU, COL, ESP, POR, FRA, ENG, GER, CRO, NED, entre otros).
 
 Validaciones automáticas del generador: 72 partidos (6 por grupo, 24 por jornada), round-robin correcto,
 integridad referencial, y la regla FIFA de **fecha 3 simultánea** en los 12 grupos.
@@ -76,7 +77,7 @@ Ocho factores normalizados a [0, 1]. Con `fuerza(r) = clamp(1 − (r−1)/50, 0,
 
 `competitividad`, `grupo_muerte`, `rivalidad` y `ultimo_baile` son los factores **no obvios más allá del
 ranking FIFA** que premia la competencia: capturan la *paridad* (partido emocionante), el *drama de grupo*,
-el *morbo* del cruce (rivalidades históricas y derbis regionales) y la *narrativa* de ver a un ídolo
+la *emoción del cruce* (rivalidades históricas y derbis regionales) y la *narrativa* de ver a un ídolo
 despedirse, por encima del nivel absoluto.
 
 **Datos curados** (`frontend/src/data/`): `rivalidades.ts` lista cruces con storyline verificados contra el
@@ -113,10 +114,15 @@ inferidos o "no obvios" (competitividad, rivalidad, último baile). **Calibrar**
 
 **Elicitación del prior.** Las medias se elicitan de dos maneras intercambiables: (a) un **cuestionario** de
 8 preguntas de un toque que mapea cada respuesta a la importancia de uno o más factores; o (b) **asistida por
-LLM** (opcional): el usuario se describe en lenguaje natural y un LLM (Gemini) traduce esa descripción a la
-importancia 0–100 por factor + perfil de fan + tolerancia + equipos/jugadores mencionados. El LLM **no
-recomienda**: solo convierte texto libre en el prior; todo el razonamiento posterior es del modelo bayesiano
-explicable. Sin servidor/clave, la app usa solo el cuestionario.
+LLM** (opcional): el usuario se describe en lenguaje natural y un LLM (**OpenAI gpt-4o**) traduce esa
+descripción a: importancia 0–100 por factor + perfil de fan + tolerancia + equipos/jugadores detectados +
+**franjas de disponibilidad horaria** + lista de métricas no cubiertas. El sistema resuelve automáticamente:
+apodos ("el bicho" → Cristiano Ronaldo, "la pulga" → Messi), clubs a jugadores del Mundial (River → Montiel,
+Real Madrid → Vinícius + Mbappé + Bellingham), regiones a selecciones ("sudamericanos" → ARG, BRA, URU, COL,
+ECU, PAR) y franjas horarias del texto ("a la mañana no puedo" → disponibilidad tarde+noche todos los días).
+Para las métricas no cubiertas por el texto, el sistema presenta hasta 3 preguntas de complemento dirigidas
+antes de finalizar. El LLM **no recomienda**: solo convierte texto libre en el prior; todo el razonamiento
+posterior es del modelo bayesiano explicable. Sin servidor/clave, la app usa solo el cuestionario.
 
 ## 7. Disponibilidad
 
@@ -184,8 +190,9 @@ la calibración. La UI muestra **qué aprendió** el modelo (qué factores subie
 ## 10. Justificación
 
 - **Local (siempre):** se arma a partir de los factores con mayor contribución y el encaje horario.
-- **IA (opcional):** `POST /recommendations/justify` (server) llama a Gemini con los mismos factores; ante
-  error/offline se hace fallback a la local. La demo pública funciona sin servidor.
+- **IA (opcional):** `POST /recommendations/justify` (server) llama a **OpenAI gpt-4o-mini** con los mismos
+  factores; el prompt incluye restricción explícita de no mencionar jugadores que no jueguen en el partido.
+  Ante error/offline se hace fallback a la local. La demo pública funciona sin servidor.
 
 ## 11. Validación / métrica de éxito
 
@@ -208,8 +215,8 @@ Sin verdad de campo, la validación combina una **métrica de precisión sobre e
 
 ## 12. Limitaciones y extensiones
 
-- Datos de un evento futuro: ranking y planteles son los mejores disponibles a mayo 2026; algunos clubes de
-  jugadores quedaron sin verificar.
+- Datos de un evento futuro: ranking y planteles son los mejores disponibles a junio 2026 (218 jugadores
+  verificados); los clubs de los jugadores se actualizan manualmente en el dataset.
 - La disponibilidad se evalúa por día/franja; no modela partidos que cruzan medianoche entre días.
 - Las rivalidades curadas dependen de que el cruce exista en el fixture de grupos; la cobertura crece con
   cada storyline agregado.
