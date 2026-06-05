@@ -32,7 +32,7 @@ scout/
 El **frontend es autosuficiente**: con solo `frontend/` corriendo, el sistema clasifica y justifica
 los 72 partidos. El **server es opcional** y agrega: login con Google, persistencia del perfil en
 base de datos, agendar partidos en Google Calendar y redacción enriquecida de la justificación con
-Gemini. Si el server no está disponible, la app degrada con elegancia a la justificación local.
+GPT-4o. Si el server no está disponible, la app degrada con elegancia a la justificación local.
 
 ---
 
@@ -92,7 +92,7 @@ histórica* por encima de la métrica tradicional de nivel.
 Hay **dos formas** de armar el perfil, y ambas terminan en lo mismo: fijar los **priors** del modelo.
 
 **a) Elicitación asistida por LLM (opcional).** En la bienvenida, el usuario describe en una frase qué
-tipo de hincha es ("soy de Argentina, no me pierdo a Messi, me copan los clásicos…") y un LLM (GPT)
+tipo de hincha es ("soy de Argentina, no me pierdo a Messi, me copan los clásicos…") y un LLM (GPT-4o)
 traduce ese texto a los priors: importancia 0–100 por factor, perfil de fan,
 tolerancia y equipos/jugadores mencionados (que el cliente matchea contra el dataset). **El LLM no
 recomienda nada** —eso lo hace el modelo bayesiano explicable—, solo *elicita el prior* desde lenguaje
@@ -142,7 +142,7 @@ con sus franjas declaradas: dentro de una franja → **bueno**; cerca (según to
 ## Funcionalidades extra de la demo
 
 - **Justificación con IA (opcional):** redacción natural de por qué un partido cae en su categoría,
-  vía Gemini en el server; con fallback a la justificación local si no hay servidor.
+  vía GPT-4o en el server; con fallback a la justificación local si no hay servidor.
 - **Agendar en Google Calendar:** un click crea el evento del partido (con recordatorios). Se
   **persiste por usuario en la base de datos**, así un partido no se puede agendar dos veces y el
   estado sobrevive a recargas y cambios de sesión.
@@ -205,4 +205,4 @@ referencial y la regla FIFA de fecha 3 simultánea en los 12 grupos.
 
 ## Stack
 
-React · TypeScript · Vite · Tailwind CSS · Vitest — (server: Express · Prisma · Google APIs · GPT)
+React · TypeScript · Vite · Tailwind CSS · Vitest — (server: Express · Prisma · Google APIs · GPT-4o)
