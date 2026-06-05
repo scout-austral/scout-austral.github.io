@@ -36,13 +36,14 @@ export function clasificar(
   /** Juega un equipo/jugador favorito del usuario: señal "dura" que domina al score. */
   esFavorito = false,
 ): Categoria {
-  // Horario imposible: a lo sumo el resumen.
-  if (encaje === 'imposible') return 'resumen'
-
   // Tu equipo o tu jugador favorito jugando es Imperdible por definición, aunque el
   // rival sea flojo y el score lineal no llegue al corte. Si el horario es incómodo,
-  // baja a "Vale la pena" (querés verlo, pero te complica).
+  // baja a "Vale la pena" (querés verlo, pero te complica), pero nunca al resumen.
+  // Esta señal "dura" se evalúa ANTES que el horario imposible.
   if (esFavorito) return encaje === 'bueno' ? 'imperdible' : 'vale_la_pena'
+
+  // Horario imposible (y no es favorito): a lo sumo el resumen.
+  if (encaje === 'imposible') return 'resumen'
 
   const { alto, medio } = UMBRALES[perfilFan]
   const optimista = afinidad + incertidumbre

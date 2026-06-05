@@ -226,8 +226,12 @@ export function OnboardingFlow({ actualizar, onDone }: Props) {
       elicited?.perfilFan ?? (answers.fanLevel === 'total' ? 'total' : 'casual')
     const toleranciaComplement = complementAnswers.tolerancia as Tolerancia | undefined
     const tolerancia: Tolerancia = toleranciaComplement ?? elicited?.tolerancia ?? answers.tolerancia ?? 'media'
-    const franjas = elicited?.franjas ?? []
-    actualizar({ equiposFavoritos, jugadoresFavoritos, importancia, perfilFan, tolerancia, ...(franjas.length > 0 ? { franjas } : {}) })
+    // En el camino IA, la elicitación es autoritativa: si devuelve franjas vacías,
+    // limpia cualquier disponibilidad vieja del perfil. En el cuestionario (elicited
+    // null) las franjas ya viven en el perfil vía actualizar, así que no se tocan.
+    const cambios: Partial<Perfil> = { equiposFavoritos, jugadoresFavoritos, importancia, perfilFan, tolerancia }
+    if (elicited) cambios.franjas = elicited.franjas ?? []
+    actualizar(cambios)
     localStorage.setItem('scout_onboarding_done', '1')
     onDone()
   }
