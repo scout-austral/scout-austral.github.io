@@ -32,7 +32,7 @@ scout/
 El **frontend es autosuficiente**: con solo `frontend/` corriendo, el sistema clasifica y justifica
 los 72 partidos. El **server es opcional** y agrega: login con Google, persistencia del perfil en
 base de datos, agendar partidos en Google Calendar y redacción enriquecida de la justificación con
-Gemini. Si el server no está disponible, la app degrada con elegancia a la justificación local.
+IA. Si el server no está disponible, la app degrada con elegancia a la justificación local.
 
 ---
 
@@ -142,7 +142,7 @@ con sus franjas declaradas: dentro de una franja → **bueno**; cerca (según to
 ## Funcionalidades extra de la demo
 
 - **Justificación con IA (opcional):** redacción natural de por qué un partido cae en su categoría,
-  vía Gemini en el server; con fallback a la justificación local si no hay servidor.
+  vía IA en el server; con fallback a la justificación local si no hay servidor.
 - **Agendar en Google Calendar:** un click crea el evento del partido (con recordatorios). Se
   **persiste por usuario en la base de datos**, así un partido no se puede agendar dos veces y el
   estado sobrevive a recargas y cambios de sesión.

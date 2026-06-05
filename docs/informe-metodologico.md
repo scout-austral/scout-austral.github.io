@@ -47,7 +47,7 @@ integridad referencial, y la regla FIFA de **fecha 3 simultánea** en los 12 gru
 ## 3. Arquitectura
 
 App **estática client-side** (React + Vite) desplegable en GitHub Pages: todo el motor corre en el
-navegador sobre los JSON locales, sin backend obligatorio. Un servidor opcional (Express + Gemini)
+navegador sobre los JSON locales, sin backend obligatorio. Un servidor opcional (Express + OpenAI)
 enriquece la redacción de la justificación; si no está, se usa la justificación local (degradación elegante).
 
 ## 4. Variables del perfil (inputs)

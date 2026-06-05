@@ -11,7 +11,7 @@ import type {
   Perfil,
 } from '@/lib/recommender/types'
 import { FEATURE_LABELS } from '@/lib/recommender'
-import { justificarConGemini } from '@/lib/justifyApi'
+import { justificarConIA } from '@/lib/justifyApi'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 const TOKEN_KEY = 'scout_auth_token'
@@ -90,7 +90,7 @@ export function MatchCard({
 
   async function mejorarConIA() {
     setEstadoIA('cargando')
-    const t = await justificarConGemini(evaluado, perfil)
+    const t = await justificarConIA(evaluado, perfil)
     if (t) { setAiText(t); setEstadoIA('idle') }
     else setEstadoIA('error')
   }
