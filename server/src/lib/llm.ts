@@ -1,5 +1,4 @@
 // Capa de LLM: OpenAI para justificación de partidos y elicitación bayesiana del perfil.
-// Mantiene las mismas firmas que el módulo gemini.ts anterior para que las rutas no cambien.
 
 import OpenAI from 'openai'
 

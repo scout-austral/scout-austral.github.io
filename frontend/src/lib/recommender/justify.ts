@@ -1,5 +1,5 @@
 // Justificación local (siempre disponible, offline) a partir de los factores que
-// pesaron y el encaje horario. En la Fase 4 se podrá enriquecer con Gemini.
+// pesaron y el encaje horario. En la Fase 4 se podrá enriquecer con IA.
 
 import type { Categoria, Encaje, FactorClave } from './types'
 

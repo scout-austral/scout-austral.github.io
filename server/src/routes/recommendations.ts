@@ -7,7 +7,7 @@ type Category = 'must_watch' | 'worth_watching' | 'highlights_only'
 const CATEGORIES: Category[] = ['must_watch', 'worth_watching', 'highlights_only']
 
 // POST /recommendations/justify
-// Enriquece la justificación de un partido con Gemini. Best-effort: el frontend
+// Enriquece la justificación de un partido con IA. Best-effort: el frontend
 // hace fallback a la justificación local si esto falla o no está disponible.
 router.post('/justify', async (req: Request, res: Response): Promise<void> => {
   const { homeTeam, awayTeam, group, matchDate, category, userProfile, scoreBreakdown } = req.body
@@ -37,7 +37,7 @@ router.post('/justify', async (req: Request, res: Response): Promise<void> => {
     })
     res.json({ justification })
   } catch (err) {
-    console.error('Error generando justificación con Gemini:', err)
+    console.error('Error generando justificación con OpenAI:', err)
     res.status(502).json({ error: 'No se pudo generar la justificación' })
   }
 })
@@ -64,7 +64,7 @@ router.post('/elicit', async (req: Request, res: Response): Promise<void> => {
   } catch (err: any) {
     const detail = err?.message ?? String(err)
     const status = err?.status ?? err?.response?.status
-    console.error('Error en elicitación con Gemini:', { status, detail, err })
+    console.error('Error en elicitación con OpenAI:', { status, detail, err })
     res.status(502).json({ error: 'No se pudo interpretar la descripción', detail, status })
   }
 })

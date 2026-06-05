@@ -1,4 +1,4 @@
-// Cliente best-effort para enriquecer la justificación con Gemini (vía el server).
+// Cliente best-effort para enriquecer la justificación con IA (vía el server).
 // Devuelve null ante cualquier problema (server caído, sin API key, offline) → el
 // llamador hace fallback a la justificación local.
 
@@ -13,7 +13,7 @@ const CATEGORIA_API: Record<Categoria, 'must_watch' | 'worth_watching' | 'highli
   resumen: 'highlights_only',
 }
 
-export async function justificarConGemini(
+export async function justificarConIA(
   evaluado: PartidoEvaluado,
   perfil: Perfil,
 ): Promise<string | null> {
