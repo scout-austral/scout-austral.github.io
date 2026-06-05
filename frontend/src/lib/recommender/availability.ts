@@ -12,11 +12,19 @@ const MARGEN_TOLERANCIA: Record<Tolerancia, number> = {
   alta: 3,
 }
 
-/** Distancia (en horas) de una hora a una franja; 0 si está dentro. */
+/**
+ * Distancia (en horas) de una hora a una franja; 0 si está dentro.
+ * El día es circular (24h): un kickoff a las 00:00 está a 0h del fin de una franja
+ * que termina a las 24 (la "noche"), no a 18h del comienzo. Así un partido de
+ * medianoche no es automáticamente imposible para quien declara disponibilidad nocturna.
+ */
 function distanciaAFranja(hora: number, franja: Franja): number {
   if (hora >= franja.desde && hora < franja.hasta) return 0
-  if (hora < franja.desde) return franja.desde - hora
-  return hora - franja.hasta
+  const circular = (a: number, b: number) => {
+    const d = Math.abs(a - b)
+    return Math.min(d, 24 - d)
+  }
+  return Math.min(circular(hora, franja.desde), circular(hora, franja.hasta))
 }
 
 export function encajeHorario(partido: Partido, perfil: Perfil): Encaje {

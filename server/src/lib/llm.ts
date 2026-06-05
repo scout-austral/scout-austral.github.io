@@ -27,12 +27,11 @@ export async function generateMatchJustification(params: {
     highlights_only: 'Para ver el resumen',
   }[params.category]
 
-  const teamsInMatch = [params.homeTeam, params.awayTeam]
-  const relevantPlayers = params.userProfile.favoritePlayers.filter(p => {
-    // Solo mencionar jugadores que EFECTIVAMENTE jueguen en este partido
-    // (verificar por selección - los jugadores favoritos del perfil tienen su selección)
-    return false // se filtra en el prompt con instrucción explícita
-  })
+  // Calculamos en código si el favorito juega para no dejar que el modelo lo infiera
+  // (y eventualmente alucine que un equipo del partido "no juega").
+  const favoritoJuega = params.userProfile.favoriteTeams.some(
+    (t) => t === params.homeTeam || t === params.awayTeam,
+  )
 
   const prompt = `Sos un analista de fútbol para la Copa del Mundo 2026.
 Generá una justificación breve (2-3 oraciones) en español para por qué el partido ${params.homeTeam} vs ${params.awayTeam} (Grupo ${params.group}, ${params.matchDate}) fue clasificado como "${categoryLabel}" para este usuario.
@@ -41,12 +40,16 @@ Perfil del usuario:
 - Equipos favoritos: ${params.userProfile.favoriteTeams.join(', ') || 'ninguno especificado'}
 - Jugadores favoritos del usuario: ${params.userProfile.favoritePlayers.join(', ') || 'ninguno'}
 - Disponible en ese horario: ${params.userProfile.availableAt ? 'sí' : 'no'}
+- El equipo favorito del usuario ${favoritoJuega ? 'SÍ' : 'NO'} juega este partido.
 
 Factores de scoring: ${JSON.stringify(params.scoreBreakdown)}
 
 REGLAS IMPORTANTES:
 - Solo mencioná jugadores que EFECTIVAMENTE jueguen en ${params.homeTeam} o ${params.awayTeam}. NO menciones jugadores favoritos del usuario si no juegan en este partido específico.
-- Si los equipos favoritos del usuario no juegan en este partido, explicá por qué el partido igual es relevante (calidad táctica, competitividad, narrativa histórica, etc.).
+- NUNCA afirmes que un equipo no juega si figura en el nombre del partido (${params.homeTeam} vs ${params.awayTeam}).
+${favoritoJuega
+  ? '- El equipo favorito del usuario juega este partido: destacá ese hecho como motivo principal de su relevancia.'
+  : '- El equipo favorito del usuario no juega este partido: explicá por qué igual es relevante (calidad táctica, competitividad, narrativa histórica, etc.).'}
 - No uses markdown. Sé directo y específico.`
 
   const client = getClient()
